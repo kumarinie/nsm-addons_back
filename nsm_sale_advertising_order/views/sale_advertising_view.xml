@@ -7,9 +7,25 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale_advertising_order.view_order_form_advertising"/>
             <field name="arch" type="xml">
-                <field name="advertising_agency" position="after">
+                <xpath expr="//field[@name='advertising_agency']" position="after">
                     <field name="material_contact_person" domain="[('customer', '=', True)]" context="{'default_parent_id': 'partner_id', 'show_email': 1}"/>
-                </field>
+                </xpath>
+                <xpath expr="//field[@name='proof_number_payer']" position="attributes">
+                     <attribute name="domain">[('customer', '=', True)]</attribute>
+                     <attribute name="context">{'default_parent_id': 'partner_id', 'show_email': 1}</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_adv_order_line_form_nsm" model="ir.ui.view">
+            <field name="name">sale.adv.order.line.nsm.form</field>
+            <field name="model">sale.order.line</field>
+            <field name="inherit_id" ref="sale_advertising_order.view_adv_order_line_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='proof_number_payer']" position="attributes">
+                     <attribute name="domain">[('customer', '=', True)]</attribute>
+                     <attribute name="context">{'default_parent_id': 'partner_id', 'show_email': 1}</attribute>
+                </xpath>
             </field>
         </record>
 

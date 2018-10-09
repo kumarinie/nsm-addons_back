@@ -27,3 +27,8 @@ class SaleOrder(models.Model):
 
 
     material_contact_person = fields.Many2one('res.partner', 'Material Contact Person', domain=[('customer','=',True)])
+
+class SaleOrderLine(models.Model):
+    _inherit = "sale.order.line"
+
+    proof_number_payer = fields.Many2one('res.partner', 'Proof Number Payer', domain=[('customer','=',True)])
