@@ -81,10 +81,10 @@
                     <!-- Lines associated -->
                     <t t-foreach="layout_category['lines']" t-as="l">
                         <tr>
-                            <td t-if="l.medium.date_type == 'validity'">
+                            <td t-if="l.ad_class.date_type == 'validity'">
                                 <span t-field="l.from_date"/><span> - </span><span t-field="l.to_date"/>
                             </td>
-                            <td t-if="l.medium.date_type != 'validity'">
+                            <td t-if="l.ad_class.date_type != 'validity'">
                                 <span t-field="l.issue_date"/></td>
                             <t><td><span t-if="l.adv_issue and l.adv_issue.default_note" t-field="l.adv_issue.default_note"/><span t-if="l.adv_issue and not l.adv_issue.default_note" t-field="l.adv_issue.name"/></td></t>
                             <td t-if="l.product_id" ><span t-field="l.product_id.name"/></td>

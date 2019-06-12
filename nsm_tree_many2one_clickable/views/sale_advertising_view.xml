@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+
+        <record id="view_indeellijst_list_tree" model="ir.ui.view">
+            <field name="name">sale.order.line.indeellijst.tree</field>
+            <field name="model">sale.order.line</field>
+            <field name="inherit_id" ref="nsm_sale_advertising_order.view_indeellijst_list_tree"/>
+            <field name="arch" type="xml">
+                <field name="order_id" position="attributes">
+                    <attribute name="widget">many2one_clickable</attribute>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

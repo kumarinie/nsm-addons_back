@@ -22,11 +22,11 @@
                         <strong> Note:</strong>
                     </div>
                     <div>
-                        <strong>1. </strong>By setting "Notify following customers by e-mail?" to FALSE, only [('customer',=,FALSE)] will receive follower mail messages. [('customer',=,TRUE)] will be excluded from receiving follower mail messages, <strong>but</strong> when [('customer',=,TRUE)] forcely tagged or added as recipients will also be notify.
+                        <strong>1. </strong>By setting "Notify following customers by e-mail?" to FALSE, only [('customer',=,FALSE)] will receive follower mail messages. [('customer',=,TRUE)] will be excluded from receiving follower mail messages, <strong>but</strong> when [('customer',=,TRUE)] forcely tagged or added as recipients, they will also be notified.
                     </div>
                     <br/>
                     <div>
-                        <strong>2. </strong>By setting "Notify following customers by e-mail?" to True, only [('customer',=,True)] will receive follower mail messages. [('customer',=,False)] will be excluded from receiving follower mail messages, <strong>but</strong> when [('customer',=,False)] forcely tagged or added as recipients will also be notify.
+                        <strong>2. </strong>By setting "Notify following customers by e-mail?" to True, only [('customer',=,True)] will receive follower mail messages. [('customer',=,False)] will be excluded from receiving follower mail messages, <strong>but</strong> when [('customer',=,False)] forcely tagged or added as recipients, they will also be notified.
                     </div>
                     <br/>
                     <div>

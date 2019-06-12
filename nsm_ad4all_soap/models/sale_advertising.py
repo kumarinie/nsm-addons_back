@@ -290,6 +290,22 @@ class SaleOrderLine(models.Model):
         string='Recurring Order Line',
     )
 
+
+    @api.model
+    def create(self, vals):
+        res = super(SaleOrderLine, self).create(vals)
+        if res.recurring and not res.recurring_id:
+            res.recurring_id = res
+        return res
+
+
+    @api.multi
+    def write(self, vals):
+        for orderLine in self:
+            if vals.get('recurring', False) and (not vals.get('recurring_id', False) or not orderLine.recurring_id):
+                vals['recurring_id'] = orderLine.id
+        return super(SaleOrderLine, self).write(vals)
+
     @api.multi
     def unlink(self):
         if self.filtered('ad4all_sent'):

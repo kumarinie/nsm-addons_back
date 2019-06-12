@@ -22,15 +22,17 @@
         </xpath>
         <xpath expr="//t[@t-if='doc.current_policy_level.custom_text_after_details']" position="after">
             <br/>
-            <p>Kind regards,</p>
-            <t t-if="doc.credit_control_line_ids and doc.credit_control_line_ids[0].invoice_id.operating_unit_id.code == 'ONE'">
-                <p>Credit management ONE Business B.V.</p>
-                <p>debiteuren@ONEbusiness.nl</p>
-            </t>
-            <t t-if="doc.credit_control_line_ids and doc.credit_control_line_ids[0].invoice_id.operating_unit_id.code != 'ONE'">
-                <p>Credit management New Skool Media B.V.</p>
-                <p>debiteuren@newskoolmedia.nl</p>
-            </t>
+            <div id="nsm_footer">
+                <p>Kind regards,</p>
+                <t t-if="doc.credit_control_line_ids and doc.credit_control_line_ids[0].invoice_id.operating_unit_id.code == 'ONE'">
+                    <p>Credit management ONE Business B.V.</p>
+                    <p>debiteuren@ONEbusiness.nl</p>
+                </t>
+                <t t-if="doc.credit_control_line_ids and doc.credit_control_line_ids[0].invoice_id.operating_unit_id.code != 'ONE'">
+                    <p>Credit management New Skool Media B.V.</p>
+                    <p>debiteuren@newskoolmedia.nl</p>
+                </t>
+            </div>
         </xpath>
     </template>
 

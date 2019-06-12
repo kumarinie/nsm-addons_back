@@ -21,6 +21,7 @@
 
 
 from odoo import api, fields, models, _
+from odoo.exceptions import UserError
 
 class AccountMove(models.Model):
     _name = "account.move"
@@ -105,7 +106,7 @@ class AnalyticAccount(models.Model):
 class AnalyticAccountLine(models.Model):
     _inherit = "account.analytic.line"
 
-    partner_id = fields.Many2one(related='move_id.partner_id', relation="res.partner", string='Partner', store=False, readonly=True)
+    partner_id = fields.Many2one(related='move_id.partner_id', relation="res.partner", string='Partner', store=True, readonly=True)
 
 
 

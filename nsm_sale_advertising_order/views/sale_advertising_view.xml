@@ -143,22 +143,23 @@
             <field name="model">sale.order.line</field>
             <field name="arch" type="xml">
                 <tree string="Indeellijst Lists" create="false" edit="false" delete="false">
-                        <field name="order_id" />
-                        <field name="id" />
-                        <field name="title" />
-                        <field name="adv_issue" />
-                        <field name="issue_date" />
-                        <field name="ad_class" />
-                        <field name="order_advertiser_id" />
-                        <field name="material_id" />
+                        <field name="order_id" string="Ordernr."/>
+                        <field name="id"/>
+                        <field name="material_id" string="Mat. nr."/>
+                        <field name="order_advertiser_id" string="Adverteerder"/>
+                        <field name="adv_issue" string="Adv. editie"/>
+                        <field name="issue_date"/>
+                        <field name="from_date" string="Startdatum"/>
+                        <field name="to_date" string="Einddatum"/>
+                        <field name="ad_class"/>
                         <field name="product_template_id"/>
-                        <field name="product_uom_qty"/>
-                        <field name="product_width"/>
-                        <field name="product_height"/>
+                        <field name="product_uom_qty" string="Aantal"/>
+                        <field name="product_width" string="Breedte"/>
+                        <field name="product_height" string="Hoogte"/>
                         <field name="page_reference"/>
-                        <field name="layout_remark" />
-                        <field name="name" string="Mapping Remark"/>
-                        <field name="analytic_tag_ids"/>
+                        <field name="layout_remark" string="Opm. materiaal"/>
+                        <field name="name" string="Opm. indeling"/>
+                        <field name="analytic_tag_ids" string="Paginasoort"/>
                 </tree>
             </field>
         </record>

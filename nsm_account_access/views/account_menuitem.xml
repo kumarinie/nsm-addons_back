@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+<!--        &lt;!&ndash; Top menu item &ndash;&gt;
+       <menuitem name="Fianace"
+            id="menu_finance_new"
+            groups="nsm_account_access.account_extra_access_redactie"
+            web_icon="account,static/description/icon.png"
+            sequence="40"/>
+   
+	<menuitem id="menu_finance_payables_new"
+		name="Suppliers" parent="menu_finance_new"
+		groups="nsm_account_access.account_extra_access_redactie"
+                sequence="3"/>
+     
+      <menuitem id="menu_action_invoice_tree2_new"
+               action="account.action_invoice_tree2" parent="menu_finance_payables_new"
+               groups="nsm_account_access.account_extra_access_redactie"/>
+     
+                
+     <menuitem id="menu_top_journal_enteries"
+		name="Journal Enteries"  parent="menu_finance_new"
+		groups="nsm_account_access.account_extra_access_redactie"
+                sequence="3"/>-->
+
+        <record id="view_account_analytic_line_filter" model="ir.ui.view">
+            <field name="name">account.analytic.line.select</field>
+            <field name="model">account.analytic.line</field>
+            <field name="inherit_id" ref="analytic.view_account_analytic_line_filter"/>
+            <field name="arch" type="xml">
+              <xpath expr="//filter[@name='group_date']" position="after">
+                  <filter string="Analytic Account" context="{'group_by':'account_id'}" name="group_account_id" invisible="1"/>
+              </xpath>
+            </field>
+        </record>
+
+    <record model="ir.actions.act_window" id="account_analytic_line_action">
+            <field name="context">{'search_default_group_account_id': 1}</field>
+            <field name="domain">[('general_account_id.user_type_id','in', ['Income','Cost of Revenue','Inkoopwaarde van de omzet','Omzet']),'|',('account_id.section_ids.member_ids','=',uid),('account_id.section_ids.user_id','=',uid)]</field>
+            <field name="name">Costs &amp; Revenues</field>
+            <field name="res_model">account.analytic.line</field>
+            <field name="view_mode">tree,form,graph,pivot</field>
+            <field name="view_id" ref="analytic.view_account_analytic_line_tree"/>
+            <field name="view_type">form</field>
+        </record>
+
+	<menuitem
+            name="Analytic Accounts for editorial teams"
+            parent="account.menu_finance"
+            action="account_analytic_line_action"
+            id="menu_action_analytic_account_tree2_new"
+            sequence="30"
+            groups="nsm_account_access.account_extra_access_redactie"/>
+
+  <!--  <menuitem id="menu_analytic_accounting_new" name="Analytic Accounting" parent="account.menu_finance_configuration" groups="nsm_account_access.account_extra_access_redactie" sequence="5"/>
+   <menuitem id="menu_finance_entries_new" name="Journal Enteries" parent="account.menu_finance" sequence="4" groups="nsm_account_access.account_extra_access_redactie"/>
+     -->
+       <!--  <menuitem id="menu_finance_receivables" name="Sales" parent="menu_finance" sequence="2"/>
+        <menuitem id="menu_finance_payables" name="Purchases" parent="menu_finance" sequence="3"/>
+        <menuitem id="menu_finance_entries" name="Adviser" parent="menu_finance" sequence="4" groups="group_account_manager"/>
+        <menuitem id="menu_finance_reports" name="Reports" parent="menu_finance" sequence="5" groups="group_account_invoice"/>
+            Reporting sub-menus
+            <menuitem id="account_reports_management_menu" name="Management" parent="account.menu_finance_reports" sequence="4" groups="group_account_user"/>
+            <menuitem id="account_reports_business_intelligence_menu" name="Business Intelligence" parent="account.menu_finance_reports" sequence="5" groups="group_account_invoice"/>
+            <menuitem id="menu_finance_legal_statement" name="PDF Reports" parent="account.menu_finance_reports" groups="group_account_user"/>
+
+        <menuitem id="menu_finance_configuration" name="Configuration" parent="menu_finance" sequence="15" groups="group_account_invoice"/>
+            Configuration Sub-Menu
+            <menuitem id="account_account_menu" name="Accounting" parent="account.menu_finance_configuration" sequence="2" groups="group_account_invoice"/>
+            <menuitem id="account_management_menu" name="Management" parent="account.menu_finance_configuration" sequence="3" groups="group_account_manager"/>
+            <menuitem id="menu_analytic_accounting" name="Analytic Accounting" parent="menu_finance_configuration" groups="analytic.group_analytic_accounting" sequence="5"/>
+            <menuitem id="menu_config_multi_currency" name="Multi-Currencies" parent="menu_finance_configuration" sequence="9" groups="base.group_multi_currency"/>
+            <menuitem id="menu_action_currency_form" action="base.action_currency_form" name="Currencies" parent="menu_config_multi_currency" sequence="20" groups="base.group_multi_currency"/>
+            <menuitem id="menu_account_reports" name="Financial Reports" parent="menu_finance_configuration" groups="group_account_user"/>
+ -->
+
+            <menuitem action="account.action_invoice_tree1" id="menu_sale_action_invoice_tree1" parent="sale.menu_sale_invoicing" sequence="1" name="Inzage klantfacturen" groups="sale_advertising_order.group_traffic_user"/>
+
+        <record model='ir.ui.view' id='account.view_partner_property_form'>
+            <field name="groups_id" eval="[(4,ref('account.group_account_invoice')),(4,ref('sale_advertising_order.group_traffic_user'))]"/>
+        </record>
+
+        <record model='ir.ui.view' id='account.partner_view_buttons'>
+            <field name="groups_id" eval="[(4,ref('account.group_account_invoice')),(4,ref('sale_advertising_order.group_traffic_user'))]"/>
+        </record>
+
+        <record model='ir.ui.view' id='purchase.res_partner_view_purchase_account_buttons'>
+            <field name="groups_id" eval="[(4,ref('account.group_account_invoice')),(4,ref('sale_advertising_order.group_traffic_user'))]"/>
+        </record>
+
+        <record model='ir.ui.view' id='account.partner_view_button_contracts_count'>
+            <field name="groups_id" eval="[(4,ref('account.group_account_invoice')),(4,ref('sale_advertising_order.group_traffic_user'))]"/>
+        </record>
+
+
+        <record id="invoice_form_nsm_access" model="ir.ui.view">
+            <field name="name">account.invoice.form.inherit.nsm.access</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_invoice_open'][1]" position="attributes">
+                    <attribute name="groups">account.group_account_invoice,sale_advertising_order.group_traffic_user</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_invoice_open'][2]" position="attributes">
+                    <attribute name="groups">account.group_account_invoice,sale_advertising_order.group_traffic_user</attribute>
+                </xpath>
+                <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
+                    <attribute name="groups">account.group_account_invoice,sale_advertising_order.group_traffic_user</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_invoice_draft']" position="attributes">
+                    <attribute name="groups">account.group_account_invoice,sale_advertising_order.group_traffic_user</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
+
