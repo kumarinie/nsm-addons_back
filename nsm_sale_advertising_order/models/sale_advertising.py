@@ -38,6 +38,18 @@ class SaleOrder(models.Model):
                     raise UserError(
                         _('You have to fill in a material contact person.\n'
                           'Be aware, that the contact must have email and phone filled in.'))
+                vals = {
+                'so_customer_contacts_contact_email':
+                    o.material_contact_person.email or False,
+                'so_customer_contacts_contact_phone':
+                    o.material_contact_person.phone or
+                    o.material_contact_person.mobile or False
+                }
+                for key, value in vals.iteritems():
+                    if value == False:
+                        raise UserError(_(
+                            'Field %s is required in AdPortal, but has value False'
+                        ) % (key))
 
         return super(SaleOrder, self).action_submit()
 
