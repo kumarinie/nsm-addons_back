@@ -22,11 +22,36 @@
 
 from odoo import api, fields, models, _
 import json
+from odoo.exceptions import UserError
 
 class SaleOrder(models.Model):
     _inherit = ["sale.order"]
 
     material_contact_person = fields.Many2one('res.partner', 'Material Contact Person', domain=[('customer','=',True)])
+
+    @api.multi
+    def action_submit(self):
+        orders = self.filtered(lambda s: s.state in ['draft'])
+        for o in orders:
+            if o.order_ad4all_allow:
+                if not o.material_contact_person:
+                    raise UserError(
+                        _('You have to fill in a material contact person.\n'
+                          'Be aware, that the contact must have email and phone filled in.'))
+                vals = {
+                'so_customer_contacts_contact_email':
+                    o.material_contact_person.email or False,
+                'so_customer_contacts_contact_phone':
+                    o.material_contact_person.phone or
+                    o.material_contact_person.mobile or False
+                }
+                for key, value in vals.iteritems():
+                    if value == False:
+                        raise UserError(_(
+                            'Field %s is required in AdPortal, but has value False'
+                        ) % (key))
+
+        return super(SaleOrder, self).action_submit()
 
     @api.multi
     def action_approve1(self):
@@ -69,9 +94,21 @@ class SaleOrderLine(models.Model):
         for sol in self:
             name = sol.adv_issue.name if sol.adv_issue else ""
             if sol.product_template_id:
-                name = name+' ('+sol.product_template_id.name+')'
+                name = str(sol.id)+'-'+name+' ('+sol.product_template_id.name+')'
                 result.append((sol.id, name))
         return result
+
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        if name:
+            domain = ['|', ('adv_issue.name', operator, name), '|', ('product_template_id.name', operator, name), '|', ('product_id.name', operator, name)]
+            if name.isdigit():
+                domain += [('id', '=', int(name))]
+            line_ids = self.search(domain + args, limit=limit)
+        else:
+            line_ids = self.search(args, limit=limit)
+        return line_ids.name_get()
 
     @api.depends('state')
     def _get_indeellijst_data(self):

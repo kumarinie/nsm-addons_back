@@ -39,7 +39,7 @@ class Invoice(models.Model):
         """
         self.ensure_one()
         self.sent = True
-        return self.env['report'].get_action(self, 'account.invoice.customNSM')
+        return self.env['report'].get_action(self, 'nsm_account.report_invoice_nsm_account')
 
     @api.multi
     def button_merge_attachments(self):

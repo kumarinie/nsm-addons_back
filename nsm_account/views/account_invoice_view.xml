@@ -126,5 +126,19 @@
             </field>
         </record>
 
+        <record id="invoice_form_nsm_view_ou" model="ir.ui.view">
+            <field name="name">account.invoice.customer.form.ou.nsm</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account_operating_unit.invoice_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='other_info']//field[@name='operating_unit_id']" position="replace">
+                </xpath>
+                <xpath expr="//field[@name='date_invoice']" position="after">
+                    <field name="operating_unit_id" options="{'no_create': True}"
+                             widget="selection" groups="operating_unit.group_multi_operating_unit"/>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </openerp>

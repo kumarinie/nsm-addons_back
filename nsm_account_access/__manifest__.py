@@ -41,6 +41,7 @@ This module allows group "Inzicht kostenplaats redactie" to view analytic accoun
     'data' : [
 	          "security/account_security_view.xml",
 	          "security/ir.model.access.csv",
+              "views/account_invoice_view.xml",
               "views/account_menuitem.xml",
               ],
     'demo' : [],

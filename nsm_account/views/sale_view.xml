@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_advertising" model="ir.ui.view">
+        <field name="name">sale.order.partner.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_advertising_operating_unit.view_order_form_advertising"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='operating_unit_id']" position="replace">
+            </xpath>
+            <xpath expr="//field[@name='display_discount_to_customer']" position="after">
+                <field name="operating_unit_id" widget="selection" groups="operating_unit.group_multi_operating_unit" required="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

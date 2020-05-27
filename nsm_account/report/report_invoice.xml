@@ -307,8 +307,11 @@
 </template>
 
 
-
-
+    <template id="report_saleorder_document" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//t[@t-call='report.external_layout']" position="attributes">
+            <attribute name="t-call">report_qweb_operating_unit.external_layout_ou</attribute>
+        </xpath>
+    </template>
 
 </data>
 </odoo>

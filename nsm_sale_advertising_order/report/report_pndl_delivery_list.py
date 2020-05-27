@@ -23,18 +23,22 @@ class NSMDeliveryListReport(ReportXlsx):
             parent = customer.parent_id
             records.append(_get_title(orderLine))
             records.append(parent.name if parent else customer.name)
-            if parent and not parent.is_company:
-                records.append(parent.initials or '')
-                records.append(parent.infix or '')
-                records.append(parent.lastname or '')
-            elif not parent and not customer.is_company:
+            # if parent and not parent.is_company:
+            #     records.append(parent.initials or '')
+            #     records.append(parent.infix or '')
+            #     records.append(parent.lastname or '')
+            # elif not parent and not customer.is_company:
+            #     records.append(customer.initials or '')
+            #     records.append(customer.infix or '')
+            #     records.append(customer.lastname or '')
+            # else:
+            #     records.append('')
+            #     records.append('')
+            #     records.append('')
+            if customer:
                 records.append(customer.initials or '')
                 records.append(customer.infix or '')
                 records.append(customer.lastname or '')
-            else:
-                records.append('')
-                records.append('')
-                records.append('')
             records.append(customer.country_id.code or parent.country_id.code or '')
             records.append(customer.zip or parent.zip or '')
             records.append(customer.street_number or parent.street_number or '')

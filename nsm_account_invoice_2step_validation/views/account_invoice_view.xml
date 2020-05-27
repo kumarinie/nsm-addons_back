@@ -24,6 +24,19 @@
             <xpath expr="//field[@name='account_id']" position="attributes">
                 <attribute name="groups">account.group_account_user,account_invoice_2step_validation.vendor_manager,account.group_account_invoice,account_invoice_2step_validation.goedk_facturen</attribute>
             </xpath>
+            <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="attributes">
+                <attribute name="groups">account.group_account_user,account_invoice_2step_validation.authorize,account_invoice_2step_validation.verification</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="invoice_form_magnus" model="ir.ui.view">
+        <field name="name">account.invoice</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="attributes">
+                <attribute name="groups">account.group_account_user,account_invoice_2step_validation.authorize,account_invoice_2step_validation.verification</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>

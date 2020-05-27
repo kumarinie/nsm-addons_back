@@ -36,6 +36,7 @@ class HrExpense(models.Model):
     sheet_state = fields.Char(compute='_get_sheet_state', string='Sheet Status', help='Expense Report State',
                               store=True)
     state = fields.Selection(selection_add=[('revise', 'To Be Revise')])
+    analytic_tag_ids = fields.Many2many('account.analytic.tag', string='WKR')
 
     @api.multi
     def submit_expenses(self):
@@ -71,6 +72,11 @@ class HrExpense(models.Model):
                     expense.sheet_id.account_move_id.operating_unit_id = ou.id
         return res
 
+    def _prepare_move_line(self, line):
+        move_line = super(HrExpense, self)._prepare_move_line(line)
+        if self.analytic_tag_ids:
+            move_line.update({'analytic_tag_ids': [(6, 0, self.analytic_tag_ids.ids)]})
+        return move_line
 
     @api.multi
     def write(self, vals):
