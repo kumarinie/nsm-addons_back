@@ -25,7 +25,7 @@
                 <attribute name="groups">account.group_account_user,account_invoice_2step_validation.vendor_manager,account.group_account_invoice,account_invoice_2step_validation.goedk_facturen</attribute>
             </xpath>
             <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="attributes">
-                <attribute name="groups">account.group_account_user,account_invoice_2step_validation.authorize,account_invoice_2step_validation.verification</attribute>
+                <attribute name="groups">account.group_account_user,account_invoice_2step_validation.authorize,account_invoice_2step_validation.verification,account_invoice_2step_validation.vendor_manager</attribute>
             </xpath>
         </field>
     </record>
