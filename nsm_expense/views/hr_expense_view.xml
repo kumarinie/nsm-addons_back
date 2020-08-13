@@ -139,9 +139,7 @@
                     <attribute name="groups">base.group_no_one,hr_expense.group_hr_expense_manager</attribute>
                 </xpath>
                 <xpath expr="//field[@name='employee_id']" position="attributes">
-                     <attribute name="groups">account.group_account_user</attribute>
-
-<!--                    <attribute name="invisible">True</attribute>-->
+                    <attribute name="invisible">True</attribute>
                 </xpath>
                 <xpath expr="//field[@name='product_id']" position="attributes">
                     <attribute name="options">{'no_create': True, 'no_create_edit':True}</attribute>
