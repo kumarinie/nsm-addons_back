@@ -109,6 +109,7 @@ class HrExpenseSheet(models.Model):
     state = fields.Selection(selection_add=[('revise', 'To Be Revise')])
 
 
+
     @api.model
     def default_get(self, default_fields):
         res = super(HrExpenseSheet, self).default_get(default_fields) or {}
@@ -194,6 +195,22 @@ class HrExpenseSheet(models.Model):
                 self.operating_unit_id = self.expense_line_ids[0].operating_unit_id.id
         else:
             self.operating_unit_id = False
+
+    @api.one
+    @api.constrains('expense_line_ids', 'employee_id')
+    def _check_employee(self):
+        employee_ids = self.expense_line_ids.mapped('employee_id')
+        group_acc_user =self.env['res.groups'].search([('name','=','Accountant')])
+        is_desired_group = self.env.user.id in group_acc_user.users.ids
+        # checking the state revised and group accountant
+        if self.state== 'revise':
+            if is_desired_group:
+                # Updating the expense_line_ids with employee_id
+                for emp in self.expense_line_ids:
+                    emp.employee_id=self.employee_id
+                return True
+        if len(employee_ids) > 1 or (len(employee_ids) == 1 and employee_ids != self.employee_id):
+            raise ValidationError(_('You cannot add expense lines of another employee.'))
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
