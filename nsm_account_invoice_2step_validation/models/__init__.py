@@ -28,3 +28,4 @@
 
 import account_invoice
 import crm
+import res_company

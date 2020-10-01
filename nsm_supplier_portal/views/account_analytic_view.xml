@@ -18,6 +18,9 @@
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="supp_analytic_accids" invisible="1"/>
                 </xpath>
+                <xpath expr="//group[@name='main']/group[1]" position="inside">
+                    <field name="overhead_costs" />
+                </xpath>
             </field>
         </record>
 
