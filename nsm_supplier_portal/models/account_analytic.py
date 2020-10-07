@@ -44,7 +44,7 @@ class Analytic(models.Model):
     supp_analytic_accids = fields.Many2many('res.partner','partner_analytic_rel','analytic_account_id','partner_id',
                                             'Analytic IDs', copy=True)
 
-    overhead_costs = fields.Boolean(string="Analytic account is overhead costs")
+    overhead_costs = fields.Boolean(string="Overhead Analytic Account")
 
     @api.model
     def search(self, args, offset=0, limit=0, order=None, count=False):
