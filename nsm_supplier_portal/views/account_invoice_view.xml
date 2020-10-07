@@ -727,9 +727,6 @@
                     <button name="action_invoice_open" position="after">
                         <button name="action_portalback" states="draft" class="btn-nsm" type="object" string="Terug Portal" />
                     </button>
-                    <field name="state" position="replace">
-                       <field name="state" widget="statusbar" statusbar_visible="portalcreate,draft,start_wf,open,auth,verified_by_publisher,verified,paid" statusbar_colors='{"proforma":"blue","proforma2":"blue"}'/>
-                    </field>
                 </data>
             </field>
         </record>
