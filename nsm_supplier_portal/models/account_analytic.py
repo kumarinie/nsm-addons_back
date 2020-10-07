@@ -45,7 +45,6 @@ class Analytic(models.Model):
                                             'Analytic IDs', copy=True)
 
     overhead_costs = fields.Boolean(string="Overhead Analytic Account")
-
     @api.model
     def search(self, args, offset=0, limit=0, order=None, count=False):
         if self.env.user.has_group('nsm_supplier_portal.group_module_supplier_portal_user'):

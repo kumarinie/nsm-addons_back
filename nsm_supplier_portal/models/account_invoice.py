@@ -119,8 +119,7 @@ class Invoice(models.Model):
         ('proforma2','Pro-forma'),
         ('open','Open'),
         ('auth','Authorized'),
-        ('verified_by_publisher','Verified by Publisher'),
-        ('verified','Verified by Board'),
+        ('verified','Verified'),
         ('paid','Paid'),
         ('cancel','Cancelled'),
         ],'Status', index=True, readonly=True, track_visibility='onchange',
@@ -130,8 +129,7 @@ class Invoice(models.Model):
         \n* The \'Draft\' status is used when a user is encoding a new and unconfirmed Invoice. \
         \n* The \'Pro-forma\' when invoice is in Pro-forma status,invoice does not have an invoice number. \
         \n* The \'Authorized\' status is used when invoice is already posted, but not yet confirmed for payment. \
-        \n* The \'Verified by Publisher\' status is used when invoice is authorized by Publisher, but not yet confirmed for payment. \
-        \n* The \'Verified by Board\' status is used when invoice is already authorized, but not yet confirmed for payment, because it is of higher value than Company Verification treshold. \
+        \n* The \'Verified\' status is used when invoice is already authorized, but not yet confirmed for payment, because it is of higher value than Company Verification treshold. \
         \n* The \'Open\' status is used when user create invoice,a invoice number is generated.Its in open status till user does not pay invoice. \
         \n* The \'Paid\' status is set automatically when the invoice is paid. Its related journal entries may or may not be reconciled. \
         \n* The \'Cancelled\' status is used when user cancel invoice.')
