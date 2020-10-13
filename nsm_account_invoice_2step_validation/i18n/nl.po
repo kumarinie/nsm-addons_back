@@ -1,0 +1,64 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* nsm_account_invoice_2step_validation
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 10.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-10-13 13:00+0000\n"
+"PO-Revision-Date: 2020-10-13 15:13+0200\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.4.1\n"
+"Last-Translator: \n"
+"Language: nl\n"
+
+#. module: nsm_account_invoice_2step_validation
+#: model:res.groups,name:nsm_account_invoice_2step_validation.budget_holder
+msgid "Budget Holder"
+msgstr "Budgethouder"
+
+#. module: nsm_account_invoice_2step_validation
+#: model:ir.model,name:nsm_account_invoice_2step_validation.model_res_company
+msgid "Companies"
+msgstr "Bedrijven"
+
+#. module: nsm_account_invoice_2step_validation
+#: model:ir.ui.view,arch_db:nsm_account_invoice_2step_validation.view_users_form_nsm_2step
+msgid "Default Sale Team"
+msgstr "Standaard Verkoopteam"
+
+#. module: nsm_account_invoice_2step_validation
+#: model:ir.model,name:nsm_account_invoice_2step_validation.model_account_invoice
+msgid "Invoice"
+msgstr "Factuur"
+
+#. module: nsm_account_invoice_2step_validation
+#: model:ir.model,name:nsm_account_invoice_2step_validation.model_crm_team
+#: model:ir.ui.view,arch_db:nsm_account_invoice_2step_validation.view_res_partner_filter
+msgid "Sales Team"
+msgstr "Verkoopteam"
+
+#. module: nsm_account_invoice_2step_validation
+#: model:ir.model.fields,field_description:nsm_account_invoice_2step_validation.field_res_company_verify_setting_2
+msgid "Threshold 2"
+msgstr "Tweede Procuratiegrens"
+
+#. module: nsm_account_invoice_2step_validation
+#: model:res.groups,name:nsm_account_invoice_2step_validation.verification_publisher
+msgid "Verification - Publisher"
+msgstr "Verifiëren - Uitgever"
+
+#. module: nsm_account_invoice_2step_validation
+#: model:ir.model.fields,field_description:nsm_account_invoice_2step_validation.field_account_invoice_verif_tresh_exceeded_2
+msgid "Verification Treshold 2"
+msgstr "Tweede Procuratiegrens"
+
+#. module: nsm_account_invoice_2step_validation
+#: model:ir.ui.view,arch_db:nsm_account_invoice_2step_validation.invoice_supplier_form_auth_nsm
+msgid "Verify"
+msgstr "Verifiëren"
