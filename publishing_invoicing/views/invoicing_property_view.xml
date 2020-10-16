@@ -17,6 +17,13 @@
                                 <field name="group_invoice_lines_per_period"/>
                                 <field name="group_invoice_lines_per_title"/>
                                 <field name="group_invoice_lines_per_po_number"/>
+                                <field name="only_invoice_published_adv"/>
+                                <field name="group_by_order"/>
+                                <field name="group_by_advertiser"/>
+                                <field name="group_by_edition"/>
+                                <field name="group_by_online_separate"/>
+                                <field name="group_by_week"/>
+                                <field name="group_by_month"/>
                             </group>
                             <group string="Payment control" name="payment_control">
                                 <field name="pre_pay_publishing_add"/>
