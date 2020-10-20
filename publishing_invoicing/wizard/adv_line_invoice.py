@@ -113,7 +113,8 @@ class AdOrderLineMakeInvoice(models.TransientModel):
                                 # looping over the orders to generate invoices
                                 for sale_id in set_group_order:
                                     order_line_ids = self.env['sale.order.line'].search([('id','=',lines.id),'&',('order_id','=',sale_id),'&',('order_partner_id','=',customer_id.id),'&',('invoicing_property_id','=',inv_ids.id),('invoice_status','!=','invoiced')])
-                                    self.make_invoices_job_queue(inv_date, post_date, order_line_ids)
+                                # Invoice is created once a loop is ended for the iterated data
+                                self.make_invoices_job_queue(inv_date, post_date, order_line_ids)
                     
                     # -------------Group by title only----------------
                     if inv_ids.group_invoice_lines_per_title == True and inv_ids.group_by_order == False and inv_ids.group_by_advertiser == False:
