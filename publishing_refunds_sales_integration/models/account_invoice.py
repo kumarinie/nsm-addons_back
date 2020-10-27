@@ -17,6 +17,6 @@ class AccountInvoice(models.Model):
 					sale_line_id = self.env['sale.order.line'].search([('id','=',line.so_line_id.id)])
 					if sale_line_id:
 						for sale_line in sale_line_id:
-							sale_line.product_uom_qty = sale_line.product_uom_qty - line.quantity
+							sale_line.qty_invoiced = sale_line.qty_invoiced - line.quantity
 		return res
 
