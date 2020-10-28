@@ -7,8 +7,26 @@
         <field name="type">form</field>
         <field name="inherit_id" ref="sale_advertising_order.view_order_form_advertising"/>
         <field name="arch" type="xml">
-            <xpath expr="//group[@name='sale_pay']" position="inside">
+            <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="invoicing_property_id" options="{'no_create': True}"/>
+                <field name="inv_date_bool" invisible="1"/>
+                <field name="invoicing_date" attrs="{'required':[('inv_date_bool', '=', True)],'invisible':[('inv_date_bool', '!=', True)]}"/>
+            </xpath>
+            <xpath expr="//field[@name='payment_mode_id']" position="after">
+                <field name="terms_cond_bool" invisible="1"/>
+                <field name="terms_condition" attrs="{'required':[('terms_cond_bool', '=', True)],'invisible':[('terms_cond_bool', '!=', True)]}"/>
+            </xpath>
+            <xpath expr="//field[@name='payment_mode_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='client_order_ref']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='pricelist_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='validity_date']" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
         </field>
     </record>
