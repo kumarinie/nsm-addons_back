@@ -14,20 +14,28 @@
                         </div>
                         <group>
                             <group string="Invoice control" name="invoice_control">
-                                <field name="group_invoice_lines_per_period"/>
-                                <field name="group_invoice_lines_per_title"/>
-                                <field name="group_invoice_lines_per_po_number"/>
-                                <field name="only_invoice_published_adv"/>
+                                <field name="group_invoice_lines_per_period"  invisible="1"/>
+                                <field name="group_invoice_lines_per_title" invisible="1"/>
+                                <field name="group_invoice_lines_per_po_number" invisible="1"/>
+                                <field name="only_invoice_published_adv" invisible="1"/>
+                                <field name="group_by_week" invisible="1"/>
+                                <field name="group_by_month" invisible="1"/>
+                                <!-- newly added below -->
+                                <field name="inv_package_deal"/>
+                                <field name="inv_per_line_adv_print"/>
+                                <field name="inv_per_line_after_online"/>
+                                <field name="inv_whole_order_at_once"/>
+                                <field name="pay_in_terms"/>
+                                <!-- below should be there -->
                                 <field name="group_by_order"/>
                                 <field name="group_by_advertiser"/>
                                 <field name="group_by_edition"/>
                                 <field name="group_by_online_separate"/>
-                                <field name="group_by_week"/>
-                                <field name="group_by_month"/>
                             </group>
                             <group string="Payment control" name="payment_control">
-                                <field name="pre_pay_publishing_add"/>
-                                <field name="pre_pay_online_add"/>
+                                <!-- will be removed -->
+                                <field name="pre_pay_publishing_add" invisible="1"/>
+                                <field name="pre_pay_online_add" invisible="1"/>
                             </group>
                         </group>
                     </sheet>
