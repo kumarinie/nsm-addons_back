@@ -28,6 +28,20 @@
             <xpath expr="//field[@name='validity_date']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+            <!-- <xpath expr="//field[@name='package']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath> -->
+        </field>
+    </record>
+    <record id="view_order_form_advertising_package_invoicing_form" model="ir.ui.view">
+        <field name="name">sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="package_sale_advertising_order.view_order_form_advertising_package"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='package']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
         </field>
     </record>
 </odoo> 
