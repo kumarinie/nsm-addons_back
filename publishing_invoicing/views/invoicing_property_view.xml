@@ -32,7 +32,7 @@
                                 <field name="group_by_edition"/>
                                 <field name="group_by_online_separate"/>
                             </group>
-                            <group string="Payment control" name="payment_control">
+                            <group string="Payment control" name="payment_control" invisible="1">
                                 <!-- will be removed -->
                                 <field name="pre_pay_publishing_add" invisible="1"/>
                                 <field name="pre_pay_online_add" invisible="1"/>
