@@ -30,7 +30,7 @@
                                 <field name="group_by_order"/>
                                 <field name="group_by_advertiser"/>
                                 <field name="group_by_edition"/>
-                                <field name="group_by_online_separate"/>
+                                <field name="group_by_online_separate" invisible="1"/>
                             </group>
                             <group string="Payment control" name="payment_control" invisible="1">
                                 <!-- will be removed -->
