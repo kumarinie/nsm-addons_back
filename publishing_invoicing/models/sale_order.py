@@ -33,12 +33,17 @@ class SaleOrder(models.Model):
 						line.package = True
 					else:
 						line.package = False
-			else:
+			elif line.published_customer:
 				if line.published_customer.invoicing_property_id:
 					if line.invoicing_property_id.inv_package_deal == True:
 						line.package = True
 					else:
 						line.package = False
+			else:
+				if line.invoicing_property_id.inv_package_deal == True:
+						line.package = True
+				else:
+					line.package = False
 	@api.multi
 	@api.onchange('published_customer','advertising_agency','invoicing_property_id')
 	def onchange_partner_invoicing_date(self):
@@ -49,12 +54,17 @@ class SaleOrder(models.Model):
 						line.inv_date_bool = True
 					else:
 						line.inv_date_bool = False
-			else:
+			elif line.published_customer:
 				if line.published_customer.invoicing_property_id:
 					if line.invoicing_property_id.inv_whole_order_at_once == True:
 						line.inv_date_bool = True
 					else:
 						line.inv_date_bool = False
+			else:
+				if line.invoicing_property_id.inv_whole_order_at_once == True:
+						line.inv_date_bool = True
+				else:
+					line.inv_date_bool = False
 
 	@api.multi
 	@api.onchange('published_customer','advertising_agency','invoicing_property_id')
@@ -66,12 +76,17 @@ class SaleOrder(models.Model):
 						line.terms_cond_bool = True
 					else:
 						line.terms_cond_bool = False
-			else:
+			elif line.published_customer:
 				if line.published_customer.invoicing_property_id:
 					if line.invoicing_property_id.pay_in_terms == True:
 						line.terms_cond_bool = True
 					else:
 						line.terms_cond_bool = False
+			else:
+				if line.invoicing_property_id.pay_in_terms == True:
+						line.terms_cond_bool = True
+				else:
+					line.terms_cond_bool = False
 
 
 
