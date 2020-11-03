@@ -50,18 +50,18 @@ class SaleOrder(models.Model):
 		for line in self:
 			if line.advertising_agency:
 				if line.advertising_agency.invoicing_property_id:
-					if line.invoicing_property_id.inv_whole_order_at_once == True:
+					if line.invoicing_property_id.inv_per_line_adv_print == True or line.invoicing_property_id.inv_per_line_adv_online == True:
 						line.inv_date_bool = True
 					else:
 						line.inv_date_bool = False
 			elif line.published_customer:
 				if line.published_customer.invoicing_property_id:
-					if line.invoicing_property_id.inv_whole_order_at_once == True:
+					if line.invoicing_property_id.inv_per_line_adv_print == True or line.invoicing_property_id.inv_per_line_adv_online == True:
 						line.inv_date_bool = True
 					else:
 						line.inv_date_bool = False
 			else:
-				if line.invoicing_property_id.inv_whole_order_at_once == True:
+				if line.invoicing_property_id.inv_per_line_adv_print == True or line.invoicing_property_id.inv_per_line_adv_online == True:
 						line.inv_date_bool = True
 				else:
 					line.inv_date_bool = False
@@ -97,3 +97,4 @@ class SaleOrderLine(models.Model):
 	_inherit = 'sale.order.line'
 
 	invoicing_property_id = fields.Many2one('invoicing.property',related='order_id.invoicing_property_id',string="Invoicing Property")
+
