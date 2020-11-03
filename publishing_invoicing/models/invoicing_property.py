@@ -29,5 +29,8 @@ class nsm_invoicing_property(models.Model):
 	inv_whole_order_at_once = fields.Boolean(string="Invoice whole order at once")
 	pay_in_terms = fields.Boolean(string="Pay in terms")
 
+	inv_per_line_after_print = fields.Boolean(string="Invoice per orderline afterwards print")
+	inv_per_line_adv_online = fields.Boolean(string="Invoice per orderline in advance online")
+
 
 	

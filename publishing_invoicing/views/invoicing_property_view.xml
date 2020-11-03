@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<data>
+        <record id="view_invoicing_property_search" model="ir.ui.view">
+            <field name="name">invoicing.property.select</field>
+            <field name="model">invoicing.property</field>
+            <field name="arch" type="xml">
+                <search string="Search Invoicing Property">
+                   <field name="name"/>
+               </search>
+            </field>
+        </record>
         <record id="view_invoicing_property_form" model="ir.ui.view">
             <field name="name">invoicing.property.form</field>
             <field name="model">invoicing.property</field>
@@ -26,6 +35,8 @@
                                 <field name="inv_per_line_after_online"/>
                                 <field name="inv_whole_order_at_once"/>
                                 <field name="pay_in_terms"/>
+                                <field name="inv_per_line_after_print"/>
+                                <field name="inv_per_line_adv_online"/>
                                 <!-- below should be there -->
                                 <field name="group_by_order"/>
                                 <field name="group_by_advertiser"/>
