@@ -18,5 +18,7 @@ class AccountInvoice(models.Model):
 					if sale_line_id:
 						for sale_line in sale_line_id:
 							sale_line.qty_invoiced = sale_line.qty_invoiced - line.quantity
+							# when validated a refund invoice, reference is added in sale order line - invoice_lines
+							sale_line.invoice_lines = [(4, line.id)]
 		return res
 
