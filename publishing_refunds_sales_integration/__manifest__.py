@@ -17,6 +17,6 @@
 
     # always loaded
     'data': [
-        
+        'views/account_invoice_views.xml',
     ],
 }
