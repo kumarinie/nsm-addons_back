@@ -36,6 +36,7 @@ class HrExpense(models.Model):
     sheet_state = fields.Char(compute='_get_sheet_state', string='Sheet Status', help='Expense Report State',
                               store=True)
     state = fields.Selection(selection_add=[('revise', 'To Be Revise')])
+    analytic_tag_ids = fields.Many2many('account.analytic.tag', string='WKR')
 
     @api.multi
     def submit_expenses(self):
@@ -71,6 +72,11 @@ class HrExpense(models.Model):
                     expense.sheet_id.account_move_id.operating_unit_id = ou.id
         return res
 
+    def _prepare_move_line(self, line):
+        move_line = super(HrExpense, self)._prepare_move_line(line)
+        if self.analytic_tag_ids:
+            move_line.update({'analytic_tag_ids': [(6, 0, self.analytic_tag_ids.ids)]})
+        return move_line
 
     @api.multi
     def write(self, vals):
@@ -101,6 +107,7 @@ class HrExpenseSheet(models.Model):
     #                           ], string='Status', index=True, readonly=True, track_visibility='onchange', copy=False, default='submit', required=True,
     #     help='Expense Report State')
     state = fields.Selection(selection_add=[('revise', 'To Be Revise')])
+
 
 
     @api.model
@@ -188,6 +195,22 @@ class HrExpenseSheet(models.Model):
                 self.operating_unit_id = self.expense_line_ids[0].operating_unit_id.id
         else:
             self.operating_unit_id = False
+
+    @api.one
+    @api.constrains('expense_line_ids', 'employee_id')
+    def _check_employee(self):
+        employee_ids = self.expense_line_ids.mapped('employee_id')
+        group_acc_user =self.env['res.groups'].search([('name','=','Accountant')])
+        is_desired_group = self.env.user.id in group_acc_user.users.ids
+        # checking the state revised and group accountant
+        if self.state== 'revise':
+            if is_desired_group:
+                # Updating the expense_line_ids with employee_id
+                for emp in self.expense_line_ids:
+                    emp.employee_id=self.employee_id
+                return True
+        if len(employee_ids) > 1 or (len(employee_ids) == 1 and employee_ids != self.employee_id):
+            raise ValidationError(_('You cannot add expense lines of another employee.'))
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

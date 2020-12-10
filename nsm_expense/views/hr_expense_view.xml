@@ -146,6 +146,7 @@
                     <attribute name="attrs">{'readonly':[('state','not in',('draft','refused','revise'))]}</attribute>
                 </xpath>
                 <xpath expr="//field[@name='analytic_account_id']" position="after">
+                    <field name="analytic_tag_ids"  widget="many2many_tags" options="{'no_create_edit': True}"/>
                     <field name="sheet_state" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='unit_amount']" position="attributes">

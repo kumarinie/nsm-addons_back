@@ -75,5 +75,16 @@
       </field>
     </record>
 
+    <record id="view_account_invoice_filter_nsm" model="ir.ui.view">
+      <field name="name">account.invoice.select.nsm</field>
+      <field name="model">account.invoice</field>
+      <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+      <field name="arch" type="xml">
+        <xpath expr="//search/field[@name='partner_id']" position="after">
+          <field name="published_customer"/>
+        </xpath>
+      </field>
+    </record>
+
   </data>
 </odoo>

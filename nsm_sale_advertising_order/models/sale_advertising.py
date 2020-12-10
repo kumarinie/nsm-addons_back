@@ -22,11 +22,49 @@
 
 from odoo import api, fields, models, _
 import json
+from odoo.exceptions import UserError
 
 class SaleOrder(models.Model):
     _inherit = ["sale.order"]
 
     material_contact_person = fields.Many2one('res.partner', 'Material Contact Person', domain=[('customer','=',True)])
+
+    # updating onchange function on field advertising_agency, customer_contact
+
+    @api.multi
+    @api.onchange('partner_id', 'advertising_agency')
+    def onchange_partner_id(self):
+        if self.advertising_agency:
+            self.partner_id = self.advertising_agency
+            self.update({
+                'customer_contact': False
+            })
+        return super(SaleOrder, self).onchange_partner_id()
+
+
+    @api.multi
+    def action_submit(self):
+        orders = self.filtered(lambda s: s.state in ['draft'])
+        for o in orders:
+            if o.order_ad4all_allow:
+                if not o.material_contact_person:
+                    raise UserError(
+                        _('You have to fill in a material contact person.\n'
+                          'Be aware, that the contact must have email and phone filled in.'))
+                vals = {
+                'so_customer_contacts_contact_email':
+                    o.material_contact_person.email or False,
+                'so_customer_contacts_contact_phone':
+                    o.material_contact_person.phone or
+                    o.material_contact_person.mobile or False
+                }
+                for key, value in vals.iteritems():
+                    if value == False:
+                        raise UserError(_(
+                            'Field %s is required in AdPortal, but has value False'
+                        ) % (key))
+
+        return super(SaleOrder, self).action_submit()
 
     @api.multi
     def action_approve1(self):

@@ -78,7 +78,7 @@ msgstr "Factuur"
 #. module: nsm_improv02
 #: field:res.company,verify_setting:0
 msgid "Invoice Amount bigger than"
-msgstr "Factuurbedrag groter dan"
+msgstr "Eerste Procuratiegrens"
 
 #. module: nsm_improv02
 #: view:account.invoice.verifier:0
