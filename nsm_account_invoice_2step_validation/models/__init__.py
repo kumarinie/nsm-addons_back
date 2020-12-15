@@ -27,4 +27,6 @@
 ##############################################################################
 
 import account_invoice
+import account_analytic
 import crm
+import res_company

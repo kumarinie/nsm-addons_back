@@ -29,7 +29,9 @@ Enchanced to add
         "security/account_security.xml",
         "views/res_partner_view.xml",
         "views/account_invoice_view.xml",
+        "views/account_analytic_view.xml",
         "views/user_view.xml",
+        "views/res_company_view.xml"
     ],
     'demo' : [],
     'installable': True

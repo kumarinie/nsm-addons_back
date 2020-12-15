@@ -29,6 +29,19 @@ class SaleOrder(models.Model):
 
     material_contact_person = fields.Many2one('res.partner', 'Material Contact Person', domain=[('customer','=',True)])
 
+    # updating onchange function on field advertising_agency, customer_contact
+
+    @api.multi
+    @api.onchange('partner_id', 'advertising_agency')
+    def onchange_partner_id(self):
+        if self.advertising_agency:
+            self.partner_id = self.advertising_agency
+            self.update({
+                'customer_contact': False
+            })
+        return super(SaleOrder, self).onchange_partner_id()
+
+
     @api.multi
     def action_submit(self):
         orders = self.filtered(lambda s: s.state in ['draft'])

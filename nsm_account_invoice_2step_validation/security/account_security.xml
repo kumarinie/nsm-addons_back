@@ -32,5 +32,14 @@
         <field name="groups" eval="[(4, ref('account_invoice_2step_validation.vendor_manager'))]"/>
     </record>
 
+    <record id="account_invoice_2step_validation.verification" model="res.groups">
+        <field name="name">Verification - Board</field>
+        <field name="category_id" ref="base.module_category_accounting_and_finance"/>
+    </record>
+    <record id="verification_publisher" model="res.groups">
+        <field name="name">Verification - Publisher</field>
+        <field name="category_id" ref="base.module_category_accounting_and_finance"/>
+    </record>
+
 </data>
 </odoo>
