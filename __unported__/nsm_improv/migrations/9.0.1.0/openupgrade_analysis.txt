@@ -1,6 +1,0 @@
----Fields in module 'nsm_improv'---
-nsm_improv   / account.move             / message_follower_ids (many2many): not a function anymore
-nsm_improv   / account.move             / message_follower_ids (many2many): relation is now 'mail.followers' ('res.partner')
-nsm_improv   / account.move             / message_follower_ids (many2many): type is now 'one2many' ('many2many')
-nsm_improv   / account.move             / website_message_ids (one2many): DEL relation: mail.message
----XML records in module 'nsm_improv'---

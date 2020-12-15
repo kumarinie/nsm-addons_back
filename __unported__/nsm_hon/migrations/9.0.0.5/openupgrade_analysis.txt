@@ -1,4 +1,0 @@
----Fields in module 'nsm_hon'---
----XML records in module 'nsm_hon'---
-DEL email.template: nsm_hon.email_template_hon_invoice
-NEW mail.template: nsm_hon.email_template_hon_invoice

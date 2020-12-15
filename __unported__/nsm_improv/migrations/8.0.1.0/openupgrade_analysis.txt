@@ -1,4 +1,0 @@
----Fields in module 'nsm_improv'---
-nsm_improv   / account.move             / message_last_post (datetime)  : NEW 
-nsm_improv   / account.move             / website_message_ids (one2many): NEW relation: mail.message
----XML records in module 'nsm_improv'---

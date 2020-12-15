@@ -1,3 +1,0 @@
-id,group_id/id,perm_create,perm_read,perm_write,perm_unlink,name,model_id/id
-megis_auth.access_account_invoice_line,megis_auth.goedk_facturen,0,1,1,0,fctuurregel gf,account.model_account_invoice_line
-

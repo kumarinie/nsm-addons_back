@@ -1,6 +1,0 @@
----Fields in module 'sale_advertising'---
----XML records in module 'sale_advertising'---
-NEW ir.ui.menu: calendar.mail_menu_calendar
-DEL ir.ui.menu: base_calendar.mail_menu_calendar
-DEL ir.ui.menu: crm.menu_crm_case_channel
-DEL ir.ui.menu: crm.menu_crm_case_resource_type_act
