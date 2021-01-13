@@ -71,6 +71,12 @@
                 <xpath expr="//field[@name='order_line']/form/group[3]/group[3]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+                <xpath expr="//field[@name='order_line']/form/div[1]" position="replace">
+                     <div groups="base.group_no_one,sale_advertising_order.group_traffic_user">
+                        <label for="invoice_lines"/>
+                        <field name="invoice_lines"/>
+                    </div>
+                </xpath>
             </field>
         </record>
 
