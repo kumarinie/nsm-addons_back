@@ -71,6 +71,12 @@
                 <xpath expr="//field[@name='order_line']/form/group[3]/group[3]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+                <xpath expr="//field[@name='order_line']/form/div[1]" position="replace">
+                     <div groups="base.group_no_one,sale_advertising_order.group_traffic_user">
+                        <label for="invoice_lines"/>
+                        <field name="invoice_lines"/>
+                    </div>
+                </xpath>
             </field>
         </record>
 
@@ -236,6 +242,18 @@
                 </xpath>
             </field>
         </record>
+
+        <data noupdate="1">
+        <record id="sale.action_view_sale_advance_payment_inv" model="ir.actions.act_window">
+            <field name="name">Invoice Order</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.advance.payment.inv</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(4,ref('nsm_sale_advertising_order.nsm_advertising_sale_remove'))]"/>
+        </record>
+    </data>
 
     </data>
 </odoo>
