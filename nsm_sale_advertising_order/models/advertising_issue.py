@@ -68,3 +68,23 @@ class AdvertisingIssue(models.Model):
     @api.constrains('medium')
     def _check_medium(self):
         self.validate_medium()
+
+    @api.multi
+    def write(self, vals):
+        result = super(AdvertisingIssue, self).write(vals)
+        issue_date = vals.get('issue_date', False)
+        if issue_date:
+            issue_date = str(issue_date)
+            op, ids = ('IN', tuple(self.ids)) if len(self.ids) > 1 else ('=', self.id)
+            query = ("""
+                    UPDATE sale_order_line 
+                    SET from_date = {0},
+                        to_date = {0}
+                    WHERE adv_issue {1} {2}
+                    """.format(
+                    "'%s'" % issue_date,
+                    op,
+                    ids
+                ))
+            self.env.cr.execute(query)
+        return result
