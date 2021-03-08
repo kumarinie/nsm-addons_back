@@ -31,7 +31,6 @@ class Invite(models.TransientModel):
                     'res_id': wizard.res_id,
                     'no_auto_thread': True,
                 })
-                print '-------------------',new_partners.filtered(lambda rp: not rp.stop_followers_mail)
                 new_partners.filtered(lambda rp: not rp.stop_followers_mail).with_context(auto_delete=True)._notify(message, force_send=True, send_after_commit=False,
                                                                     user_signature=True)
                 message.unlink()
