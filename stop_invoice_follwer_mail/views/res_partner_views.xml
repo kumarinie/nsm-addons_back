@@ -1,0 +1,43 @@
+<odoo>
+  <data>
+            <!-- Update Preferences form !-->
+        <record id="view_users_form_simple_modif_mail" model="ir.ui.view">
+            <field name="name">res.users.preferences.form.mail</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="mail.view_users_form_simple_modif_mail"/>
+            <field name="arch" type="xml">
+            <data>
+                <field name="notify_email" position="after">
+                    <field name="stop_followers_mail"/>
+                </field>
+            </data>
+            </field>
+        </record>
+
+        <!-- Update user form !-->
+        <record id="view_users_form_mail" model="ir.ui.view">
+            <field name="name">res.users.form.mail</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="mail.view_users_form_mail"/>
+            <field name="arch" type="xml">
+                <data>
+                    <field name="notify_email" position="after">
+                        <field name="stop_followers_mail"/>
+                    </field>
+                </data>
+            </field>
+        </record>
+
+        <record id="view_emails_partner_info_form" model="ir.ui.view">
+            <field name="name">res.partner.emails.info.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="mail.view_emails_partner_info_form"/>
+            <field name="arch" type="xml">
+                <field name="notify_email" position="after">
+                      <field name="stop_followers_mail"/>
+                  </field>
+            </field>
+        </record>
+
+  </data>
+</odoo>
