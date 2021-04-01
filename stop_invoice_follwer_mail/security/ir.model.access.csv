@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_stop_invoice_follwer_mail_stop_invoice_follwer_mail,stop_invoice_follwer_mail.stop_invoice_follwer_mail,model_stop_invoice_follwer_mail_stop_invoice_follwer_mail,,1,0,0,0
