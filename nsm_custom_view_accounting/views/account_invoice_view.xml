@@ -62,8 +62,7 @@
       <field name="model">account.invoice</field>
       <field name="inherit_id" ref="account.invoice_supplier_form"/>
       <field name="arch" type="xml">
-        <xpath expr="//group/field[@name='account_id']" position="attributes">
-          <attribute name="invisible">1</attribute>
+        <xpath expr="//group/field[@name='account_id']" position="replace">
         </xpath>
         <xpath expr="//field[@name='reference']" position="after">
           <field name="operating_unit_id" required="1"
