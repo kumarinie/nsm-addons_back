@@ -127,7 +127,7 @@ class AccountInvoice(models.Model):
         action_payment_type = 'debit'
         for inv in self:
             if inv.type in ['in_invoice', 'in_refund'] and inv.state not in ['verified', 'verified_by_publisher'] and not (
-                    inv.state == 'auth' and (inv.verif_tresh_exceeded == False or inv.verif_tresh_exceeded_2 == False)):
+                    inv.state == 'auth' and (inv.verif_tresh_exceeded == False and inv.verif_tresh_exceeded_2 == False)):
                 raise UserError(_(
                     "The Supplier invoice %s is not in auth or verified or verified by publisher state") % inv.number)
             if inv.type in ['out_invoice', 'out_refund'] and inv.state != 'open':
