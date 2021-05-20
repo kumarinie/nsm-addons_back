@@ -32,6 +32,10 @@ class AccountPaymentLineCreate(models.TransientModel):
     @api.multi
     def _prepare_move_line_domain(self):
         domain = super(AccountPaymentLineCreate, self)._prepare_move_line_domain()
-
-        domain += ['|', ('invoice_id.state', '=', 'verified_by_publisher')]
+        index = domain.index(('invoice_id.state', '=', 'verified'))
+        domain = domain[:index]
+        domain += [('invoice_id.state', 'in', ['verified','verified_by_publisher']),
+                   '&', ('invoice_id.state', '=', 'auth'), '&',
+                   ('invoice_id.verif_tresh_exceeded', '=', False),
+                   ('invoice_id.verif_tresh_exceeded_2', '=', False)]
         return domain
