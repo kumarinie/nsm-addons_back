@@ -81,4 +81,29 @@
             </field>
         </record>
 
+
+    <record id="view_account_invoice_filter_auth" model="ir.ui.view">
+            <field name="name">account.invoice.select.verif</field>
+            <field name="model">account.invoice</field>
+	        <field name="inherit_id" ref="account_invoice_2step_validation.view_account_invoice_filter_auth"/>
+            <field name="arch" type="xml">
+                <data>
+                    <filter name="verif" position="replace">
+                        <filter name="verif" string="Verified By Board" domain="[('state','=','verified')]" help="Verified Invoices"/>
+                    </filter>
+                    <filter name="verif" position="after">
+                        <filter name="verif_pub" string="Verified By Publisher" domain="[('state','=','verified_by_publisher')]" help="Verified Publisher Invoices"/>
+                    </filter>
+                </data>
+            </field>
+    </record>
+
+    <act_window id="account_invoice_2step_validation.action_account_invoice_verifier"
+            multi="True"
+            key2="client_action_multi" name="Verify Authorized Invoices(Board)"
+            res_model="account.invoice.verifier" src_model="account.invoice"
+            view_mode="form" target="new" view_type="form"
+            view_id="account_invoice_2step_validation.account_invoice_verifier_view"
+            groups="account_invoice_2step_validation.verification"/>
+
 </odoo>

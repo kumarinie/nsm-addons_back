@@ -26,6 +26,6 @@
 #
 ##############################################################################
 
-import models, wizard
+import payment_order_create
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
