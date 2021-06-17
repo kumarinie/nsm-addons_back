@@ -200,3 +200,15 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_verify_2(self):
         self.write({'state':'verified_by_publisher'})
+
+    @api.multi
+    def _write(self, vals):
+        pre_not_reconciled = self.filtered(lambda invoice: not invoice.reconciled)
+        pre_reconciled = self - pre_not_reconciled
+        res = super(Invoice, self)._write(vals)
+        reconciled = self.filtered(lambda invoice: invoice.reconciled)
+        not_reconciled = self - reconciled
+        (reconciled & pre_reconciled).filtered(lambda invoice: invoice.state in ['verified_by_publisher'] and
+                                                               invoice.type in ['in_invoice','in_refund']).action_invoice_paid()
+        (not_reconciled & pre_not_reconciled).filtered(lambda invoice: invoice.state == 'paid').action_invoice_re_open()
+        return res
