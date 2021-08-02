@@ -119,6 +119,21 @@ class AccountInvoice(models.Model):
         if (self.company_id.verify_setting < self.amount_untaxed) and (self.company_id.verify_setting_2 < self.amount_untaxed):
             self.verif_tresh_exceeded = True
 
+    # Overwrite of action_invoice_paid in 2step validation module in account_invoice.py in MISC repo:
+    @api.multi
+    def action_invoice_paid(self):
+        to_pay_invoices = self.filtered(lambda inv: inv.state != 'paid')
+        if to_pay_invoices.filtered(lambda inv: inv.state not in ['auth','verified', 'verified_by_publisher'] and
+                                                               inv.type in ['in_invoice','in_refund']):
+            raise UserError(_('Invoice must be authorized and/or verified in order to set it to register payment.'))
+        if to_pay_invoices.filtered(lambda inv: inv.state not in ['open'] and
+                                                               inv.type in ['out_invoice','out_refund']):
+            raise UserError(_('Invoice must be open in order to set it to register payment.'))
+        if to_pay_invoices.filtered(lambda inv: not inv.reconciled):
+            raise UserError(
+                _('You cannot pay an invoice which is partially paid. You need to reconcile payment entries first.'))
+        return to_pay_invoices.write({'state': 'paid'})
+
     @api.multi
     def create_account_payment_line(self):
         apoo = self.env['account.payment.order']
@@ -200,3 +215,15 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_verify_2(self):
         self.write({'state':'verified_by_publisher'})
+
+    @api.multi
+    def _write(self, vals):
+        pre_not_reconciled = self.filtered(lambda invoice: not invoice.reconciled)
+        pre_reconciled = self - pre_not_reconciled
+        res = super(AccountInvoice, self)._write(vals)
+        reconciled = self.filtered(lambda invoice: invoice.reconciled)
+        not_reconciled = self - reconciled
+        (reconciled & pre_reconciled).filtered(lambda invoice: invoice.state in ['verified_by_publisher'] and
+                                                               invoice.type in ['in_invoice','in_refund']).action_invoice_paid()
+        (not_reconciled & pre_not_reconciled).filtered(lambda invoice: invoice.state == 'paid').action_invoice_re_open()
+        return res
