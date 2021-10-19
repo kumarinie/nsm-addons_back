@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "stop_invoice_follwer_mail",
+    'name': "stop_automatic_follower_emails",
 
     'summary': """
         Stop invoice auto follower mail
