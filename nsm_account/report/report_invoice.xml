@@ -209,10 +209,17 @@
                              <span>Invoice Date</span>
                              <br/>
                              <span>Expiry Date</span>
+                             <t t-set="sale_order_line" t-value="o.invoice_line_ids.mapped('sale_order_id')"/>
+                             <t t-if="not len(sale_order_line) > 1">
+                                <br/>
+                                 <span >Sales order nr</span>
+                             </t>
                              <t t-if="o.fiscal_position_id.id != 1">
                                 <br/>
                                 <span>VAT No.</span>
                              </t>
+                             <br/>
+                             
                              <!--<br/>-->
                              <!--<span t-if="bank_acc">IBAN</span>-->
                         </div>
@@ -231,10 +238,15 @@
                              <span t-field="o.date_invoice"/>
                              <br/>
                              <span t-field="o.date_due"/>
+                             <t t-if="not len(sale_order_line) > 1">
+                                <br/>
+                                <span t-esc="sale_order_line.name"/>
+                             </t>
                              <t t-if="o.fiscal_position_id.id != 1">
                                 <br/>
                                 <span t-if="o.partner_id" t-field="o.partner_id.vat"/>
                              </t>
+                             
                              <!--<br/>
                              <span t-if="bank_acc" t-esc="', '.join(map(lambda b: (b.acc_number or ''), o.company_id.partner_id.bank_ids))"/>-->
                         </div>
