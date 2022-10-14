@@ -407,7 +407,7 @@ class MoveLinefromOdootoRoularta(models.Model):
 
         xmlDict['soapenv:Envelope']['soapenv:Body']['web:PostRequest']['Transaction']['trans:Lines']['trans:Line'] = transaction_lines
 
-        xmlData = xmltodict.unparse(xmlDict, pretty=False, full_document=False)
+        xmlData = xmltodict.unparse(xmlDict, pretty=True, full_document=False)
 
         headers = {
             'SOAPAction': 'uri-coda-webservice/14.000.0030/finance/Input/Post',
@@ -420,8 +420,8 @@ class MoveLinefromOdootoRoularta(models.Model):
             self.write({
                 'roularta_response': response.status_code,
                 'roularta_response_message': response.text,
-                'xml_message': str(xmlData)
-        })
+            })
+            inv.write({'xml_message': str(xmlData)})
         except Exception as e:
             raise FailedJobError(
                 _('Error Roularta Interface call: %s') % (e))
