@@ -56,10 +56,9 @@ class AccountInvoice(models.Model):
             vendor_bill = inv.invoice_line_ids.mapped('purchase_id')
             if sale_invoice or vendor_bill:
                 res = inv.transfer_invoice_to_roularta()
-                # res.with_delay(
-                #     description=res.invoice_name
-                # ).roularta_content()
-                res.roularta_content()
+                res.with_delay(
+                    description=res.invoice_name
+                ).roularta_content()
 
     @api.multi
     def transfer_invoice_to_roularta(self):
@@ -420,8 +419,7 @@ class MoveLinefromOdootoRoularta(models.Model):
             'Content-Type': 'application/xml',
         }
 
-        if 1:
-        # try:
+        try:
             response = requests.request("POST", url, headers=headers, data=str(xmlData), auth=HTTPBasicAuth(user, pwd))
 
             self.write({
@@ -429,9 +427,9 @@ class MoveLinefromOdootoRoularta(models.Model):
                 'roularta_response_message': response.text,
                 'xml_message': str(xmlData)
         })
-        # except Exception as e:
-        #     raise FailedJobError(
-        #         _('Error Roularta Interface call: %s') % (e))
+        except Exception as e:
+            raise FailedJobError(
+                _('Error Roularta Interface call: %s') % (e))
         return response
 
 
