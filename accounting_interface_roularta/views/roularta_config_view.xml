@@ -9,14 +9,14 @@
                         <!--<button string="Test Connection" type="object" name="check_connection" help="Test server connection."/>-->
                     <!--</header>-->
                     <sheet>
-                        <div>
+                        <!--<div>
                             <h1 class="mt0">
                                 <field name="name" class="oe_inline" placeholder="Company Code"/>
                             </h1>
-                            <!--<div class="alert alert-info" role="alert" style="margin-bottom:0px;padding:10px;" attrs="{'invisible': [('msg','=',False)]}">
+                            <div class="alert alert-info" role="alert" style="margin-bottom:0px;padding:10px;" attrs="{'invisible': [('msg','=',False)]}">
                                 <field name="msg" readonly="1"/>
-                            </div>-->
-                        </div>
+                            </div>
+                        </div>-->
                         <group col="4">
                             <field name="host"/>
                         </group>
@@ -35,7 +35,7 @@
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="Roularta Config">
-                    <field name="name"/>
+                    <field name="username"/>
                     <field name="host"/>
                 </tree>
             </field>
