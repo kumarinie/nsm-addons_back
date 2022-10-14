@@ -29,6 +29,7 @@
                                 <field name="period"/>
                                 <field name="date"/>
                                 <field name="curcode"/>
+                                <field name="account_roularta_response"/>
                             </group>
                         </group>
                         <notebook>
@@ -55,8 +56,12 @@
                                         <field name="doc_tax_turnover"/>
                                         <field name="user_ref1"/>
                                         <field name="ext_ref4"/>
+                                        <field name="roularta_response"/>
                                     </tree>
                                 </field>
+                            </page>
+                            <page name="xml_data" string="Payload">
+                                <field name="xml_message"/>
                             </page>
                         </notebook>
                     </sheet>
@@ -90,5 +95,28 @@
 
         <menuitem id="menu_action_staged_roularta" name="Staged Roularta" parent="menu_roularta_interface" action="action_staged_Roularta"
                   sequence="2"/>
+
+
+        <record id="invoice_form_roularta_interface_access" model="ir.ui.view">
+            <field name="name">account.invoice.form.inherit.roularta.interface</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="groups_id" eval="[(4, ref('accounting_interface_roularta.group_roularta_manager'))]"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[last()]" position="after">
+                    <page string="Roularta Info" name="roularta_info">
+                        <group>
+                            <field name="roularta_sent"/>
+                            <field name="date_sent_roularta"/>
+                            <field name="roularta_log_id"/>
+                        </group>
+                    </page>
+                </xpath>
+
+            </field>
+        </record>
+
+
+
     </data>
 </odoo>

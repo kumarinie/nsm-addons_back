@@ -5,17 +5,17 @@
             <field name="model">roularta.config</field>
             <field name="arch" type="xml">
                 <form string="Roularta Config">
-                    <header>
-                        <button string="Test Connection" type="object" name="check_connection" help="Test server connection."/>
-                    </header>
+                    <!--<header>-->
+                        <!--<button string="Test Connection" type="object" name="check_connection" help="Test server connection."/>-->
+                    <!--</header>-->
                     <sheet>
                         <div>
                             <h1 class="mt0">
                                 <field name="name" class="oe_inline" placeholder="Company Code"/>
                             </h1>
-                            <div class="alert alert-info" role="alert" style="margin-bottom:0px;padding:10px;" attrs="{'invisible': [('msg','=',False)]}">
+                            <!--<div class="alert alert-info" role="alert" style="margin-bottom:0px;padding:10px;" attrs="{'invisible': [('msg','=',False)]}">
                                 <field name="msg" readonly="1"/>
-                            </div>
+                            </div>-->
                         </div>
                         <group col="4">
                             <field name="host"/>

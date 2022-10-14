@@ -1,16 +1,13 @@
 from odoo import api, fields, models, _
 from datetime import datetime, date
 from odoo import exceptions
-
-from xml.dom import minidom, Node
-
-
-
-# <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://www.coda.com/efinance/schemas/inputext/input-14.0/webservice" xmlns:tran="http://www.coda.com/efinance/schemas/transaction" xmlns:flex="http://www.coda.com/common/schemas/flexifield" xmlns:att="http://www.coda.com/common/schemas/attachment" xmlns:inp="http://www.coda.com/efinance/schemas/inputext" xmlns:mat="http://www.coda.com/efinance/schemas/matching" xmlns:ass="http://www.coda.com/efinance/schemas/association">
-# <soapenv:Header>
-# <web:Options user="INTERFACE" company="NRMN">
-# </web:Options>
-# </soapenv:Header>
+import base64
+from odoo.addons.queue_job.job import job, related_action
+from odoo.addons.queue_job.exception import FailedJobError
+import xmltodict
+import requests
+from requests.auth import HTTPBasicAuth
+from odoo.exceptions import UserError
 
 
 class AccountInvoice(models.Model):
@@ -41,22 +38,31 @@ class AccountInvoice(models.Model):
         help="Datetime on which Invoice is sent to roularta."
     )
 
-    publog_id = fields.Many2one(
+    roularta_log_id = fields.Many2one(
         'move.odooto.roularta',
         copy=False
     )
 
-    # @job
     @api.multi
-    def action_roularta_interface(self, arg):
+    def action_cancel(self):
+        res = super(AccountInvoice, self).action_cancel()
+        self.invoice_line_ids.write({'roularta_sent': False})
+        return res
+    @job
+    @api.multi
+    def action_roularta_interface(self):
         for inv in self:
             sale_invoice = inv.invoice_line_ids.mapped('sale_order_id')
             vendor_bill = inv.invoice_line_ids.mapped('purchase_id')
             if sale_invoice or vendor_bill:
-                inv.transfer_invoice_to_roularta(arg)
+                res = inv.transfer_invoice_to_roularta()
+                # res.with_delay(
+                #     description=res.invoice_name
+                # ).roularta_content()
+                res.roularta_content()
 
     @api.multi
-    def transfer_invoice_to_roularta(self, arg):
+    def transfer_invoice_to_roularta(self):
         self.ensure_one()
         if self.roularta_sent:
             vals = {
@@ -65,6 +71,7 @@ class AccountInvoice(models.Model):
                 'reference': 'This Invoice will not be sent to Roularta',
             }
             res = self.env['move.odooto.roularta'].sudo().create(vals)
+            return res
         else:
             vals = {
                 'invoice_id':self.id,
@@ -76,8 +83,7 @@ class AccountInvoice(models.Model):
                 'number':self.number,
                 'period':datetime.strptime(self.date_invoice, '%Y-%m-%d').strftime('%Y/%m'),
                 'curcode':self.currency_id.id,
-                # 'date':datetime.strptime(self.date_invoice, '%Y-%m-%d').strftime('%Y-%m-%dT%H:%M:%S.000')
-                'date':datetime.strptime(self.date_invoice, '%Y-%m-%d').strftime('%Y-%m-%dT%H:%M:%S.000')
+                'date':datetime.strptime(self.date_invoice, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S.000')
 
             }
 
@@ -112,7 +118,7 @@ class AccountInvoice(models.Model):
                     'line_type':'summary',
                     'line_sense':"debit" if sale_invoice else "credit",
                     'line_origin':'dl_orig_additional',
-                    'due_date':datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%dT%H:%M:%S'),
+                    'due_date':datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     'media_code':'BI',
                     'user_ref1':UserRef1,
                     'user_ref2':'',
@@ -120,15 +126,12 @@ class AccountInvoice(models.Model):
                     'ExtRef2':'',
                     'ExtRef6':'',
                 }
-                # move_line.sudo().create(lvals)
                 summary_lines.append((0, 0, lvals))
                 summary_seq += 1
 
             # Analysis line
             for mline in self.move_id.line_ids.\
                     filtered(lambda ml: ml.credit > 0 and ml.account_id not in invoice_tax_account):
-                # print '------------------------'
-                # print type(str(mline.analytic_account_id.code))
                 aa_code = mline.analytic_account_id and str(mline.analytic_account_id.code)
 
                 taxes = mline.tax_ids.compute_all(mline.credit, mline.currency_id,
@@ -137,7 +140,6 @@ class AccountInvoice(models.Model):
                 for tax in taxes:
                     total_tax_amount += tax['amount']
 
-                # print taxes,total_tax_amount
                 lvals = {
                     'move_line_id': mline.id,
                     'number': summary_seq,
@@ -149,14 +151,13 @@ class AccountInvoice(models.Model):
                     'line_type': 'analysis',
                     'line_sense': "credit" if sale_invoice else "debit",
                     'line_origin': 'dl_orig_additional',
-                    'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%dT%H:%M:%S'),
+                    'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     'code': 'VFL21',
                     'short_name': 'Verkoopfacturen locaal 21',
                     'ExtRef4': '<![CDATA[G&RBR]]>',
                     'description': '<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>',
                     'value': total_tax_amount,
                 }
-                # move_line.sudo().create(lvals)
                 summary_lines.append((0, 0, lvals))
                 summary_seq += 1
 
@@ -175,232 +176,21 @@ class AccountInvoice(models.Model):
                     'line_sense': "credit" if sale_invoice else "debit",
                     'line_origin': 'dl_orig_gentax',
                     'code':'VFL21',
-                    'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%dT%H:%M:%S'),
+                    'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                 }
-                # move_line.sudo().create(lvals)
                 summary_lines.append((0, 0, lvals))
                 summary_seq += 1
 
             vals['roularta_invoice_line'] = summary_lines
-            print vals
             res = self.env['move.odooto.roularta'].sudo().create(vals)
-            return True
+            return res
 
-        
+    @api.multi
+    def invoice_validate(self):
+        res = super(AccountInvoice, self).invoice_validate()
+        self.action_roularta_interface()
+        return res
 
-    def soap_tag_parsing(self):
-        config = self.env['roularta.config'].search([])
-        invoice_tax_account = self.tax_line_ids.mapped('account_id')
-        tax_lines = self.move_id.line_ids.filtered(lambda ml: ml.account_id in invoice_tax_account)
-        operating_code = self.operating_unit_id.code
-
-        header = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" ' \
-                      'xmlns:web="http://www.coda.com/efinance/schemas/inputext/input-14.0/webservice" ' \
-                      'xmlns:tran="http://www.coda.com/efinance/schemas/transaction" ' \
-                      'xmlns:flex="http://www.coda.com/common/schemas/flexifield" ' \
-                      'xmlns:att="http://www.coda.com/common/schemas/attachment" ' \
-                      'xmlns:inp="http://www.coda.com/efinance/schemas/inputext" ' \
-                      'xmlns:mat="http://www.coda.com/efinance/schemas/matching" ' \
-                      'xmlns:ass="http://www.coda.com/efinance/schemas/association">'+\
-                      '<web:Options user="INTERFACE" company="%s">'%config.name+\
-                      '</web:Options></soapenv:Header>'
-
-
-        body = '<soapenv:Body>' \
-                    '<web:PostOptions postto="anywhere"> </web:PostOptions>' \
-                    '<web:PostRequest>' \
-                    '<Transaction>' \
-                    '<trans:Header xmlns:trans="http://www.coda.com/efinance/schemas/transaction">' \
-                    '<trans:Key>' \
-                    '<trans:CmpCode>%s</trans:CmpCode>' \
-                    '<trans:Code>%s</trans:Code>' \
-                    '<trans:Number>%s</trans:Number>' \
-                    '</trans:Key>' \
-                    '<trans:Period>%s</trans:Period>' \
-                    '<trans:CurCode>%s</trans:CurCode>' \
-                    '<trans:Date>%s</trans:Date>' \
-                    '</trans:Header>'%\
-                    (operating_code, 'VFAV', self.number,
-                     datetime.strptime(self.date_invoice, '%Y-%m-%d').strftime('%Y/%m'),
-                     self.currency_id.name,
-                     datetime.strptime(self.date_invoice, '%Y-%m-%d').strftime('%Y-%m-%dT%H:%M:%S.000'))
-
-        summary_seq = 1
-        tax_amt = sum(tl.credit for tl in tax_lines)
-        sale_invoice = self.invoice_line_ids.mapped('sale_order_id')
-        vendor_invoice = self.invoice_line_ids.mapped('purchase_id')
-
-        lines = '<trans:Lines xmlns:trans="http://www.coda.com/efinance/schemas/transaction">'
-        for mline in self.move_id.line_ids.filtered(lambda ml: ml.debit > 0):
-            UserRef1 = self.number
-            if sale_invoice:
-                UserRef1 ='V'+UserRef1
-            elif vendor_invoice:
-                UserRef1 = 'I' + UserRef1
-
-            summary_line =  '<trans:Line>' \
-                            '<trans:Number>%s</trans:Number>' \
-                            '<trans:DestCode>%s</trans:DestCode>' \
-                            '<trans:AccountCode>%s</trans:AccountCode>' \
-                            '<trans:DocValue>%s</trans:DocValue>' \
-                            '<trans:DocSumTax>%s</trans:DocSumTax>' \
-                            '<trans:DualRate>40.339900000</trans:DualRate>' \
-                            '<trans:DocRate>1.000000000</trans:DocRate>' \
-                            '<trans:LineType>summary</trans:LineType>' \
-                            '<trans:LineSense>%s</trans:LineSense>' \
-                            '<trans:LineOrigin>dl_orig_additional</trans:LineOrigin>' \
-                            '<trans:DueDate>%s</trans:DueDate>' \
-                            '<trans:MediaCode>BI</trans:MediaCode>' \
-                            '<trans:UserRef1>%s</trans:UserRef1>' \
-                            '<trans:UserRef2></trans:UserRef2>' \
-                            '<trans:ExtRef1></trans:ExtRef1>' \
-                            '<trans:ExtRef2></trans:ExtRef2>' \
-                            '<trans:ExtRef6></trans:ExtRef6>' \
-                            '</trans:Line>'%(
-                                summary_seq,
-                                operating_code,
-                                mline.account_id.code+'.'+mline.partner_id.ref,
-                                mline.debit-tax_amt,
-                                tax_amt,
-                                "debit" if sale_invoice else "credit",
-                                datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%dT%H:%M:%S'),
-                                UserRef1,
-                             )
-
-            lines += summary_line
-
-        for mline in self.move_id.line_ids.\
-                filtered(lambda ml: ml.credit > 0 and ml.account_id not in invoice_tax_account):
-            print '------------------------'
-            print type(str(mline.analytic_account_id.code))
-            aa_code = mline.analytic_account_id and str(mline.analytic_account_id.code)
-
-            summary_seq += 1
-            analysis_line ='<trans:Line>'\
-                            '<trans:Number>%s</trans:Number>' \
-                            '<trans:DestCode>%s</trans:DestCode>' \
-                            '<trans:AccountCode>%s</trans:AccountCode>'\
-                            '<trans:DocValue>%s</trans:DocValue>' \
-                            '<trans:LineSense>%s</trans:LineSense>' \
-                            '<trans:LineType>analysis</trans:LineType>' \
-                            '<trans:LineOrigin>dl_orig_additional</trans:LineOrigin>'\
-                            '<trans:TaxInclusive>false</trans:TaxInclusive>' \
-                            '<trans:DualRate>40.339900000</trans:DualRate>'\
-                            '<trans:DocRate>1.000000000</trans:DocRate>'\
-                            '<trans:ExtRef4><![CDATA[G&RBR]]></trans:ExtRef4>'\
-                            '<trans:Description><![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]></trans:Description>'\
-                            '<trans:DueDate>%s</trans:DueDate>'\
-                            '<trans:Taxes>'\
-                            '<trans:Tax>'\
-                            '<trans:Code>VFL21</trans:Code>'\
-                            '<trans:ShortName>Verkoopfacturen locaal 21</trans:ShortName>'\
-                            '<trans:Value>157.5</trans:Value>'\
-                            '</trans:Tax>'\
-                            '</trans:Taxes>'\
-                            '</trans:Line>'%(
-                                summary_seq,
-                                operating_code,
-                                mline.account_id.code + '.' + mline.partner_id.ref+'.' +aa_code+'.'+mline.product_id.default_code,
-                                mline.credit,
-                                "credit" if sale_invoice else "debit",
-                                datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%dT%H:%M:%S'),
-                            )
-            lines += analysis_line
-
-        for mline in self.move_id.line_ids. \
-                filtered(lambda ml: ml.credit > 0 and ml.account_id in invoice_tax_account):
-            summary_seq += 1
-            tax_line = '<trans:Line>'\
-                '<trans:Number>%s</trans:Number>'\
-                '<trans:DestCode>%s</trans:DestCode>'\
-                '<trans:AccountCode>%s</trans:AccountCode>'\
-                '<trans:DocValue>%s</trans:DocValue>'\
-                '<trans:DocRate>1.000000000</trans:DocRate >'\
-                '<trans:DualRate>40.339900000</trans:DualRate>'\
-                '<trans:LineSense>%s</trans:LineSense>'\
-                '<trans:LineType>tax</trans:LineType>'\
-                'trans:LineOrigin>dl_orig_gentax</trans:LineOrigin>'\
-                '<trans:TaxLineCode>VFL21</trans:TaxLineCode>'\
-                '<trans:DocTaxTurnover>%s</trans:DocTaxTurnover>'\
-                '<trans:DueDate>%s</trans:DueDate>'\
-                '</trans:Line>'%(
-                    summary_seq,
-                    operating_code,
-                    mline.account_id.code,
-                    mline.credit,
-                    "debit" if sale_invoice else "credit",
-                    'analysis tax amount',
-                    datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%dT%H:%M:%S'),
-            )
-
-            lines += tax_line
-
-        lines += '</trans:Lines>'\
-                '</Transaction>'\
-                '</web:PostRequest>'\
-                '</soapenv:Body>'\
-                '</soapenv:Envelope>'
-
-        response_code =''
-
-        response_ok = '<soapenv:Envelope xmlns:soapenv = "http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd = "http://www.w3.org/2001/XMLSchema" xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance">'\
-                        '<soapenv:Body>'\
-                        '<webservice:PostResponse xmlns:webservice = "http://www.coda.com/efinance/schemas/inputext/input-14.0/webservice" ' \
-                        'xmlns = "http://www.coda.com/efinance/schemas/inputext" ' \
-                        'xmlns:com = "http://www.coda.com/efinance/schemas/common" ' \
-                        'xmlns:atc = "http://www.coda.com/common/schemas/attachment" '\
-                        'xmlns:mat = "http://www.coda.com/efinance/schemas/matching" '\
-                        'xmlns:itm = "http://www.coda.com/efinance/schemas/inputtemplate"'\
-                        'xmlns:ffd = "http://www.coda.com/common/schemas/flexifield"'\
-                        'xmlns:elm = "http://www.coda.com/efinance/schemas/elementmaster"'\
-                        'xmlns:doc = "http://www.coda.com/efinance/schemas/documentmaster"'\
-                        'xmlns:inp = "http://www.coda.com/efinance/schemas/input"'\
-                        'xmlns:txn = "http://www.coda.com/efinance/schemas/transaction"'\
-                        'xmlns:aso = "http://www.coda.com/efinance/schemas/association">'\
-                        '<webservice:Key>'\
-                        '<txn:CmpCode>%s</txn:CmpCode >'\
-                        '<txn:Code>VFAV</txn:Code>'\
-                        '<txn:Number>%s</txn:Number>'\
-                        '</webservice:Key>'\
-                        '</webservice:PostResponse>'\
-                        '</soapenv:Body>'\
-                        '</soapenv:Envelope>'%(
-                            operating_code,
-                            response_code
-                        )
-
-
-        response_nok = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'\
-                        '<soapenv:Body>'\
-                        '<soapenv:Fault>'\
-                        '<faultcode>soapenv:Client</faultcode>'\
-                        '<faultstring>The document header VFAV with number %s already exists. Failed to create a document header for document VFAV with number 2230397.</faultstring>'\
-                        '<detail>'\
-                        '<ns1:Reason xmlns:ns1="http://www.coda.com/efinance/schemas/common">'\
-                        '<ns1:Text code="WSADAPTER_EMSG_MESSAGE">The document header VFAV with number %s already exists.</ns1:Text>'\
-                        '<ns1:Text code="WSADAPTER_EMSG_MESSAGE">Failed to create a document header for document VFAV with number %s.</ns1:Text>'\
-                        '</ns1:Reason>'\
-                        '</detail>'\
-                        '</soapenv:Fault>'\
-                        '</soapenv:Body>'\
-                        '</soapenv:Envelope>'%(
-                            response_code,
-                            response_code,
-                            response_code
-                        )
-
-
-        lines += response_ok + response_nok
-
-
-
-
-        # print '---------soap_header---------',soap_header
-        # print '---------soap_header---------',soap_body
-        print '---------line---------',lines
-        # print '---------soap_debit_line---------',analysis_line
-
-        raise Exception("bus.Bus only string channels are allowed.")
 
 class AccountInvoiceLine(models.Model):
     _inherit = 'account.invoice.line'
@@ -409,9 +199,6 @@ class AccountInvoiceLine(models.Model):
         'Invoice Line sent to Roularta',
         copy=False
     )
-
-
-
 
 class MovefromOdootoRoularta(models.Model):
     _name = 'move.odooto.roularta'
@@ -422,7 +209,7 @@ class MovefromOdootoRoularta(models.Model):
     def _compute_response(self):
         for acc in self:
             acc.account_roularta_response = True
-            for line in acc.ad4all_so_line:
+            for line in acc.roularta_invoice_line:
                 if line.roularta_response != 200:
                     acc.account_roularta_response = False
                     break
@@ -450,18 +237,21 @@ class MovefromOdootoRoularta(models.Model):
         compute=_compute_response,
         default=False,
         store=True,
-        string='Ad4all Response'
+        string='Roularta Response'
+    )
+    xml_message = fields.Text(
+        'XML message'
     )
 
-    # @job
-    def wsdl_content(self, xml=False):
+    @job
+    def roularta_content(self, xml=False):
         self.ensure_one()
         if self.account_roularta_response:
             raise UserError(_(
                 'This Account Invoice already has been succesfully sent to Roularta.'))
         if self.roularta_invoice_line:
-            response = self.roularta_invoice_line.call_wsdl(xml)
-            if response['code'] == 200:#need to check this parameter
+            response = self.roularta_invoice_line.call_roularta(self, xml)
+            if response.status_code == 200:
                 self.env['account.invoice.line'].search(
                     [('invoice_id', '=', self.invoice_id.id)]).write(
                     {'roularta_sent': True})
@@ -469,17 +259,11 @@ class MovefromOdootoRoularta(models.Model):
                 return
         acc = self.env['account.invoice'].search(
             [('id', '=', self.invoice_id.id)])
-        accvals = {'date_sent_roularta': datetime.datetime.now(),
-                  'publog_id': self.id,
-                  # 'ad4all_tbu': False
+        accvals = {'date_sent_roularta': datetime.now(),
+                  'roularta_log_id': self.id,
                   }
         acc.write(accvals)
-        # wsdl = "http://trial.ad4all.nl/data/wsdl"
-        # self.so_ad4all_environment = wsdl
         return True
-
-
-
 
 class MoveLinefromOdootoRoularta(models.Model):
     _name = 'move.line.odooto.roularta'
@@ -516,94 +300,138 @@ class MoveLinefromOdootoRoularta(models.Model):
         required=True,
         copy=False
     )
-    roularta_response = fields.Text(
+    roularta_response = fields.Integer(
         'Roularta Response'
     )
+    roularta_response_message = fields.Text(
+        'Reply message'
+    )
 
-    def call_wsdl(self, xml=False):
+    def call_roularta(self, inv, xml=False):
         config = self.env['roularta.config'].search([], limit=1)
-        client = config.check_connection()
-        # client = Client(
-        #     wsdl,
-        #     transport=Transport(session=session),
-        #     settings=settings,
-        #     plugins=[history]
-        # )
+        url = str(config.host)
+        user = str(config.username)
+        pwd = str(config.password)
+
+        xmlDict = {
+            'soapenv:Envelope': {
+                '@xmlns:soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',
+                '@xmlns:web': 'http://www.coda.com/efinance/schemas/inputext/input-14.0/webservice',
+                '@xmlns:tran': 'http://www.coda.com/efinance/schemas/transaction',
+                '@xmlns:flex': 'http://www.coda.com/common/schemas/flexifield',
+                '@xmlns:att': 'http://www.coda.com/common/schemas/attachment',
+                '@xmlns:inp': 'http://www.coda.com/efinance/schemas/inputext',
+                '@xmlns:mat': 'http://www.coda.com/efinance/schemas/matching',
+                '@xmlns:ass': 'http://www.coda.com/efinance/schemas/association',
+                'soapenv:Header': {
+                    'web:Options': {
+                        '@user': config.username,
+                        '@company': config.name,
+                    }
+                },
+                'soapenv:Body': {
+                    'web:PostOptions': {
+                        '@postto': "anywhere"
+                    },
+                    'web:PostRequest': {
+                        'Transaction': {
+                            'trans:Header': {
+                                '@xmlns:trans': 'http://www.coda.com/efinance/schemas/transaction',
+                                'trans:Key': {
+                                    'trans:CmpCode': inv.company_code,
+                                    'trans:Code': inv.number,
+                                    'trans:Number': "VFAV"
+                                },
+                                'trans:Period': inv.period,
+                                'trans:CurCode': inv.curcode.name,
+                                'trans:Date': datetime.strptime(inv.date, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S')
+                            },
+                            'trans:Lines': {
+                                '@xmlns:trans':'http://www.coda.com/efinance/schemas/transaction',
+                                'trans:Line':[]
+                            }
+                        }
+                    }
+                }
+            }
+        }
         
-        
-        Order = client.type_factory('ns0')
-        order_obj = Order.order(
-            portal="nsm_L8hd6Ep",
-            deliverer="nsm",
-            order_code=int(float(self.adgr_orde_id.id))
-        )
-        # paper_deadline = datetime.datetime.strptime(
-        #     self.paper_deadline, '%Y-%m-%d').strftime('%Y%m%d') \
-        #     if self.paper_deadline else ''
-        # paper_pub_date = datetime.datetime.strptime(
-        #     self.paper_pub_date, '%Y-%m-%d').strftime(
-        #     '%Y%m%d') if self.paper_pub_date else ''
+        transaction_lines = []
+        for line in self:
+            entry = {
+                    'trans:Number':line.number,
+                    'trans:DestCode':line.dest_code,
+                    'trans:AccountCode':line.account_code,
+                    'trans:DocValue':line.doc_value,
+                    'trans:DualRate':line.dual_rate,
+                    'trans:DocRate':line.doc_rate,
+                    'trans:LineType':line.line_type,
+                    'trans:LineSense':line.line_sense,
+                    'trans:LineOrigin':line.line_origin,
+                    'trans:DueDate':datetime.strptime(line.due_date, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S'),
+                    # from_time.strftime('%Y-%m-%dT%H:%M:%S.000Z')
+                # start_date = fields.Datetime.context_timestamp(self, fields.Datetime.from_string(event.start)).isoformat('T')
+            }
 
-        doc = minidom.Document()
+            if line.line_type == 'summary':
+                entry.update({
+                    'trans:DocSumTax':line.doc_sum_tax,
+                    'trans:MediaCode':line.media_code,
+                    'trans:UserRef1':line.user_ref1 or '',
+                    'trans:UserRef2':line.user_ref2 or '',
+                    'trans:ExtRef1':line.ext_ref1 or '',
+                    'trans:ExtRef2':line.ext_ref2 or '',
+                    'trans:ExtRef6':line.ext_ref6 or '',
 
-        #Soap header
-        header_envelope = doc.createElement('soapenv:Envelope')
-        doc.appendChild(header_envelope)
-        header_envelope.setAttribute('xmlns:ass', 'http://www.coda.com/efinance/schemas/association')
-        header_envelope.setAttribute('xmlns:mat', 'http://www.coda.com/efinance/schemas/matching')
-        header_envelope.setAttribute('xmlns:inp', 'http://www.coda.com/efinance/schemas/inputext')
-        header_envelope.setAttribute('xmlns:att', 'http://www.coda.com/common/schemas/attachment')
-        header_envelope.setAttribute('xmlns:flex', 'http://www.coda.com/common/schemas/flexifield')
-        header_envelope.setAttribute('xmlns:trans', 'http://www.coda.com/efinance/schemas/transaction')
-        header_envelope.setAttribute('xmlns:web', 'http://www.coda.com/efinance/schemas/inputext/input-14.0/webservice')
-        header_envelope.setAttribute('xmlns:soapenv', 'http://schemas.xmlsoap.org/soap/envelope/')
+                })
+            elif line.line_type == 'analysis':
+                entry.update({
+                    # 'trans:TaxInclusive':False,
+                    'trans:TaxInclusive':'',
+                    'trans:ExtRef4':'<![CDATA[G&RBR]]>',
+                    'trans:Description':'<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>',
+                    'trans:Taxes':{
+                        'trans:Tax':{
+                            'trans:Code':line.code,
+                            'trans:ShortName':line.short_name,
+                            'trans:Value':line.value,
+                        }
+                    },
+                })
 
-        header_soap_header = doc.createElement('soapenv:Header')
-        header_envelope.appendChild(header_soap_header)
+            elif line.line_type == 'tax':
+                entry.update({
+                    'trans:TaxLineCode':line.code,
+                    'trans:DocTaxTurnover':line.doc_tax_turnover
+                })
 
-        header_web_option = doc.createElement('web:Options')
-        header_web_option.setAttribute('company', config.name)
-        header_web_option.setAttribute('user', "INTERFACE")
-        header_web_option.appendChild(doc.createTextNode(''))
-        header_soap_header.appendChild(header_web_option)
+            transaction_lines.append(entry)
 
+        xmlDict['soapenv:Envelope']['soapenv:Body']['web:PostRequest']['Transaction']['trans:Lines']['trans:Line'] = transaction_lines
 
-        #soap body
-        soap_body = doc.createElement('soapenv:Body')
-        header_envelope.appendChild(soap_body)
-        body_post_option = doc.createElement('web:PostOptions')
-        body_post_option.setAttribute('postto', "anywhere")
-        body_post_option.appendChild(doc.createTextNode(''))
-        soap_body.appendChild(body_post_option)
+        xmlData = xmltodict.unparse(xmlDict, pretty=False, full_document=False)
 
-        body_transaction = doc.createElement('Transaction')
-        soap_body.appendChild(body_transaction)
+        import pdb;
+        pdb.set_trace()
+        print (xmltodict.unparse(xmlDict, full_document=False))
 
-        body_header = doc.createElement('trans:Header')
-        body_header.setAttribute('xmlns:trans', "http://www.coda.com/efinance/schemas/transaction")
-        soap_body.appendChild(body_header)
+        headers = {
+            'SOAPAction': 'uri-coda-webservice/14.000.0030/finance/Input/Post',
+            'Content-Type': 'application/xml',
+        }
 
-        body_header_key = doc.createElement('trans:key')
-        body_header.appendChild(body_header_key)
+        if 1:
+        # try:
+            response = requests.request("POST", url, headers=headers, data=str(xmlData), auth=HTTPBasicAuth(user, pwd))
 
-        body_key_vals = doc.createElement('trans:CmpCode')
-        body_header_key.appendChild(body_key_vals)
-        body_key_vals.appendChild(doc.createTextNode(self.inv_id.company_code))
-
-
-
-        xmlData = dicttoxml(xml_dict, attr_type=False, root=False)
-        xmlData = (xmlData.replace('<item>', '')).replace('<item >', '').replace('</item>', '')
-        order_obj.xml_data = xmlpprint(xmlData)
-        try:
-            response = client.service.soap_order(order=order_obj)
             self.write({
-                'ad4all_response': response['code'],
-                'json_message': order_obj.xml_data,
+                'roularta_response': response.status_code,
+                'roularta_response_message': response.text,
+                'xml_message': str(xmlData)
         })
-        except Exception as e:
-            raise FailedJobError(
-                _('Error wsdl call: %s') % (e))
+        # except Exception as e:
+        #     raise FailedJobError(
+        #         _('Error Roularta Interface call: %s') % (e))
         return response
 
 
