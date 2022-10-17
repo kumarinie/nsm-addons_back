@@ -12,7 +12,7 @@ class RoulartaConfig(models.Model):
     _description = 'Roularta Config'
     _rec_name = 'username'
 
-    name = fields.Char('Company Code', required=True)
+    # name = fields.Char('Company Code', required=True)
     host = fields.Char('URL', required=True,
         help='This is the URL that the system can be reached at.'
     )

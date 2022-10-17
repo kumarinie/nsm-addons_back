@@ -202,6 +202,7 @@ class AccountInvoiceLine(models.Model):
 class MovefromOdootoRoularta(models.Model):
     _name = 'move.odooto.roularta'
     _order = 'create_date desc'
+    _rec_name = 'number'
 
     @api.depends('roularta_invoice_line.roularta_response')
     @api.multi
@@ -325,7 +326,7 @@ class MoveLinefromOdootoRoularta(models.Model):
                 'soapenv:Header': {
                     'web:Options': {
                         '@user': config.username,
-                        '@company': config.name,
+                        '@company': inv.company_code,
                     }
                 },
                 'soapenv:Body': {
@@ -368,8 +369,6 @@ class MoveLinefromOdootoRoularta(models.Model):
                     'trans:LineSense':line.line_sense,
                     'trans:LineOrigin':line.line_origin,
                     'trans:DueDate':datetime.strptime(line.due_date, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S'),
-                    # from_time.strftime('%Y-%m-%dT%H:%M:%S.000Z')
-                # start_date = fields.Datetime.context_timestamp(self, fields.Datetime.from_string(event.start)).isoformat('T')
             }
 
             if line.line_type == 'summary':
@@ -408,11 +407,7 @@ class MoveLinefromOdootoRoularta(models.Model):
 
         xmlDict['soapenv:Envelope']['soapenv:Body']['web:PostRequest']['Transaction']['trans:Lines']['trans:Line'] = transaction_lines
 
-        xmlData = xmltodict.unparse(xmlDict, pretty=False, full_document=False)
-
-        import pdb;
-        pdb.set_trace()
-        print (xmltodict.unparse(xmlDict, full_document=False))
+        xmlData = xmltodict.unparse(xmlDict, pretty=True, full_document=False)
 
         headers = {
             'SOAPAction': 'uri-coda-webservice/14.000.0030/finance/Input/Post',
@@ -425,8 +420,8 @@ class MoveLinefromOdootoRoularta(models.Model):
             self.write({
                 'roularta_response': response.status_code,
                 'roularta_response_message': response.text,
-                'xml_message': str(xmlData)
-        })
+            })
+            inv.write({'xml_message': str(xmlData)})
         except Exception as e:
             raise FailedJobError(
                 _('Error Roularta Interface call: %s') % (e))

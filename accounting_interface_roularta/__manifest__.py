@@ -28,6 +28,9 @@
         'views/roularta_config_view.xml',
         'views/account_view.xml',
     ],
+    'external_dependencies': {
+        'python': ['xmltodict','requests'],
+    },
     # only loaded in demonstration mode
     'demo': [
         # 'demo/demo.xml',
