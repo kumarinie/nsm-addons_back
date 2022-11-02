@@ -345,14 +345,20 @@ class SofromOdootoAd4all(models.Model):
     reference = fields.Char(
         'Order Reference'
     )
-    so_customer_id = fields.Integer(
+    # so_customer_id = fields.Integer(
+    #     string='Advertiser Number'
+    # )
+    so_customer_id = fields.Char(
         string='Advertiser Number'
     )
     so_customer_name = fields.Char(
         string='Advertiser Name',
         size=64
     )
-    so_customer_contacts_contact_id = fields.Integer(
+    # so_customer_contacts_contact_id = fields.Integer(
+    #     string='Advertiser Contact ID',
+    # )
+    so_customer_contacts_contact_id = fields.Char(
         string='Advertiser Contact ID',
     )
     so_customer_contacts_contact_name = fields.Char(
@@ -517,6 +523,21 @@ class SofromOdootoAd4all(models.Model):
         return True
 
 
+    def update_fields_value(self):
+        # for advertsing with title
+        sql = ("UPDATE sofrom_odooto_ad4all "
+               "SET so_customer_id =  so_customer_id_moved0, "
+               "so_customer_contacts_contact_id = so_customer_contacts_contact_id_moved0"
+               )
+        cr = self.env.cr
+        cr.execute(sql)
+
+        sql = ("UPDATE soline_from_odooto_ad4all "
+               "SET paper_id = paper_id_moved0"
+               )
+        cr = self.env.cr
+        cr.execute(sql)
+
 
 
 class SoLinefromOdootoAd4all(models.Model):
@@ -607,7 +628,10 @@ class SoLinefromOdootoAd4all(models.Model):
     paper_deadline = fields.Date(
         string='Deadline Date'
     )
-    paper_id = fields.Integer(
+    # paper_id = fields.Integer(
+    #     string='Title Id'
+    # )
+    paper_id = fields.Char(
         string='Title Id'
     )
     paper_name = fields.Char(
@@ -643,7 +667,11 @@ class SoLinefromOdootoAd4all(models.Model):
     reminder = fields.Boolean(
         string='Reminder'
     )
-    customer_id = fields.Integer(
+    # customer_id = fields.Integer(
+    #     related='so_id.so_customer_id',
+    #     string='Advertiser Number'
+    # )
+    customer_id = fields.Char(
         related='so_id.so_customer_id',
         string='Advertiser Number'
     )
@@ -652,7 +680,11 @@ class SoLinefromOdootoAd4all(models.Model):
         string='Advertiser Name',
         size=64
     )
-    customer_contacts_contact_id = fields.Integer(
+    # customer_contacts_contact_id = fields.Integer(
+    #     related='so_id.so_customer_contacts_contact_id',
+    #     string='Advertiser Contact ID',
+    # )
+    customer_contacts_contact_id = fields.Char(
         related='so_id.so_customer_contacts_contact_id',
         string='Advertiser Contact ID',
     )

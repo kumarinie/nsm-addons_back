@@ -127,6 +127,7 @@ To contribute to this module, please visit https://odoo-community.org.
     # always loaded
     'data': [
              'security/ir.model.access.csv',
+             'data/cron_data.xml',
              'views/sale_advertising_order.xml',
              'views/product_view.xml',
              'wizard/sale_order_state_view.xml'
