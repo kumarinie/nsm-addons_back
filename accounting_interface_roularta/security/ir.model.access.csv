@@ -1,2 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_roularta_config,roularta_config,model_roularta_config,,1,1,1,1
+access_roularta_move_odooto_roularta,roularta_move_odooto_roularta,model_move_odooto_roularta,,1,1,1,1
+access_roularta_move_line_odooto_roularta,roularta_move_line_odooto_roularta,model_move_line_odooto_roularta,,1,1,1,1
