@@ -967,7 +967,7 @@ class SoLinefromOdootoAd4all(models.Model):
         }]
 
         customer_dict = {'customer': [
-            {'id': int(float(self.customer_id))},
+            {'id': self.customer_id},
             {'name': self.customer_name},
             {'address': [
                 {'street': self.customer_address_street},
