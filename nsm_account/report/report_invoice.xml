@@ -213,6 +213,10 @@
                              <t t-if="not len(sale_order_line) > 1">
                                 <br/>
                                  <span >Sales order nr</span>
+                                 <t t-if="sale_order_line.opportunity_subject">
+                                     <br/>
+                                     <span> Subject</span>
+                                 </t>
                              </t>
                              <t t-if="o.fiscal_position_id.id != 1">
                                 <br/>
@@ -241,6 +245,10 @@
                              <t t-if="not len(sale_order_line) > 1">
                                 <br/>
                                 <span t-esc="sale_order_line.name"/>
+                                <t t-if="sale_order_line.opportunity_subject">
+                                    <br/>
+                                    <span t-esc="sale_order_line.opportunity_subject"/>
+                                </t>
                              </t>
                              <t t-if="o.fiscal_position_id.id != 1">
                                 <br/>

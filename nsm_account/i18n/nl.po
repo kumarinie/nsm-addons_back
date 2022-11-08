@@ -24,6 +24,18 @@ msgstr "<br/>\n"
 
 #. module: nsm_account
 #: model:ir.ui.view,arch_db:nsm_account.report_invoice_document_nsm_account
+msgid "<br/>\n"
+"                                     <span> Subject</span>"
+msgstr "<br/>\n"
+"                                     <span> Onderwerp</span>"
+
+#. module: nsm_package_account
+#: model:ir.ui.view,arch_db:nsm_package_account.report_invoice_document_nsm_account_package
+msgid "<span><strong>Package Description</strong></span><br/>"
+msgstr "<span><strong>Pakket omschrijving</strong></span><br/>"
+
+#. module: nsm_account
+#: model:ir.ui.view,arch_db:nsm_account.report_invoice_document_nsm_account
 msgid "<span width=\"35%\">\n"
 "                        <strong>Advertiser</strong>\n"
 "                    </span>\n"
@@ -52,6 +64,11 @@ msgid "<span>Invoice Number</span>\n"
 "                             <br/>"
 msgstr "<span>Factuurnummer</span>\n"
 "                             <br/>"
+
+#. module: nsm_package_account
+#: model:ir.ui.view,arch_db:nsm_package_account.report_invoice_document_nsm_account_package
+msgid "<strong>Package Subscription</strong>"
+msgstr "<strong>Pakket omschrijving</strong>"
 
 #. module: nsm_account
 #: model:ir.ui.view,arch_db:nsm_account.report_invoice_document_nsm_account
