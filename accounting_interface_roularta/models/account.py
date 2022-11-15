@@ -339,8 +339,8 @@ class MoveLinefromOdootoRoularta(models.Model):
                                 '@xmlns:trans': 'http://www.coda.com/efinance/schemas/transaction',
                                 'trans:Key': {
                                     'trans:CmpCode': inv.company_code,
-                                    'trans:Code': inv.number,
-                                    'trans:Number': "VFAV"
+                                    'trans:Code': "VFAV",
+                                    'trans:Number': inv.number
                                 },
                                 'trans:Period': inv.period,
                                 'trans:CurCode': inv.curcode.name,
