@@ -110,7 +110,7 @@ class AccountInvoice(models.Model):
                     'number':summary_seq,
                     'dest_code':operating_code,
                     'account_code':mline.account_id.code + '.' + mline.partner_id.ref,
-                    'doc_value':mline.debit-tax_amt,
+                    'doc_value':mline.debit,
                     'doc_sum_tax':tax_amt,
                     'dual_rate':40.339900000,
                     'doc_rate':1.000000000,
@@ -176,6 +176,7 @@ class AccountInvoice(models.Model):
                     'line_origin': 'dl_orig_gentax',
                     'code':'VFL21',
                     'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
+                    'doc_tax_turnover':inv.amount_untaxed
                 }
                 summary_lines.append((0, 0, lvals))
                 summary_seq += 1
@@ -313,51 +314,18 @@ class MoveLinefromOdootoRoularta(models.Model):
         user = str(config.username)
         pwd = str(config.password)
 
-        xmlDict = {
-            'soapenv:Envelope': {
-                '@xmlns:soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',
-                '@xmlns:web': 'http://www.coda.com/efinance/schemas/inputext/input-14.0/webservice',
-                '@xmlns:tran': 'http://www.coda.com/efinance/schemas/transaction',
-                '@xmlns:flex': 'http://www.coda.com/common/schemas/flexifield',
-                '@xmlns:att': 'http://www.coda.com/common/schemas/attachment',
-                '@xmlns:inp': 'http://www.coda.com/efinance/schemas/inputext',
-                '@xmlns:mat': 'http://www.coda.com/efinance/schemas/matching',
-                '@xmlns:ass': 'http://www.coda.com/efinance/schemas/association',
-                'soapenv:Header': {
-                    'web:Options': {
-                        '@user': config.username,
-                        '@company': inv.company_code,
-                    }
-                },
-                'soapenv:Body': {
-                    'web:PostOptions': {
-                        '@postto': "anywhere"
-                    },
-                    'web:PostRequest': {
-                        'Transaction': {
-                            'trans:Header': {
-                                '@xmlns:trans': 'http://www.coda.com/efinance/schemas/transaction',
-                                'trans:Key': {
-                                    'trans:CmpCode': inv.company_code,
-                                    'trans:Code': "VFAV",
-                                    'trans:Number': inv.number
-                                },
-                                'trans:Period': inv.period,
-                                'trans:CurCode': inv.curcode.name,
-                                'trans:Date': datetime.strptime(inv.date, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S')
-                            },
-                            'trans:Lines': {
-                                '@xmlns:trans':'http://www.coda.com/efinance/schemas/transaction',
-                                'trans:Line':[]
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
+        trans_code = ''
+        if inv.type == 'out_invoice':
+            trans_code = 'VFOO'
+        elif inv.type == 'out_refund':
+            trans_code = 'VCOO'
+        elif inv.type == 'in_invoice':
+            trans_code = 'IFOO'
+        elif inv.type == 'in_refund':
+            trans_code = 'ICOO'
+
         transaction_lines = []
-        for line in self:
+        for line in self.search([('id', 'in', self.ids)], order='number asc'):
             entry = {
                     'trans:Number':line.number,
                     'trans:DestCode':line.dest_code,
@@ -384,17 +352,16 @@ class MoveLinefromOdootoRoularta(models.Model):
                 })
             elif line.line_type == 'analysis':
                 entry.update({
-                    # 'trans:TaxInclusive':False,
-                    'trans:TaxInclusive':'',
-                    'trans:ExtRef4':'<![CDATA[G&RBR]]>',
-                    'trans:Description':'<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>',
-                    'trans:Taxes':{
-                        'trans:Tax':{
-                            'trans:Code':line.code,
-                            'trans:ShortName':line.short_name,
-                            'trans:Value':line.value,
+                    'trans:Taxes': {
+                        'trans:Tax': {
+                            'trans:Code': line.code,
+                            'trans:ShortName': line.short_name,
+                            'trans:Value': line.value,
                         }
                     },
+                    'trans:TaxInclusive':False,
+                    'trans:ExtRef4':'<![CDATA[G&RBR]]>',
+                    'trans:Description':'<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>',
                 })
 
             elif line.line_type == 'tax':
@@ -405,7 +372,52 @@ class MoveLinefromOdootoRoularta(models.Model):
 
             transaction_lines.append(entry)
 
-        xmlDict['soapenv:Envelope']['soapenv:Body']['web:PostRequest']['Transaction']['trans:Lines']['trans:Line'] = transaction_lines
+        xmlDict = {
+            'soapenv:Envelope': {
+                '@xmlns:soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',
+                '@xmlns:web': 'http://www.coda.com/efinance/schemas/inputext/input-14.0/webservice',
+                '@xmlns:tran': 'http://www.coda.com/efinance/schemas/transaction',
+                '@xmlns:flex': 'http://www.coda.com/common/schemas/flexifield',
+                '@xmlns:att': 'http://www.coda.com/common/schemas/attachment',
+                '@xmlns:inp': 'http://www.coda.com/efinance/schemas/inputext',
+                '@xmlns:mat': 'http://www.coda.com/efinance/schemas/matching',
+                '@xmlns:ass': 'http://www.coda.com/efinance/schemas/association',
+
+                'soapenv:Body': {
+
+                    'web:PostRequest': {
+                        'Transaction': {
+                            'trans:Lines': {
+                                'trans:Line': transaction_lines,
+                                '@xmlns:trans': 'http://www.coda.com/efinance/schemas/transaction',
+
+                            },
+                            'trans:Header': {
+                                '@xmlns:trans': 'http://www.coda.com/efinance/schemas/transaction',
+                                'trans:Period': inv.period,
+                                'trans:CurCode': inv.curcode.name,
+                                'trans:Date': datetime.strptime(inv.date, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S'),
+                                'trans:Key': {
+                                    'trans:CmpCode': inv.company_code,
+                                    'trans:Code': trans_code,
+                                    'trans:Number': inv.number
+                                },
+                            },
+
+                        }
+                    },
+                    'web:PostOptions': {
+                        '@postto': "anywhere"
+                    },
+                },
+                'soapenv:Header': {
+                    'web:Options': {
+                        '@user': config.username,
+                        '@company': inv.company_code,
+                    }
+                },
+            }
+        }
 
         xmlData = xmltodict.unparse(xmlDict, pretty=True, full_document=False)
 
