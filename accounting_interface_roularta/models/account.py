@@ -8,6 +8,7 @@ import xmltodict
 import requests
 from requests.auth import HTTPBasicAuth
 from odoo.exceptions import UserError
+from collections import OrderedDict
 
 
 class AccountInvoice(models.Model):
@@ -110,7 +111,7 @@ class AccountInvoice(models.Model):
                     'number':summary_seq,
                     'dest_code':operating_code,
                     'account_code':mline.account_id.code + '.' + mline.partner_id.ref,
-                    'doc_value':mline.debit-tax_amt,
+                    'doc_value':mline.debit,
                     'doc_sum_tax':tax_amt,
                     'dual_rate':40.339900000,
                     'doc_rate':1.000000000,
@@ -176,6 +177,7 @@ class AccountInvoice(models.Model):
                     'line_origin': 'dl_orig_gentax',
                     'code':'VFL21',
                     'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
+                    'doc_tax_turnover':self.amount_untaxed
                 }
                 summary_lines.append((0, 0, lvals))
                 summary_seq += 1
@@ -313,101 +315,118 @@ class MoveLinefromOdootoRoularta(models.Model):
         user = str(config.username)
         pwd = str(config.password)
 
-        xmlDict = {
-            'soapenv:Envelope': {
-                '@xmlns:soapenv': 'http://schemas.xmlsoap.org/soap/envelope/',
-                '@xmlns:web': 'http://www.coda.com/efinance/schemas/inputext/input-14.0/webservice',
-                '@xmlns:tran': 'http://www.coda.com/efinance/schemas/transaction',
-                '@xmlns:flex': 'http://www.coda.com/common/schemas/flexifield',
-                '@xmlns:att': 'http://www.coda.com/common/schemas/attachment',
-                '@xmlns:inp': 'http://www.coda.com/efinance/schemas/inputext',
-                '@xmlns:mat': 'http://www.coda.com/efinance/schemas/matching',
-                '@xmlns:ass': 'http://www.coda.com/efinance/schemas/association',
-                'soapenv:Header': {
-                    'web:Options': {
-                        '@user': config.username,
-                        '@company': inv.company_code,
-                    }
-                },
-                'soapenv:Body': {
-                    'web:PostOptions': {
-                        '@postto': "anywhere"
-                    },
-                    'web:PostRequest': {
-                        'Transaction': {
-                            'trans:Header': {
-                                '@xmlns:trans': 'http://www.coda.com/efinance/schemas/transaction',
-                                'trans:Key': {
-                                    'trans:CmpCode': inv.company_code,
-                                    'trans:Code': "VFAV",
-                                    'trans:Number': inv.number
-                                },
-                                'trans:Period': inv.period,
-                                'trans:CurCode': inv.curcode.name,
-                                'trans:Date': datetime.strptime(inv.date, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S')
-                            },
-                            'trans:Lines': {
-                                '@xmlns:trans':'http://www.coda.com/efinance/schemas/transaction',
-                                'trans:Line':[]
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
+        trans_code = ''
+        invoice = inv.invoice_id
+        if invoice.type == 'out_invoice':
+            trans_code = 'VFOO'
+        elif invoice.type == 'out_refund':
+            trans_code = 'VCOO'
+        elif invoice.type == 'in_invoice':
+            trans_code = 'IFOO'
+        elif invoice.type == 'in_refund':
+            trans_code = 'ICOO'
+
         transaction_lines = []
-        for line in self:
-            entry = {
-                    'trans:Number':line.number,
-                    'trans:DestCode':line.dest_code,
-                    'trans:AccountCode':line.account_code,
-                    'trans:DocValue':line.doc_value,
-                    'trans:DualRate':line.dual_rate,
-                    'trans:DocRate':line.doc_rate,
-                    'trans:LineType':line.line_type,
-                    'trans:LineSense':line.line_sense,
-                    'trans:LineOrigin':line.line_origin,
-                    'trans:DueDate':datetime.strptime(line.due_date, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S'),
-            }
+        for line in self.search([('id', 'in', self.ids)], order='number asc'):
+            entry = OrderedDict([
+                ('trans:Number', line.number),
+                ('trans:DestCode', line.dest_code),
+                ('trans:AccountCode', line.account_code),
+                ('trans:DocValue', line.doc_value),
+                ('trans:DualRate', line.dual_rate),
+                ('trans:DocRate', line.doc_rate),
+                ('trans:LineType', line.line_type),
+                ('trans:LineSense', line.line_sense),
+                ('trans:LineOrigin', line.line_origin),
+                ('trans:DueDate', datetime.strptime(line.due_date, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S')),
+            ])
 
             if line.line_type == 'summary':
-                entry.update({
-                    'trans:DocSumTax':line.doc_sum_tax,
-                    'trans:MediaCode':line.media_code,
-                    'trans:UserRef1':line.user_ref1 or '',
-                    'trans:UserRef2':line.user_ref2 or '',
-                    'trans:ExtRef1':line.ext_ref1 or '',
-                    'trans:ExtRef2':line.ext_ref2 or '',
-                    'trans:ExtRef6':line.ext_ref6 or '',
-
-                })
+                entry.update(
+                    OrderedDict([
+                        ('trans:DocSumTax', line.doc_sum_tax),
+                        ('trans:MediaCode', line.media_code),
+                        ('trans:UserRef1', line.user_ref1 or ''),
+                        ('trans:UserRef2', line.user_ref2 or ''),
+                        ('trans:ExtRef1', line.ext_ref1 or ''),
+                        ('trans:ExtRef2', line.ext_ref2 or ''),
+                        ('trans:ExtRef6', line.ext_ref6 or ''),
+                    ])
+                )
             elif line.line_type == 'analysis':
-                entry.update({
-                    # 'trans:TaxInclusive':False,
-                    'trans:TaxInclusive':'',
-                    'trans:ExtRef4':'<![CDATA[G&RBR]]>',
-                    'trans:Description':'<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>',
-                    'trans:Taxes':{
-                        'trans:Tax':{
-                            'trans:Code':line.code,
-                            'trans:ShortName':line.short_name,
-                            'trans:Value':line.value,
-                        }
-                    },
-                })
-
+                entry.update(
+                    OrderedDict([
+                        ('trans:TaxInclusive',False),
+                        ('trans:ExtRef4','<![CDATA[G&RBR]]>'),
+                        ('trans:Description','<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>'),
+                        ('trans:Taxes', OrderedDict([
+                            ('trans:Tax', OrderedDict([
+                                ('trans:Code', line.code),
+                                ('trans:ShortName', line.short_name),
+                                ('trans:Value', line.value)
+                                 ])
+                            )])
+                        ),
+                    ])
+                )
             elif line.line_type == 'tax':
-                entry.update({
-                    'trans:TaxLineCode':line.code,
-                    'trans:DocTaxTurnover':line.doc_tax_turnover
-                })
+                entry.update(
+                    OrderedDict([
+                        ('trans:TaxLineCode',line.code),
+                        ('trans:DocTaxTurnover',line.doc_tax_turnover)
+                    ])
+                )
 
             transaction_lines.append(entry)
 
-        xmlDict['soapenv:Envelope']['soapenv:Body']['web:PostRequest']['Transaction']['trans:Lines']['trans:Line'] = transaction_lines
+        xmlDt = OrderedDict([
+            ('soapenv:Envelope', OrderedDict([
+                ('@xmlns:soapenv', 'http://schemas.xmlsoap.org/soap/envelope/'),
+                ('@xmlns:web', 'http://www.coda.com/efinance/schemas/inputext/input-14.0/webservice'),
+                ('@xmlns:tran', 'http://www.coda.com/efinance/schemas/transaction'),
+                ('@xmlns:flex', 'http://www.coda.com/common/schemas/flexifield'),
+                ('@xmlns:att', 'http://www.coda.com/common/schemas/attachment'),
+                ('@xmlns:inp', 'http://www.coda.com/efinance/schemas/inputext'),
+                ('@xmlns:mat', 'http://www.coda.com/efinance/schemas/matching'),
+                ('@xmlns:ass', 'http://www.coda.com/efinance/schemas/association'),
+                ('soapenv:Header', OrderedDict([
+                    ('web:Options', OrderedDict([
+                        ('@user', config.username),
+                        ('@company', inv.company_code)
+                    ]))
+                ])),
+                ('soapenv:Body', OrderedDict([
+                    ('web:PostOptions', OrderedDict([
+                        ('@postto', "anywhere")
+                    ])),
+                    ('web:PostRequest', OrderedDict([
+                        ('Transaction', OrderedDict([
+                            ('trans:Header', OrderedDict([
+                                ('@xmlns:trans', 'http://www.coda.com/efinance/schemas/transaction'),
+                                ('trans:Key', OrderedDict([
+                                    ('trans:CmpCode', inv.company_code),
+                                    ('trans:Code', trans_code),
+                                    ('trans:Number', inv.number)
+                                ])),
+                                ('trans:Period', inv.period),
+                                ('trans:CurCode', inv.curcode.name),
+                                ('trans:Date',
+                                 datetime.strptime(inv.date, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S')),
+                            ])),
+                            ('trans:Lines', OrderedDict([
+                                ('trans:Line', transaction_lines),
+                                ('@xmlns:trans', 'http://www.coda.com/efinance/schemas/transaction'),
+                                ])
+                            ),
+                        ]))
+                    ])),
 
-        xmlData = xmltodict.unparse(xmlDict, pretty=True, full_document=False)
+                ])),
+
+            ]))
+        ])
+
+        xmlData = xmltodict.unparse(xmlDt, pretty=True, full_document=False)
 
         headers = {
             'SOAPAction': 'uri-coda-webservice/14.000.0030/finance/Input/Post',
