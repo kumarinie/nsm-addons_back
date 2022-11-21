@@ -105,6 +105,14 @@ class AccountInvoice(models.Model):
                     UserRef1 = 'V' + UserRef1
                 elif vendor_invoice:
                     UserRef1 = 'I' + UserRef1
+                    
+                msg = ''
+                if not mline.partner_id.ref:
+                    msg = 'Partner Internal Reference is missing!\n'
+                if not mline.product_id.default_code:
+                    msg += 'Product Internal Reference/ProductID is missing!'
+                if msg:
+                    raise UserError(_('%s')%msg)
 
                 lvals = {
                     'move_line_id': mline.id,
