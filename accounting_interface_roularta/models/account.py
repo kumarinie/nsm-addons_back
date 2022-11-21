@@ -108,7 +108,7 @@ class AccountInvoice(models.Model):
                     
                 msg = ''
                 if not mline.partner_id.ref:
-                    msg = 'Partner Internal Reference is missing!\n'
+                    msg = 'Partner %s Internal Reference is missing!\n'%mline.partner_id.name
                 if msg:
                     raise UserError(_('%s')%msg)
 
@@ -148,9 +148,9 @@ class AccountInvoice(models.Model):
 
                 msg = ''
                 if not mline.partner_id.ref:
-                    msg = 'Partner Internal Reference is missing!\n'
+                    msg = 'Partner %s Internal Reference is missing!\n'% mline.partner_id.name
                 if not mline.product_id.default_code:
-                    msg += 'Product Internal Reference/ProductID is missing!'
+                    msg += 'Product %s Internal Reference/ProductID is missing!'%mline.product_id.name
                 if msg:
                     raise UserError(_('%s')%msg)
 
