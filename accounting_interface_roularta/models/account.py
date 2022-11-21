@@ -109,8 +109,6 @@ class AccountInvoice(models.Model):
                 msg = ''
                 if not mline.partner_id.ref:
                     msg = 'Partner Internal Reference is missing!\n'
-                if not mline.product_id.default_code:
-                    msg += 'Product Internal Reference/ProductID is missing!'
                 if msg:
                     raise UserError(_('%s')%msg)
 
@@ -147,6 +145,14 @@ class AccountInvoice(models.Model):
                 total_tax_amount = 0.0
                 for tax in taxes:
                     total_tax_amount += tax['amount']
+
+                msg = ''
+                if not mline.partner_id.ref:
+                    msg = 'Partner Internal Reference is missing!\n'
+                if not mline.product_id.default_code:
+                    msg += 'Product Internal Reference/ProductID is missing!'
+                if msg:
+                    raise UserError(_('%s')%msg)
 
                 lvals = {
                     'move_line_id': mline.id,
