@@ -158,6 +158,9 @@
                 <xpath expr="//field[@name='date']" position="attributes">
                     <attribute name="attrs">{'readonly':[('state','not in',('draft','refused','revise'))]}</attribute>
                 </xpath>
+                <field name="payment_mode" position="replace">
+            		<field name="payment_mode" readonly="1"/>
+            	</field>
             </field>
         </record>
 

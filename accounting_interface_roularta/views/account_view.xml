@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <menuitem id="menu_roularta_interface" name="Roularta Interface"
+                  parent="account.menu_finance" groups="accounting_interface_roularta.group_roularta_manager" sequence="10"/>
+
+
+        <record id="view_move_odooto_roularta_form" model="ir.ui.view">
+            <field name="name">view_movefrom_odooto_roularta_form</field>
+            <field name="model">move.odooto.roularta</field>
+            <field name="arch" type="xml">
+                <form string="Move to Roularta" create="false" edit="false" delete="false" copy="false">
+                    <sheet string="Move to Roularta">
+                        <h1 class="mt0">
+                            <label string="Invoice :"/>
+                            <field name="invoice_id" />
+                        </h1>
+                        <group>
+                            <group>
+                                <field name="company_code"/>
+                                <field name="code"/>
+                                <field name="invoice_name"/>
+                                <field name="reference"/>
+                            </group>
+                            <group>
+                                <field name="number"/>
+                                <field name="move_id"/>
+                                <field name="period"/>
+                                <field name="date"/>
+                                <field name="curcode"/>
+                                <field name="account_roularta_response"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="invoice_lines" string="Move lines">
+                                <field name="roularta_invoice_line" nolabel="1" widget="one2many_list" mode="tree">
+                                    <tree string="Invoice Lines" >
+                                        <field name="move_line_id"/>
+                                        <field name="number"/>
+                                        <field name="dest_code"/>
+                                        <field name="account_code"/>
+                                        <field name="doc_value"/>
+                                        <field name="doc_sum_tax"/>
+                                        <field name="dual_rate"/>
+                                        <field name="doc_rate"/>
+                                        <field name="line_type"/>
+                                        <field name="line_sense"/>
+                                        <field name="line_origin"/>
+                                        <field name="due_date"/>
+                                        <field name="media_code"/>
+                                        <field name="description"/>
+                                        <field name="code"/>
+                                        <field name="short_name"/>
+                                        <field name="value"/>
+                                        <field name="doc_tax_turnover"/>
+                                        <field name="user_ref1"/>
+                                        <field name="ext_ref4"/>
+                                        <field name="roularta_response"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="xml_data" string="Payload">
+                                <field name="xml_message"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_move_odooto_roularta_form_tree" model="ir.ui.view">
+            <field name="name">view_movefrom_odooto_roularta_tree</field>
+            <field name="model">move.odooto.roularta</field>
+            <field name="arch" type="xml">
+                <tree string="Move to Roularta"
+                      create="false"
+                      edit="false"
+                      delete="true"
+                      copy="false">
+                    <field name="invoice_name"/>
+                    <field name="reference"/>
+                    <field name="company_code"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <record id="action_staged_Roularta" model="ir.actions.act_window">
+            <field name="name">Staged Roularta</field>
+            <field name="res_model">move.odooto.roularta</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="menu_action_staged_roularta" name="Staged Roularta" parent="menu_roularta_interface" action="action_staged_Roularta"
+                  sequence="2"/>
+
+
+        <record id="invoice_form_roularta_interface_access" model="ir.ui.view">
+            <field name="name">account.invoice.form.inherit.roularta.interface</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="groups_id" eval="[(4, ref('accounting_interface_roularta.group_roularta_manager'))]"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[last()]" position="after">
+                    <page string="Roularta Info" name="roularta_info">
+                        <group>
+                            <field name="roularta_sent"/>
+                            <field name="date_sent_roularta"/>
+                            <field name="roularta_log_id"/>
+                        </group>
+                    </page>
+                </xpath>
+
+            </field>
+        </record>
+
+
+
+    </data>
+</odoo>
