@@ -111,7 +111,7 @@ class AccountInvoice(models.Model):
                     msg = 'Partner %s Internal Reference is missing!\n'%mline.partner_id.name
 
                 if not mline.account_id.ext_account:
-                    msg += ' %s external account  is missing!\n' % mline.account_id.name
+                    msg += ' %s external account is missing!\n' % mline.account_id.name
                 if msg:
                     raise UserError(_('%s')%msg)
 
@@ -154,7 +154,7 @@ class AccountInvoice(models.Model):
                     msg = 'Partner %s Internal Reference is missing!\n'% mline.partner_id.name
 
                 if not mline.account_id.ext_account:
-                    msg += ' %s external account  is missing!\n' % mline.account_id.name
+                    msg += ' %s external account is missing!\n' % mline.account_id.name
 
                 inv_line = self.invoice_line_ids.filtered(lambda inv_line: inv_line.account_id == mline.account_id and inv_line.product_id == mline.product_id)
                 title_code = inv_line[0].so_line_id and inv_line[0].so_line_id.title and inv_line[0].so_line_id.title.code
@@ -190,7 +190,7 @@ class AccountInvoice(models.Model):
                 mline = self.move_id.line_ids.filtered(lambda ml: ml.credit > 0 and ml.account_id.id == tax_line.account_id.id)
 
                 if not mline.account_id.ext_account:
-                    raise UserError(_('%s external account  is missing!') % mline.account_id.name)
+                    raise UserError(_('%s external account is missing!') % mline.account_id.name)
 
                 lvals = {
                     'move_line_id': mline.id,
