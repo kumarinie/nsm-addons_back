@@ -27,6 +27,7 @@
         'security/roularta_security.xml',
         'views/roularta_config_view.xml',
         'views/account_view.xml',
+        'views/res_partner_view.xml',
     ],
     'external_dependencies': {
         'python': ['xmltodict','requests'],
