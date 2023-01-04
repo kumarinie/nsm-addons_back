@@ -56,11 +56,11 @@ class AccountInvoice(models.Model):
             sale_invoice = inv.invoice_line_ids.mapped('sale_order_id')
             vendor_bill = inv.invoice_line_ids.mapped('purchase_id')
             if sale_invoice or vendor_bill:
-                res = inv.transfer_invoice_to_roularta()
-                res.with_delay(
-                    description=res.invoice_name
-                ).roularta_content()
+                inv.with_delay(
+                    description=inv.number
+                ).transfer_invoice_to_roularta()
 
+    @job
     @api.multi
     def transfer_invoice_to_roularta(self):
         self.ensure_one()
@@ -212,13 +212,23 @@ class AccountInvoice(models.Model):
 
             vals['roularta_invoice_line'] = summary_lines
             res = self.env['move.odooto.roularta'].sudo().create(vals)
-            return res
+            res.with_delay(
+                description=res.invoice_name
+            ).roularta_content()
+            return
 
     @api.multi
     def invoice_validate(self):
         res = super(AccountInvoice, self).invoice_validate()
         self.action_roularta_interface()
         return res
+
+    @api.multi
+    def update_unit4(self):
+        self.ensure_one()
+        if not self.roularta_sent:
+            self.action_roularta_interface()
+        return
 
 
 class AccountInvoiceLine(models.Model):
