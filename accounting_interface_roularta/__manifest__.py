@@ -19,7 +19,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['account','consolidation_external_system'],
+    'depends': ['account', 'sale_advertising_order'],
 
     # always loaded
     'data': [

@@ -56,11 +56,11 @@ class AccountInvoice(models.Model):
             sale_invoice = inv.invoice_line_ids.mapped('sale_order_id')
             vendor_bill = inv.invoice_line_ids.mapped('purchase_id')
             if sale_invoice or vendor_bill:
-                res = inv.transfer_invoice_to_roularta()
-                res.with_delay(
-                    description=res.invoice_name
-                ).roularta_content()
+                inv.with_delay(
+                    description=inv.number
+                ).transfer_invoice_to_roularta()
 
+    @job
     @api.multi
     def transfer_invoice_to_roularta(self):
         self.ensure_one()
@@ -109,6 +109,9 @@ class AccountInvoice(models.Model):
                 msg = ''
                 if not mline.partner_id.ref:
                     msg = 'Partner %s Internal Reference is missing!\n'%mline.partner_id.name
+
+                if not mline.account_id.ext_account:
+                    msg += ' %s external account is missing!\n' % mline.account_id.name
                 if msg:
                     raise UserError(_('%s')%msg)
 
@@ -149,8 +152,15 @@ class AccountInvoice(models.Model):
                 msg = ''
                 if not mline.partner_id.ref:
                     msg = 'Partner %s Internal Reference is missing!\n'% mline.partner_id.name
-                if not mline.product_id.default_code:
-                    msg += 'Product %s Internal Reference/ProductID is missing!'%mline.product_id.name
+
+                if not mline.account_id.ext_account:
+                    msg += ' %s external account is missing!\n' % mline.account_id.name
+
+                inv_line = self.invoice_line_ids.filtered(lambda inv_line: inv_line.account_id == mline.account_id and inv_line.product_id == mline.product_id)
+                title_code = inv_line[0].so_line_id and inv_line[0].so_line_id.title and inv_line[0].so_line_id.title.code
+                if not title_code:
+                    msg += 'Product %s title code is missing!' % mline.product_id.name
+
                 if msg:
                     raise UserError(_('%s')%msg)
 
@@ -158,7 +168,7 @@ class AccountInvoice(models.Model):
                     'move_line_id': mline.id,
                     'number': summary_seq,
                     'dest_code': operating_code,
-                    'account_code': mline.account_id.ext_account + '.' + mline.partner_id.ref + '.' + aa_code + '.' + mline.product_id.default_code,
+                    'account_code': mline.account_id.ext_account + '.' + mline.partner_id.ref + '.' + aa_code + '.' + title_code,
                     'doc_value': mline.credit,
                     'dual_rate': 40.339900000,
                     'doc_rate': 1.000000000,
@@ -178,6 +188,10 @@ class AccountInvoice(models.Model):
             # Tax line
             for tax_line in self.tax_line_ids:
                 mline = self.move_id.line_ids.filtered(lambda ml: ml.credit > 0 and ml.account_id.id == tax_line.account_id.id)
+
+                if not mline.account_id.ext_account:
+                    raise UserError(_('%s external account is missing!') % mline.account_id.name)
+
                 lvals = {
                     'move_line_id': mline.id,
                     'number': summary_seq,
@@ -198,13 +212,23 @@ class AccountInvoice(models.Model):
 
             vals['roularta_invoice_line'] = summary_lines
             res = self.env['move.odooto.roularta'].sudo().create(vals)
-            return res
+            res.with_delay(
+                description=res.invoice_name
+            ).roularta_content()
+            return
 
     @api.multi
     def invoice_validate(self):
         res = super(AccountInvoice, self).invoice_validate()
         self.action_roularta_interface()
         return res
+
+    @api.multi
+    def update_unit4(self):
+        self.ensure_one()
+        if not self.roularta_sent:
+            self.action_roularta_interface()
+        return
 
 
 class AccountInvoiceLine(models.Model):
