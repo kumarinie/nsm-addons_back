@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "accounting_interface_roularta",
+    'name': "nsm_customer_number",
 
     'summary': """
-        This module provides a accounting interface between Odoo and the Roularta systems. """,
+        This module provides a readonly field for the legacy number of Newskoolmedia customers. 
+        It also moves the field "ref" to the header of the res.partner form """,
 
     'description': """
-        This module provides a accounting interface between Odoo and the Roularta systems. 
+        This module provides a readonly field for the legacy code for nsm customers. 
     """,
 
-    'author': "K.Sushma",
+    'author': "W. Hulshof",
     'website': "http://www.tosc.nl",
 
     # Categories can be used to filter modules in modules listing
@@ -19,17 +20,13 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['account','consolidation_external_system'],
+    'depends': ['base'],
 
     # always loaded
     'data': [
-        'security/ir.model.access.csv',
-        'security/roularta_security.xml',
-        'views/roularta_config_view.xml',
-        'views/account_view.xml',
+        'views/res_partner_view.xml',
     ],
     'external_dependencies': {
-        'python': ['xmltodict','requests'],
     },
     # only loaded in demonstration mode
     'demo': [
