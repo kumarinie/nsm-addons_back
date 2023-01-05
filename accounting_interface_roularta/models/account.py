@@ -49,7 +49,7 @@ class AccountInvoice(models.Model):
         res = super(AccountInvoice, self).action_cancel()
         self.invoice_line_ids.write({'roularta_sent': False})
         return res
-    @job
+
     @api.multi
     def action_roularta_interface(self):
         for inv in self:
@@ -61,7 +61,6 @@ class AccountInvoice(models.Model):
                 ).transfer_invoice_to_roularta()
 
     @job
-    @api.multi
     def transfer_invoice_to_roularta(self):
         self.ensure_one()
         if self.roularta_sent:
