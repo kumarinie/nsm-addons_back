@@ -97,9 +97,9 @@ class AccountInvoice(models.Model):
             summary_lines=[]
             operating_code = self.operating_unit_id.code
             invoice_type = self.type
-            line_sense = 'debit'
+            sum_line_sense = 'debit'
             if invoice_type in ('in_invoice', 'out_refund'):
-                line_sense = 'credit'
+                sum_line_sense = 'credit'
 
             #Summary line
             if invoice_type == 'out_invoice':
@@ -128,13 +128,13 @@ class AccountInvoice(models.Model):
                     'number':summary_seq,
                     'dest_code':operating_code,
                     'account_code':mline.account_id.ext_account + '.' + mline.partner_id.ref,
-                    'doc_value':mline.debit if line_sense == 'debit' else mline.credit,
+                    'doc_value':mline.debit if sum_line_sense == 'debit' else mline.credit,
                     'doc_sum_tax':tax_amt,
                     'dual_rate':40.339900000,
                     'doc_rate':1.000000000,
                     'line_type':'summary',
                     # 'line_sense':"debit" if sale_invoice else "credit",
-                    'line_sense':line_sense,
+                    'line_sense':sum_line_sense,
                     'line_origin':'dl_orig_additional',
                     'due_date':datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     'media_code':'BI',
@@ -148,6 +148,9 @@ class AccountInvoice(models.Model):
                 summary_seq += 1
 
             # Analysis line
+            ana_line_sense = 'credit'
+            if invoice_type in ('in_invoice', 'out_refund'):
+                ana_line_sense = 'debit'
             if invoice_type == 'out_invoice':
                 mv_analysis_lines = self.move_id.line_ids.\
                     filtered(lambda ml: ml.credit > 0 and ml.account_id not in invoice_tax_account)
@@ -183,11 +186,11 @@ class AccountInvoice(models.Model):
                     'number': summary_seq,
                     'dest_code': operating_code,
                     'account_code': mline.account_id.ext_account + '.' + mline.partner_id.ref + '.' + aa_code + '.' + title_code,
-                    'doc_value': mline.credit if line_sense == 'credit' else mline.debit,
+                    'doc_value': mline.credit if ana_line_sense == 'credit' else mline.debit,
                     'dual_rate': 40.339900000,
                     'doc_rate': 1.000000000,
                     'line_type': 'analysis',
-                    'line_sense': line_sense,
+                    'line_sense': ana_line_sense,
                     'line_origin': 'dl_orig_additional',
                     'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     'code': 'VFL21' if self.type == 'out_invoice' else 'VCL21',
@@ -222,7 +225,7 @@ class AccountInvoice(models.Model):
                     'doc_rate': 1.000000000,
                     'line_type': 'tax',
                     # 'line_sense': "credit" if sale_invoice else "debit",
-                    'line_sense': line_sense,
+                    'line_sense': ana_line_sense,
                     'line_origin': 'dl_orig_gentax',
                     'code':'VFL21' if self.type == 'out_invoice' else 'VCL21',
                     'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
