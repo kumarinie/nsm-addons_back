@@ -274,9 +274,14 @@ class MovefromOdootoRoularta(models.Model):
         for acc in self:
             acc.account_roularta_response = True
             for line in acc.roularta_invoice_line:
+                acc.account_roularta_response_message = line.roularta_response_message
+                acc.account_roularta_response_code = line.roularta_response
                 if line.roularta_response != 200:
                     acc.account_roularta_response = False
-                    break
+                    acc.status = 'failed'
+                elif line.roularta_response == 200:
+                    acc.status = 'successful'
+                break
 
     invoice_id = fields.Many2one(
         'account.invoice',
@@ -303,9 +308,24 @@ class MovefromOdootoRoularta(models.Model):
         store=True,
         string='Roularta Response'
     )
+    account_roularta_response_message = fields.Text(
+        compute=_compute_response,
+        default=False,
+        store=False,
+        string='Roularta Response Message'
+    )
+    account_roularta_response_code = fields.Integer(
+        compute=_compute_response,
+        default=False,
+        store=False,
+        string='Roularta Response Code'
+    )
     xml_message = fields.Text(
         'XML message'
     )
+
+    status = fields.Selection([('draft', 'Draft'), ('successful', 'Successful'), ('failed', 'Failed')], string='Status',
+                              required=True, readonly=True, default='draft', compute=_compute_response)
 
     @job
     def roularta_content(self, xml=False):

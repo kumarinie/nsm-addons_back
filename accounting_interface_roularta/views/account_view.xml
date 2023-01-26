@@ -11,6 +11,9 @@
             <field name="model">move.odooto.roularta</field>
             <field name="arch" type="xml">
                 <form string="Move to Roularta" create="false" edit="false" delete="false" copy="false">
+                    <header>
+                        <field name="status" widget="statusbar" statusbar_visible="draft,successful,failed" statusbar_colors='{"draft":"blue","successful":"blue", "failed":"red"}'/>
+                    </header>
                     <sheet string="Move to Roularta">
                         <h1 class="mt0">
                             <label string="Invoice :"/>
@@ -22,6 +25,7 @@
                                 <field name="code"/>
                                 <field name="invoice_name"/>
                                 <field name="reference"/>
+                                <field name="account_roularta_response_code"/>
                             </group>
                             <group>
                                 <field name="number"/>
@@ -30,6 +34,7 @@
                                 <field name="date"/>
                                 <field name="curcode"/>
                                 <field name="account_roularta_response"/>
+                                <field name="account_roularta_response_message"/>
                             </group>
                         </group>
                         <notebook>
@@ -77,10 +82,12 @@
                       create="false"
                       edit="false"
                       delete="true"
-                      copy="false">
+                      copy="false"
+                      decoration-info="status in ('draft')" decoration-danger="status in ('failed')">
                     <field name="invoice_name"/>
                     <field name="reference"/>
                     <field name="company_code"/>
+                    <field name="status"/>
                 </tree>
             </field>
         </record>
