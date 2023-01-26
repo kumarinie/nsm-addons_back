@@ -49,7 +49,7 @@ class AccountInvoice(models.Model):
         res = super(AccountInvoice, self).action_cancel()
         self.invoice_line_ids.write({'roularta_sent': False})
         return res
-    @job
+
     @api.multi
     def action_roularta_interface(self):
         for inv in self:
@@ -61,7 +61,6 @@ class AccountInvoice(models.Model):
                 ).transfer_invoice_to_roularta()
 
     @job
-    @api.multi
     def transfer_invoice_to_roularta(self):
         self.ensure_one()
         if self.roularta_sent:
@@ -97,9 +96,18 @@ class AccountInvoice(models.Model):
             move_line = self.env['move.line.odooto.roularta']
             summary_lines=[]
             operating_code = self.operating_unit_id.code
+            invoice_type = self.type
+            sum_line_sense = 'debit'
+            if invoice_type in ('in_invoice', 'out_refund'):
+                sum_line_sense = 'credit'
 
             #Summary line
-            for mline in self.move_id.line_ids.filtered(lambda ml: ml.debit > 0):
+            if invoice_type == 'out_invoice':
+                mv_summary_lines = self.move_id.line_ids.filtered(lambda ml: ml.debit > 0)
+            elif invoice_type == 'out_refund':
+                mv_summary_lines = self.move_id.line_ids.filtered(lambda ml: ml.credit > 0)
+
+            for mline in mv_summary_lines:
                 UserRef1 = self.number
                 if sale_invoice:
                     UserRef1 = 'V' + UserRef1
@@ -120,12 +128,13 @@ class AccountInvoice(models.Model):
                     'number':summary_seq,
                     'dest_code':operating_code,
                     'account_code':mline.account_id.ext_account + '.' + mline.partner_id.ref,
-                    'doc_value':mline.debit,
+                    'doc_value':mline.debit if sum_line_sense == 'debit' else mline.credit,
                     'doc_sum_tax':tax_amt,
                     'dual_rate':40.339900000,
                     'doc_rate':1.000000000,
                     'line_type':'summary',
-                    'line_sense':"debit" if sale_invoice else "credit",
+                    # 'line_sense':"debit" if sale_invoice else "credit",
+                    'line_sense':sum_line_sense,
                     'line_origin':'dl_orig_additional',
                     'due_date':datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     'media_code':'BI',
@@ -139,8 +148,16 @@ class AccountInvoice(models.Model):
                 summary_seq += 1
 
             # Analysis line
-            for mline in self.move_id.line_ids.\
-                    filtered(lambda ml: ml.credit > 0 and ml.account_id not in invoice_tax_account):
+            ana_line_sense = 'credit'
+            if invoice_type in ('in_invoice', 'out_refund'):
+                ana_line_sense = 'debit'
+            if invoice_type == 'out_invoice':
+                mv_analysis_lines = self.move_id.line_ids.\
+                    filtered(lambda ml: ml.credit > 0 and ml.account_id not in invoice_tax_account)
+            elif invoice_type == 'out_refund':
+                mv_analysis_lines = self.move_id.line_ids.\
+                    filtered(lambda ml: ml.debit > 0 and ml.account_id not in invoice_tax_account)
+            for mline in mv_analysis_lines:
                 aa_code = mline.analytic_account_id and str(mline.analytic_account_id.code)
 
                 taxes = mline.tax_ids.compute_all(mline.credit, mline.currency_id,
@@ -169,14 +186,14 @@ class AccountInvoice(models.Model):
                     'number': summary_seq,
                     'dest_code': operating_code,
                     'account_code': mline.account_id.ext_account + '.' + mline.partner_id.ref + '.' + aa_code + '.' + title_code,
-                    'doc_value': mline.credit,
+                    'doc_value': mline.credit if ana_line_sense == 'credit' else mline.debit,
                     'dual_rate': 40.339900000,
                     'doc_rate': 1.000000000,
                     'line_type': 'analysis',
-                    'line_sense': "credit" if sale_invoice else "debit",
+                    'line_sense': ana_line_sense,
                     'line_origin': 'dl_orig_additional',
                     'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
-                    'code': 'VFL21',
+                    'code': 'VFL21' if self.type == 'out_invoice' else 'VCL21',
                     'short_name': 'Verkoopfacturen locaal 21',
                     'ExtRef4': '<![CDATA[G&RBR]]>',
                     'description': '<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>',
@@ -187,7 +204,13 @@ class AccountInvoice(models.Model):
 
             # Tax line
             for tax_line in self.tax_line_ids:
-                mline = self.move_id.line_ids.filtered(lambda ml: ml.credit > 0 and ml.account_id.id == tax_line.account_id.id)
+                # mline = self.move_id.line_ids.filtered(lambda ml: ml.credit > 0 and ml.account_id.id == tax_line.account_id.id)
+                if invoice_type == 'out_invoice':
+                    mline = self.move_id.line_ids.filtered(
+                        lambda ml: ml.credit > 0 and ml.account_id.id == tax_line.account_id.id)
+                elif invoice_type == 'out_refund':
+                    mline = self.move_id.line_ids.filtered(
+                        lambda ml: ml.debit > 0 and ml.account_id.id == tax_line.account_id.id)
 
                 if not mline.account_id.ext_account:
                     raise UserError(_('%s external account is missing!') % mline.account_id.name)
@@ -201,9 +224,10 @@ class AccountInvoice(models.Model):
                     'dual_rate': 40.339900000,
                     'doc_rate': 1.000000000,
                     'line_type': 'tax',
-                    'line_sense': "credit" if sale_invoice else "debit",
+                    # 'line_sense': "credit" if sale_invoice else "debit",
+                    'line_sense': ana_line_sense,
                     'line_origin': 'dl_orig_gentax',
-                    'code':'VFL21',
+                    'code':'VFL21' if self.type == 'out_invoice' else 'VCL21',
                     'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     'doc_tax_turnover':self.amount_untaxed
                 }
@@ -250,9 +274,14 @@ class MovefromOdootoRoularta(models.Model):
         for acc in self:
             acc.account_roularta_response = True
             for line in acc.roularta_invoice_line:
+                acc.account_roularta_response_message = line.roularta_response_message
+                acc.account_roularta_response_code = line.roularta_response
                 if line.roularta_response != 200:
                     acc.account_roularta_response = False
-                    break
+                    acc.status = 'failed'
+                elif line.roularta_response == 200:
+                    acc.status = 'successful'
+                break
 
     invoice_id = fields.Many2one(
         'account.invoice',
@@ -279,9 +308,24 @@ class MovefromOdootoRoularta(models.Model):
         store=True,
         string='Roularta Response'
     )
+    account_roularta_response_message = fields.Text(
+        compute=_compute_response,
+        default=False,
+        store=False,
+        string='Roularta Response Message'
+    )
+    account_roularta_response_code = fields.Integer(
+        compute=_compute_response,
+        default=False,
+        store=False,
+        string='Roularta Response Code'
+    )
     xml_message = fields.Text(
         'XML message'
     )
+
+    status = fields.Selection([('draft', 'Draft'), ('successful', 'Successful'), ('failed', 'Failed')], string='Status',
+                              required=True, readonly=True, default='draft', compute=_compute_response)
 
     @job
     def roularta_content(self, xml=False):
