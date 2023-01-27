@@ -68,6 +68,7 @@ class AccountInvoice(models.Model):
                 'invoice_id': self.id,
                 'invoice_name': self.name,
                 'reference': 'This Invoice will not be sent to Roularta',
+                'status':'draft'
             }
             res = self.env['move.odooto.roularta'].sudo().create(vals)
             return res
@@ -254,6 +255,15 @@ class AccountInvoice(models.Model):
             self.action_roularta_interface()
         return
 
+    @api.model
+    def _refund_cleanup_lines(self, lines):
+        """ Inherit to avoid line roularta_sent being copied
+        """
+        result = super(AccountInvoice, self)._refund_cleanup_lines(lines)
+        if result and result[0] and result[0][2]:
+            result[0][2].pop('roularta_sent', None)
+        return result
+
 
 class AccountInvoiceLine(models.Model):
     _inherit = 'account.invoice.line'
@@ -272,6 +282,7 @@ class MovefromOdootoRoularta(models.Model):
     @api.multi
     def _compute_response(self):
         for acc in self:
+            acc.status = 'draft'
             acc.account_roularta_response = True
             for line in acc.roularta_invoice_line:
                 acc.account_roularta_response_message = line.roularta_response_message

@@ -34,7 +34,6 @@
                                 <field name="date"/>
                                 <field name="curcode"/>
                                 <field name="account_roularta_response"/>
-                                <field name="account_roularta_response_message"/>
                             </group>
                         </group>
                         <notebook>
@@ -67,6 +66,9 @@
                             </page>
                             <page name="xml_data" string="Payload">
                                 <field name="xml_message"/>
+                            </page>
+                            <page name="response" string="Roularta Response">
+                                <field name="account_roularta_response_message" widget="html" editor_height="450px" no_label="1"/>
                             </page>
                         </notebook>
                     </sheet>

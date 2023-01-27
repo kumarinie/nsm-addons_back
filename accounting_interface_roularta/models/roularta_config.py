@@ -1,11 +1,5 @@
 from odoo import api, fields, models, _
 from datetime import datetime, date
-# from requests import Session
-# from requests.auth import HTTPBasicAuth
-# from zeep import Client, Settings
-# from zeep.transports import Transport
-# from zeep.plugins import HistoryPlugin
-
 
 class RoulartaConfig(models.Model):
     _name = "roularta.config"
