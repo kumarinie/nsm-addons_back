@@ -9,6 +9,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from odoo.exceptions import UserError
 from collections import OrderedDict
+import re
 
 
 class AccountInvoice(models.Model):
@@ -73,14 +74,15 @@ class AccountInvoice(models.Model):
             res = self.env['move.odooto.roularta'].sudo().create(vals)
             return res
         else:
+            invoice_number = re.sub("[^A-Z 0-9]", "", self.number,0,re.IGNORECASE)
             vals = {
                 'invoice_id':self.id,
                 'invoice_name': self.name,
-                'reference': self.number,
+                'reference': invoice_number,
                 'move_id':self.move_id.id,
                 'company_code':self.operating_unit_id.code,
                 'code':'XXX',
-                'number':self.number,
+                'number':invoice_number,
                 'period':datetime.strptime(self.date_invoice, '%Y-%m-%d').strftime('%Y/%m'),
                 'curcode':self.currency_id.id,
                 'date':datetime.strptime(self.date_invoice, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S.000')
@@ -109,7 +111,7 @@ class AccountInvoice(models.Model):
                 mv_summary_lines = self.move_id.line_ids.filtered(lambda ml: ml.credit > 0)
 
             for mline in mv_summary_lines:
-                UserRef1 = self.number
+                UserRef1 = invoice_number
                 if sale_invoice:
                     UserRef1 = 'V' + UserRef1
                 elif vendor_invoice:
