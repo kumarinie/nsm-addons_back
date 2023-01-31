@@ -61,6 +61,65 @@ class AccountInvoice(models.Model):
                     description=inv.number
                 ).transfer_invoice_to_roularta()
 
+    def parse_document_type(self):
+        doc_type = ''
+        type = self.type
+        if type in ('out_invoice', 'out_refund'):
+            doc_type += 'V'
+        elif type in ('in_invoice', 'in_refund'):
+            doc_type += 'I'
+
+        if type in ('out_invoice', 'in_invoice'):
+            doc_type += 'F'
+        elif type in ('out_refund', 'in_refund'):
+            doc_type += 'C'
+
+        #domestic tax code with no external id
+        domestic_tax_name = ['Verkopen/omzet laag 6%','BTW te vorderen laag (6% oud) (inkopen)','Verkopen/omzet laag 9% (incl.)', 'BTW te vorderen 0%']
+
+        # self.env.ref('magnus_timesheet.product_category_fee_rate').id
+        #domestic tax code with external_id
+        domestic_xml_ext_ids = ['l10n_nl.1_btw_21', 'l10n_nl.1_btw_21_buy','l10n_nl.1_btw_21_d','l10n_nl.1_btw_21_buy_d','l10n_nl.1_btw_21_buy_incl',
+                                'l10n_nl.1_btw_0','l10n_nl.1_btw_6','l10n_nl.1_btw_0_d','l10n_nl.1_btw_6_d','l10n_nl.1_btw_6_buy',
+                                'l10n_nl.1_btw_6_buy_incl','l10n_nl.1_btw_6_buy_d','l10n_nl.1_btw_overig','l10n_nl.1_btw_overig_d',
+                                'l10n_nl.1_btw_overig_buy','l10n_nl.1_btw_overig_buy_d','l10n_nl.1_btw_verk_0','l10n_nl.1_btw_ink_0',
+                                'l10n_nl.1_btw_ink_0_1', 'l10n_nl.1_btw_ink_0_2']
+
+        # EU tax ext code
+        EU_xml_ext_ids = ['l10n_nl.1_btw_I_6', 'l10n_nl.1_btw_I_21', 'l10n_nl.1_btw_I_overig', 'l10n_nl.1_btw_X0', 'l10n_nl.1_btw_X2',
+                          'l10n_nl.1_btw_I_6_d', 'l10n_nl.1_btw_I_21_d', 'l10n_nl.1_btw_I_overig_d', 'l10n_nl.1_btw_I_6_1', 'l10n_nl.1_btw_I_21_1',
+                        'l10n_nl.1_btw_I_6_d_1', 'l10n_nl.1_btw_I_21_d_1', 'l10n_nl.1_btw_I_6_2', 'l10n_nl.1_btw_I_21_2', 'l10n_nl.1_btw_I_6_d_2',
+                        'l10n_nl.1_btw_I_21_d_2', 'l10n_nl.1_btw_I_overig_2', 'l10n_nl.1_btw_I_overig_d_2', 'l10n_nl.1_btw_I_overig_1', 'l10n_nl.1_btw_I_overig_d_1']
+
+        # Outside EU tax ext code
+        OEU_xml_ext_ids = ['l10n_nl.1_btw_E1', 'l10n_nl.1_btw_E2', 'l10n_nl.1_btw_E_overig', 'l10n_nl.1_btw_X1',
+                           'l10n_nl.1_btw_E1_d', 'l10n_nl.1_btw_E2_d', 'l10n_nl.1_btw_E_overig_d', 'l10n_nl.1_btw_E1_1',
+                           'l10n_nl.1_btw_E2_1', 'l10n_nl.1_btw_E_overig_1', 'l10n_nl.1_btw_X3', 'l10n_nl.1_btw_E1_d_1',
+                           'l10n_nl.1_btw_E2_d_1', 'l10n_nl.1_btw_E_overig_d_1', 'l10n_nl.1_btw_E1_2', 'l10n_nl.1_btw_E2_2',
+                           'l10n_nl.1_btw_E_overig_2', 'l10n_nl.1_btw_E1_d_2', 'l10n_nl.1_btw_E2_d_2', 'l10n_nl.1_btw_E_overig_d_2']
+
+        if len(self.tax_line_ids.ids) > 1:
+            raise UserError(_("Cant't send to roularta! More than one tax line!"))
+        for tax_line in self.tax_line_ids:
+            tax = tax_line.tax_id
+            tax_amt = '0'+str(int(tax.amount)) if len(str(int(tax.amount))) == 1 else str(int(tax.amount))
+            if tax.name in domestic_tax_name:
+                doc_type += 'L'+tax_amt
+            else:
+                model_data = self.env['ir.model.data']
+                res = model_data.search([('module', '=', 'l10n_nl'), ('model', '=', 'account.tax'), ('res_id', '=', tax.id)])
+                if res:
+                    ext_id_ref = res.module+'.'+res.name
+                    if ext_id_ref in domestic_xml_ext_ids:
+                        doc_type += 'L' + tax_amt
+                    elif ext_id_ref in OEU_xml_ext_ids:
+                        doc_type += 'X' + tax_amt
+                    elif ext_id_ref in EU_xml_ext_ids:
+                        doc_type += 'E' + tax_amt
+                else:
+                    raise UserError(_('Tax document not found!'))
+        return doc_type
+
     @job
     def transfer_invoice_to_roularta(self):
         self.ensure_one()
@@ -75,6 +134,7 @@ class AccountInvoice(models.Model):
             return res
         else:
             invoice_number = re.sub("[^A-Z 0-9]", "", self.number,0,re.IGNORECASE)
+            doc_type = self.parse_document_type()
             vals = {
                 'invoice_id':self.id,
                 'invoice_name': self.name,
@@ -196,7 +256,8 @@ class AccountInvoice(models.Model):
                     'line_sense': ana_line_sense,
                     'line_origin': 'dl_orig_additional',
                     'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
-                    'code': 'VFL21' if self.type == 'out_invoice' else 'VCL21',
+                    # 'code': 'VFL21' if self.type == 'out_invoice' else 'VCL21',
+                    'code': doc_type,
                     'short_name': 'Verkoopfacturen locaal 21',
                     'ExtRef4': '<![CDATA[G&RBR]]>',
                     'description': '<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>',
@@ -230,7 +291,8 @@ class AccountInvoice(models.Model):
                     # 'line_sense': "credit" if sale_invoice else "debit",
                     'line_sense': ana_line_sense,
                     'line_origin': 'dl_orig_gentax',
-                    'code':'VFL21' if self.type == 'out_invoice' else 'VCL21',
+                    # 'code':'VFL21' if self.type == 'out_invoice' else 'VCL21',
+                    'code':doc_type,
                     'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     'doc_tax_turnover':self.amount_untaxed
                 }
