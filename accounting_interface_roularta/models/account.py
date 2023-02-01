@@ -185,8 +185,11 @@ class AccountInvoice(models.Model):
                     UserRef1 = 'I' + UserRef1
                     
                 msg = ''
-                if not mline.partner_id.ref:
-                    msg = 'Partner %s Internal Reference is missing!\n'%mline.partner_id.name
+                partner = mline.partner_id
+                if mline.partner_id.type == 'invoice':
+                    partner = mline.partner_id.parent_id
+                if not partner.ref:
+                    msg = 'Partner %s Internal Reference is missing!\n'%partner.name
 
                 if not mline.account_id.ext_account:
                     msg += ' %s external account is missing!\n' % mline.account_id.name
@@ -197,7 +200,7 @@ class AccountInvoice(models.Model):
                     'move_line_id': mline.id,
                     'number':summary_seq,
                     'dest_code':operating_code,
-                    'account_code':mline.account_id.ext_account + '.' + mline.partner_id.ref,
+                    'account_code':mline.account_id.ext_account + '.' + partner.ref,
                     'doc_value':mline.debit if sum_line_sense == 'debit' else mline.credit,
                     'doc_sum_tax':tax_amt,
                     'dual_rate':40.339900000,
@@ -242,8 +245,11 @@ class AccountInvoice(models.Model):
                     total_tax_amount += tax['amount']
 
                 msg = ''
-                if not mline.partner_id.ref:
-                    msg = 'Partner %s Internal Reference is missing!\n'% mline.partner_id.name
+                partner = mline.partner_id
+                if mline.partner_id.type == 'invoice':
+                    partner = mline.partner_id.parent_id
+                if not partner.ref:
+                    msg = 'Partner %s Internal Reference is missing!\n'% partner.name
 
                 if not mline.account_id.ext_account:
                     msg += ' %s external account is missing!\n' % mline.account_id.name
@@ -260,7 +266,7 @@ class AccountInvoice(models.Model):
                     'move_line_id': mline.id,
                     'number': summary_seq,
                     'dest_code': operating_code,
-                    'account_code': mline.account_id.ext_account + '.' + mline.partner_id.ref + '.' + roularta_account_code + '.' + title_code,
+                    'account_code': mline.account_id.ext_account + '.' + partner.ref + '.' + roularta_account_code + '.' + title_code,
                     'doc_value': mline.credit if ana_line_sense == 'credit' else mline.debit,
                     'dual_rate': 40.339900000,
                     'doc_rate': 1.000000000,
