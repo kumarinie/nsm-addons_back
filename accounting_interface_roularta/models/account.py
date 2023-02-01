@@ -203,9 +203,9 @@ class AccountInvoice(models.Model):
                     'media_code':'BI',
                     'user_ref1':UserRef1,
                     'user_ref2':'',
-                    'ExtRef1':'',
-                    'ExtRef2':'',
-                    'ExtRef6':'',
+                    'ext_ref1':'',
+                    'ext_ref2':'',
+                    'ext_ref6':'',
                 }
                 summary_lines.append((0, 0, lvals))
                 summary_seq += 1
@@ -264,8 +264,7 @@ class AccountInvoice(models.Model):
                     # 'code': 'VFL21' if self.type == 'out_invoice' else 'VCL21',
                     'code': doc_type,
                     'short_name': 'Verkoopfacturen locaal 21',
-                    # 'ExtRef4': '<![CDATA[G&RBR]]>',
-                    'ExtRef4': aa_code,
+                    'ext_ref4': aa_code,
                     'description': '<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>',
                     'value': total_tax_amount,
                 }
@@ -520,7 +519,7 @@ class MoveLinefromOdootoRoularta(models.Model):
                 entry.update(
                     OrderedDict([
                         ('trans:TaxInclusive',False),
-                        ('trans:ExtRef4','<![CDATA[G&RBR]]>'),
+                        ('trans:ExtRef4',line.ext_ref4),
                         ('trans:Description','<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>'),
                         ('trans:Taxes', OrderedDict([
                             ('trans:Tax', OrderedDict([
