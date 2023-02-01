@@ -115,7 +115,7 @@ class AccountInvoice(models.Model):
                     elif ext_id_ref in OEU_xml_ext_ids:
                         doc_type += 'X' + tax_amt
                     elif ext_id_ref in EU_xml_ext_ids:
-                        doc_type += 'E' + tax_amt
+                        doc_type += 'I' + tax_amt
                 else:
                     raise UserError(_('Tax document not found!'))
         return doc_type
@@ -220,6 +220,11 @@ class AccountInvoice(models.Model):
             elif invoice_type == 'out_refund':
                 mv_analysis_lines = self.move_id.line_ids.\
                     filtered(lambda ml: ml.debit > 0 and ml.account_id not in invoice_tax_account)
+
+            roularta_account_code = 'K01490'
+            if invoice_type in ('in_invoice', 'in_refund'):
+                roularta_account_code = 'K01410'
+
             for mline in mv_analysis_lines:
                 aa_code = mline.analytic_account_id and str(mline.analytic_account_id.code)
 
@@ -248,7 +253,7 @@ class AccountInvoice(models.Model):
                     'move_line_id': mline.id,
                     'number': summary_seq,
                     'dest_code': operating_code,
-                    'account_code': mline.account_id.ext_account + '.' + mline.partner_id.ref + '.' + aa_code + '.' + title_code,
+                    'account_code': mline.account_id.ext_account + '.' + mline.partner_id.ref + '.' + roularta_account_code + '.' + title_code,
                     'doc_value': mline.credit if ana_line_sense == 'credit' else mline.debit,
                     'dual_rate': 40.339900000,
                     'doc_rate': 1.000000000,
@@ -259,7 +264,8 @@ class AccountInvoice(models.Model):
                     # 'code': 'VFL21' if self.type == 'out_invoice' else 'VCL21',
                     'code': doc_type,
                     'short_name': 'Verkoopfacturen locaal 21',
-                    'ExtRef4': '<![CDATA[G&RBR]]>',
+                    # 'ExtRef4': '<![CDATA[G&RBR]]>',
+                    'ExtRef4': aa_code,
                     'description': '<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>',
                     'value': total_tax_amount,
                 }
