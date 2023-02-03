@@ -55,8 +55,8 @@ class AccountInvoice(models.Model):
     def action_roularta_interface(self):
         for inv in self:
             sale_invoice = inv.invoice_line_ids.mapped('sale_order_id')
-            vendor_bill = inv.invoice_line_ids.mapped('purchase_id')
-            if sale_invoice or vendor_bill:
+            if ((sale_invoice and inv.ad) or (not sale_invoice and inv.type in ('out_invoice', 'out_refund')))\
+                    or inv.type in ('in_invoice', 'in_refund'):
                 inv.with_delay(
                     description=inv.number
                 ).transfer_invoice_to_roularta()
@@ -172,9 +172,9 @@ class AccountInvoice(models.Model):
                 sum_line_sense = 'credit'
 
             #Summary line
-            if invoice_type == 'out_invoice':
+            if invoice_type in ('out_invoice', 'in_refund'):
                 mv_summary_lines = self.move_id.line_ids.filtered(lambda ml: ml.debit > 0)
-            elif invoice_type == 'out_refund':
+            elif invoice_type in ('out_refund', 'in_invoice'):
                 mv_summary_lines = self.move_id.line_ids.filtered(lambda ml: ml.credit > 0)
 
             for mline in mv_summary_lines:
@@ -224,10 +224,10 @@ class AccountInvoice(models.Model):
             ana_line_sense = 'credit'
             if invoice_type in ('in_invoice', 'out_refund'):
                 ana_line_sense = 'debit'
-            if invoice_type == 'out_invoice':
+            if invoice_type in ('out_invoice', 'in_refund'):
                 mv_analysis_lines = self.move_id.line_ids.\
                     filtered(lambda ml: ml.credit > 0 and ml.account_id not in invoice_tax_account)
-            elif invoice_type == 'out_refund':
+            elif invoice_type in ('out_refund', 'in_invoice'):
                 mv_analysis_lines = self.move_id.line_ids.\
                     filtered(lambda ml: ml.debit > 0 and ml.account_id not in invoice_tax_account)
 
@@ -255,7 +255,11 @@ class AccountInvoice(models.Model):
                     msg += ' %s external account is missing!\n' % mline.account_id.name
 
                 inv_line = self.invoice_line_ids.filtered(lambda inv_line: inv_line.account_id == mline.account_id and inv_line.product_id == mline.product_id)
-                title_code = inv_line[0].so_line_id and inv_line[0].so_line_id.title and inv_line[0].so_line_id.title.code
+                if inv_line[0] and inv_line[0].so_line_id:
+                    title_code = inv_line[0].so_line_id and inv_line[0].so_line_id.title and inv_line[0].so_line_id.title.code
+                else:
+                    title_code = inv_line[0].product_id.default_code
+
                 if not title_code:
                     msg += 'Product %s title code is missing!' % mline.product_id.name
 
@@ -287,10 +291,10 @@ class AccountInvoice(models.Model):
             # Tax line
             for tax_line in self.tax_line_ids:
                 # mline = self.move_id.line_ids.filtered(lambda ml: ml.credit > 0 and ml.account_id.id == tax_line.account_id.id)
-                if invoice_type == 'out_invoice':
+                if invoice_type in ('out_invoice', 'in_refund'):
                     mline = self.move_id.line_ids.filtered(
                         lambda ml: ml.credit > 0 and ml.account_id.id == tax_line.account_id.id)
-                elif invoice_type == 'out_refund':
+                elif invoice_type in ('out_refund', 'in_invoice'):
                     mline = self.move_id.line_ids.filtered(
                         lambda ml: ml.debit > 0 and ml.account_id.id == tax_line.account_id.id)
 
