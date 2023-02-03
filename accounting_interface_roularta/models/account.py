@@ -101,8 +101,8 @@ class AccountInvoice(models.Model):
                            'l10n_nl.1_btw_E2_d_1', 'l10n_nl.1_btw_E_overig_d_1', 'l10n_nl.1_btw_E1_2', 'l10n_nl.1_btw_E2_2',
                            'l10n_nl.1_btw_E_overig_2', 'l10n_nl.1_btw_E1_d_2', 'l10n_nl.1_btw_E2_d_2', 'l10n_nl.1_btw_E_overig_d_2']
 
-        if len(self.tax_line_ids.ids) > 1:
-            raise UserError(_("Cant't send to roularta! More than one tax line!"))
+        # if len(self.tax_line_ids.ids) > 1:
+        #     raise UserError(_("Cant't send to roularta! More than one tax line!"))
         for tax_line in self.tax_line_ids:
             tax = tax_line.tax_id
             tax_amt = '0'+str(int(tax.amount)) if len(str(int(tax.amount))) == 1 else str(int(tax.amount))
@@ -178,7 +178,12 @@ class AccountInvoice(models.Model):
                     UserRef1 = 'V' + UserRef1
                 elif vendor_invoice:
                     UserRef1 = 'I' + UserRef1
-                    
+
+                if mline.debit > 0:
+                    sum_line_sense = 'debit'
+                else:
+                    sum_line_sense = 'credit'
+
                 msg = ''
                 partner = mline.partner_id
                 if mline.partner_id.type == 'invoice':
@@ -228,6 +233,11 @@ class AccountInvoice(models.Model):
             for mline in self.move_id.line_ids. \
                 filtered(lambda ml: ml.account_id not in (invoice_tax_account+self.account_id)):
                 aa_code = mline.analytic_account_id and str(mline.analytic_account_id.code)
+
+                if mline.debit > 0:
+                    ana_line_sense = 'debit'
+                else:
+                    ana_line_sense = 'credit'
 
                 taxes = mline.tax_ids.compute_all(mline.credit, mline.currency_id,
                                                   mline.quantity, mline.product_id, mline.partner_id)['taxes']
