@@ -76,7 +76,7 @@
             </field>
         </record>
 
-        <record id="view_move_odooto_roularta_form_tree" model="ir.ui.view">
+        <record id="view_move_odooto_roularta_tree" model="ir.ui.view">
             <field name="name">view_movefrom_odooto_roularta_tree</field>
             <field name="model">move.odooto.roularta</field>
             <field name="arch" type="xml">
@@ -94,12 +94,34 @@
             </field>
         </record>
 
+        <!--<record id="view_move_odooto_roularta_filter" model="ir.ui.view">
+            <field name="name">view_sofrom_odooto_roularta_filter</field>
+            <field name="model">move.odooto.roularta</field>
+            <field name="arch" type="xml">
+                <search string="Search Roularta">
+                    <field name="status"/>
+                    <separator/>
+                    <filter string="Successful" name="success"
+                            domain="[('status','=','successful')]"/>
+                    <filter name="draft" string="Draft"
+                            domain="[('status','=',draft)]"/>
+                    <filter name="failed" string="Failed"
+                            domain="[('status','=',Failed)]"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter name="status" string="Status" context="{'group_by':'status'}"/>
+                    </group>
+               </search>
+            </field>
+        </record>-->
+
 
         <record id="action_staged_Roularta" model="ir.actions.act_window">
             <field name="name">Staged Roularta</field>
             <field name="res_model">move.odooto.roularta</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
+            <!--<field name="search_view_id" ref="view_move_odooto_roularta_filter"/>-->
         </record>
 
         <menuitem id="menu_action_staged_roularta" name="Staged Roularta" parent="menu_roularta_interface" action="action_staged_Roularta"
@@ -132,6 +154,9 @@
                 <button name="action_invoice_cancel" position="before">
                     <button name="update_unit4" type="object" string="Update Unit4" states="open" groups="base.group_user"/>
                 </button>
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='product_id']" position="after">
+                    <field name="adv_issue" attrs="{'readonly':[('sale_order_id', '!=', False)]}"/>
+                </xpath>
             </field>
         </record>
 
