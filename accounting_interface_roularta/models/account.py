@@ -172,12 +172,7 @@ class AccountInvoice(models.Model):
                 sum_line_sense = 'credit'
 
             #Summary line
-            if invoice_type in ('out_invoice', 'in_refund'):
-                mv_summary_lines = self.move_id.line_ids.filtered(lambda ml: ml.debit > 0)
-            elif invoice_type in ('out_refund', 'in_invoice'):
-                mv_summary_lines = self.move_id.line_ids.filtered(lambda ml: ml.credit > 0)
-
-            for mline in mv_summary_lines:
+            for mline in self.move_id.line_ids.filtered(lambda ml: ml.account_id == self.account_id):
                 UserRef1 = invoice_number
                 if sale_invoice:
                     UserRef1 = 'V' + UserRef1
@@ -201,7 +196,7 @@ class AccountInvoice(models.Model):
                     'number':summary_seq,
                     'dest_code':operating_code,
                     'account_code':mline.account_id.ext_account + '.' + partner.ref,
-                    'doc_value':mline.debit if sum_line_sense == 'debit' else mline.credit,
+                    'doc_value':mline.debit or mline.credit,
                     'doc_sum_tax':tax_amt,
                     'dual_rate':40.339900000,
                     'doc_rate':1.000000000,
@@ -224,18 +219,14 @@ class AccountInvoice(models.Model):
             ana_line_sense = 'credit'
             if invoice_type in ('in_invoice', 'out_refund'):
                 ana_line_sense = 'debit'
-            if invoice_type in ('out_invoice', 'in_refund'):
-                mv_analysis_lines = self.move_id.line_ids.\
-                    filtered(lambda ml: ml.credit > 0 and ml.account_id not in invoice_tax_account)
-            elif invoice_type in ('out_refund', 'in_invoice'):
-                mv_analysis_lines = self.move_id.line_ids.\
-                    filtered(lambda ml: ml.debit > 0 and ml.account_id not in invoice_tax_account)
 
             roularta_account_code = 'K01490'
             if invoice_type in ('in_invoice', 'in_refund'):
                 roularta_account_code = 'K01410'
 
-            for mline in mv_analysis_lines:
+
+            for mline in self.move_id.line_ids. \
+                filtered(lambda ml: ml.account_id not in (invoice_tax_account+self.account_id)):
                 aa_code = mline.analytic_account_id and str(mline.analytic_account_id.code)
 
                 taxes = mline.tax_ids.compute_all(mline.credit, mline.currency_id,
@@ -258,7 +249,7 @@ class AccountInvoice(models.Model):
                 if inv_line[0] and inv_line[0].so_line_id:
                     title_code = inv_line[0].so_line_id and inv_line[0].so_line_id.title and inv_line[0].so_line_id.title.code
                 else:
-                    if type in ('in_refund', 'in_invoice'):
+                    if self.type in ('in_refund', 'in_invoice'):
                         aa = inv_line[0].account_analytic_id
                         adv_issue = self.env['sale.advertising.issue'].search([('analytic_account_id', '=', aa.id)], limit=1)
                         title_code = adv_issue.code
@@ -276,7 +267,7 @@ class AccountInvoice(models.Model):
                     'number': summary_seq,
                     'dest_code': operating_code,
                     'account_code': mline.account_id.ext_account + '.' + partner.ref + '.' + roularta_account_code + '.' + title_code,
-                    'doc_value': mline.credit if ana_line_sense == 'credit' else mline.debit,
+                    'doc_value': mline.credit or mline.debit,
                     'dual_rate': 40.339900000,
                     'doc_rate': 1.000000000,
                     'line_type': 'analysis',
@@ -294,14 +285,8 @@ class AccountInvoice(models.Model):
                 summary_seq += 1
 
             # Tax line
-            for tax_line in self.tax_line_ids:
-                # mline = self.move_id.line_ids.filtered(lambda ml: ml.credit > 0 and ml.account_id.id == tax_line.account_id.id)
-                if invoice_type in ('out_invoice', 'in_refund'):
-                    mline = self.move_id.line_ids.filtered(
-                        lambda ml: ml.credit > 0 and ml.account_id.id == tax_line.account_id.id)
-                elif invoice_type in ('out_refund', 'in_invoice'):
-                    mline = self.move_id.line_ids.filtered(
-                        lambda ml: ml.debit > 0 and ml.account_id.id == tax_line.account_id.id)
+            for mline in self.move_id.line_ids. \
+                filtered(lambda ml: ml.account_id in invoice_tax_account):
 
                 if not mline.account_id.ext_account:
                     raise UserError(_('%s external account is missing!') % mline.account_id.name)
@@ -310,8 +295,8 @@ class AccountInvoice(models.Model):
                     'move_line_id': mline.id,
                     'number': summary_seq,
                     'dest_code': operating_code,
-                    'account_code': tax_line.account_id.ext_account,
-                    'doc_value': tax_line.amount,
+                    'account_code': mline.account_id.ext_account,
+                    'doc_value': mline.credit or mline.debit,
                     'dual_rate': 40.339900000,
                     'doc_rate': 1.000000000,
                     'line_type': 'tax',
