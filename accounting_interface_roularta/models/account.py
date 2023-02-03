@@ -187,12 +187,15 @@ class AccountInvoice(models.Model):
                 msg = ''
                 partner = mline.partner_id
                 if mline.partner_id.parent_id:
-                    partner = mline.partner_id.parent_id
-                else:
+                    if mline.partner_id.parent_id.ref [0] == 'R':
+                        partner = mline.partner_id.parent_id
+                    else:
+                        msg = 'Partner parent has no RFF number. Using child.'
+                if mline.partner_id.ref [0] == 'R':
                     partner = mline.partner_id
-                if not partner.ref:
-                    msg = 'Partner %s Internal Reference is missing!\n'%partner.name
-
+                else:
+                    msg = 'Partner and Parent have no RFF number.'
+                        
                 if not mline.account_id.ext_account:
                     msg += ' %s external account is missing!\n' % mline.account_id.name
                 if msg:
