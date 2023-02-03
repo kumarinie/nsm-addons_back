@@ -186,8 +186,10 @@ class AccountInvoice(models.Model):
 
                 msg = ''
                 partner = mline.partner_id
-                if mline.partner_id.type == 'invoice':
+                if mline.partner_id.parent_id:
                     partner = mline.partner_id.parent_id
+                else:
+                    partner = mline.partner_id
                 if not partner.ref:
                     msg = 'Partner %s Internal Reference is missing!\n'%partner.name
 
