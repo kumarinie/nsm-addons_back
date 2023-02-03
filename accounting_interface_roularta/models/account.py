@@ -258,7 +258,12 @@ class AccountInvoice(models.Model):
                 if inv_line[0] and inv_line[0].so_line_id:
                     title_code = inv_line[0].so_line_id and inv_line[0].so_line_id.title and inv_line[0].so_line_id.title.code
                 else:
-                    title_code = inv_line[0].product_id.default_code
+                    if type in ('in_refund', 'in_invoice'):
+                        aa = inv_line[0].account_analytic_id
+                        adv_issue = self.env['sale.advertising.issue'].search([('analytic_account_id', '=', aa.id)], limit=1)
+                        title_code = adv_issue.code
+                    else:
+                        title_code = inv_line[0].adv_issue.code
 
                 if not title_code:
                     msg += 'Product %s title code is missing!' % mline.product_id.name
@@ -357,6 +362,11 @@ class AccountInvoiceLine(models.Model):
     roularta_sent = fields.Boolean(
         'Invoice Line sent to Roularta',
         copy=False
+    )
+
+    adv_issue = fields.Many2one(
+        'sale.advertising.issue',
+        'Advertising Issue'
     )
 
 class MovefromOdootoRoularta(models.Model):
