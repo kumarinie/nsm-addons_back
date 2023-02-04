@@ -518,7 +518,7 @@ class SofromOdootoAd4all(models.Model):
                   'ad4all_tbu': False
                   }
         so.with_context(no_checks=True).write(sovals)
-        wsdl = "https://portal.ad4all.nl/data/wsdl"
+        wsdl = "http://trial.ad4all.nl/data/wsdl"
         self.so_ad4all_environment = wsdl
         return True
 
@@ -906,10 +906,10 @@ class SoLinefromOdootoAd4all(models.Model):
         self.ensure_one()
         session = Session()
         user = 'nsm'
-        password = 'H2hP7#9d2gmN48gB'
+        password = 'd9yqFUDp44wzCTnt'
         session.auth = HTTPBasicAuth(user, password)
         settings = Settings(strict=False, xml_huge_tree=True)
-        wsdl = "https://portal.ad4all.nl/data/wsdl"
+        wsdl = "http://trial.ad4all.nl/data/wsdl"
         history = HistoryPlugin()
         client = Client(
             wsdl,
