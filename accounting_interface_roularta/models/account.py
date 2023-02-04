@@ -171,7 +171,20 @@ class AccountInvoice(models.Model):
             if invoice_type in ('in_invoice', 'out_refund'):
                 sum_line_sense = 'credit'
 
+            #Determine partner
+            partner = self.partner_id
+            if partner.ref[0] == 'R':
+                partner = self.partner_id
+            else:
+                if partner.parent_id:
+                    if partner.parent_id.ref[0] == 'R':
+                        partner = self.partner_id.parent_id
+                    else:
+                        partner = self.partner_id
+
+
             #Summary line
+
             for mline in self.move_id.line_ids.filtered(lambda ml: ml.account_id == self.account_id):
                 UserRef1 = invoice_number
                 if sale_invoice:
@@ -185,16 +198,16 @@ class AccountInvoice(models.Model):
                     sum_line_sense = 'credit'
 
                 msg = ''
-                partner = mline.partner_id
-                if mline.partner_id.parent_id:
-                    if mline.partner_id.parent_id.ref[0] == 'R':
-                        partner = mline.partner_id.parent_id
-                    else:
-                        msg = 'Partner parent has no RFF number. Using child.'
-                if mline.partner_id.ref[0] == 'R':
-                    partner = mline.partner_id
-                else:
-                    msg = 'Partner and Parent have no RFF number.'
+                # partner = mline.partner_id
+                # if mline.partner_id.parent_id:
+                #     if mline.partner_id.parent_id.ref[0] == 'R':
+                #         partner = mline.partner_id.parent_id
+                #     else:
+                #         msg = 'Partner parent has no RFF number. Using child.'
+                # if mline.partner_id.ref[0] == 'R':
+                #     partner = mline.partner_id
+                # else:
+                #     msg = 'Partner and Parent have no RFF number.'
 
                 if not mline.account_id.ext_account:
                     msg += ' %s external account is missing!\n' % mline.account_id.name
@@ -251,11 +264,11 @@ class AccountInvoice(models.Model):
                     total_tax_amount += tax['amount']
 
                 msg = ''
-                partner = mline.partner_id
-                if mline.partner_id.type == 'invoice':
-                    partner = mline.partner_id.parent_id
-                if not partner.ref:
-                    msg = 'Partner %s Internal Reference is missing!\n'% partner.name
+                # partner = mline.partner_id
+                # if mline.partner_id.type == 'invoice':
+                #     partner = mline.partner_id.parent_id
+                # if not partner.ref:
+                #     msg = 'Partner %s Internal Reference is missing!\n'% partner.name
 
                 if not mline.account_id.ext_account:
                     msg += ' %s external account is missing!\n' % mline.account_id.name
