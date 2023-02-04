@@ -142,6 +142,14 @@ class AccountInvoice(models.Model):
         else:
             invoice_number = re.sub("[^A-Z 0-9]", "", self.number,0,re.IGNORECASE)
             doc_type, roularta_tax_name = self.parse_document_type()
+            invoice_partner = self.partner_id
+            if not invoice_partner.ref[0] == 'R':
+                if invoice_partner.parent_id.ref[0] == 'R':
+                    invoice_partner = invoice_partner.parent_id
+                else:
+                    msg = 'No RFF numbers.'
+            else:
+
             vals = {
                 'invoice_id':self.id,
                 'invoice_name': self.name,
@@ -185,16 +193,16 @@ class AccountInvoice(models.Model):
                     sum_line_sense = 'credit'
 
                 msg = ''
-                partner = mline.partner_id
-                if mline.partner_id.parent_id:
-                    if mline.partner_id.parent_id.ref[0] == 'R':
-                        partner = mline.partner_id.parent_id
-                    else:
-                        msg = 'Partner parent has no RFF number. Using child.'
-                if mline.partner_id.ref[0] == 'R':
-                    partner = mline.partner_id
-                else:
-                    msg = 'Partner and Parent have no RFF number.'
+                partner = invoice_partner
+                # if mline.partner_id.parent_id:
+                #     if mline.partner_id.parent_id.ref[0] == 'R':
+                #         partner = mline.partner_id.parent_id
+                #     else:
+                #         msg = 'Partner parent has no RFF number. Using child.'
+                # if mline.partner_id.ref[0] == 'R':
+                #     partner = mline.partner_id
+                # else:
+                #     msg = 'Partner and Parent have no RFF number.'
 
                 if not mline.account_id.ext_account:
                     msg += ' %s external account is missing!\n' % mline.account_id.name
