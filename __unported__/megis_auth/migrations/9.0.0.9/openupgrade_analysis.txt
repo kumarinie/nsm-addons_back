@@ -1,8 +1,0 @@
----Fields in module 'megis_auth'---
-megis_auth   / account.invoice          / payment_term (many2one)       : NEW relation: account.payment.term
----XML records in module 'megis_auth'---
-DEL ir.model.access: megis_auth.access_account_fiscalyear
-DEL ir.model.access: megis_auth.access_account_move_reconcile
-DEL ir.model.access: megis_auth.access_account_period
-DEL ir.model.access: megis_auth.access_mail_notification
-DEL ir.ui.view: megis_auth.view_invoice_supplier_voucher_auth

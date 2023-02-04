@@ -1,4 +1,0 @@
----Fields in module 'nsm_hon'---
----XML records in module 'nsm_hon'---
-NEW ir.ui.view: nsm_hon.view_account_invoice_filter_hon
-NEW workflow.transition: nsm_hon.trans_wait_invoice_done

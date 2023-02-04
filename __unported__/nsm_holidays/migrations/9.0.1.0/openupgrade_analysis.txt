@@ -1,4 +1,0 @@
----Fields in module 'nsm_holidays'---
----XML records in module 'nsm_holidays'---
-DEL ir.ui.view: nsm_holidays.allocation_company_new_hrs
-DEL ir.ui.view: nsm_holidays.allocation_leave_new_hrs
