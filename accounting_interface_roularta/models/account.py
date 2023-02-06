@@ -103,29 +103,34 @@ class AccountInvoice(models.Model):
 
         # if len(self.tax_line_ids.ids) > 1:
         #     raise UserError(_("Cant't send to roularta! More than one tax line!"))
+        tax_dic = {}
         for tax_line in self.tax_line_ids:
+            d_type = doc_type
+            s_name = short_name
             tax = tax_line.tax_id
             tax_amt = '0'+str(int(tax.amount)) if len(str(int(tax.amount))) == 1 else str(int(tax.amount))
             if tax.name in domestic_tax_name:
-                doc_type += 'L'+tax_amt
-                short_name += ' '+'loc'+' '+tax_amt
+                d_type += 'L'+tax_amt
+                s_name += ' '+'loc'+' '+tax_amt
             else:
                 model_data = self.env['ir.model.data']
                 res = model_data.search([('module', '=', 'l10n_nl'), ('model', '=', 'account.tax'), ('res_id', '=', tax.id)])
                 if res:
                     ext_id_ref = res.module+'.'+res.name
                     if ext_id_ref in domestic_xml_ext_ids:
-                        doc_type += 'L' + tax_amt
-                        short_name += ' ' + 'loc' + ' ' + tax_amt
+                        d_type += 'L' + tax_amt
+                        s_name += ' ' + 'loc' + ' ' + tax_amt
                     elif ext_id_ref in OEU_xml_ext_ids:
-                        doc_type += 'X' + tax_amt
-                        short_name += ' ' + 'uitvoer'
+                        d_type += 'X' + tax_amt
+                        s_name += ' ' + 'uitvoer'
                     elif ext_id_ref in EU_xml_ext_ids:
-                        doc_type += 'I' + tax_amt
-                        short_name += ' ' + 'IC' + ' ' + tax_amt
+                        d_type += 'I' + tax_amt
+                        s_name += ' ' + 'IC' + ' ' + tax_amt
                 else:
                     raise UserError(_('Tax document not found!'))
-        return doc_type, short_name
+
+            tax_dic[tax_line.tax_id] = {'doc_type':d_type, 'short_name':s_name}
+        return tax_dic
 
     @job
     def transfer_invoice_to_roularta(self):
@@ -141,7 +146,7 @@ class AccountInvoice(models.Model):
             return res
         else:
             invoice_number = re.sub("[^A-Z 0-9]", "", self.number,0,re.IGNORECASE)
-            doc_type, roularta_tax_name = self.parse_document_type()
+            tax_datas = self.parse_document_type()
             vals = {
                 'invoice_id':self.id,
                 'invoice_name': self.name,
@@ -250,6 +255,8 @@ class AccountInvoice(models.Model):
 
             for mline in self.move_id.line_ids. \
                 filtered(lambda ml: ml.account_id not in (invoice_tax_account+self.account_id)):
+                tax_data = tax_datas[mline.tax_ids[0]]
+
                 aa_code = mline.analytic_account_id and str(mline.analytic_account_id.code)
 
                 if mline.debit > 0:
@@ -308,8 +315,8 @@ class AccountInvoice(models.Model):
                     'line_origin': 'dl_orig_additional',
                     'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     # 'code': 'VFL21' if self.type == 'out_invoice' else 'VCL21',
-                    'code': doc_type,
-                    'short_name': roularta_tax_name,
+                    'code': tax_data['doc_type'],
+                    'short_name': tax_data['short_name'],
                     'ext_ref4': aa_code,
                     'description': '<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>',
                     'value': total_tax_amount,
@@ -337,7 +344,7 @@ class AccountInvoice(models.Model):
                     'line_sense': ana_line_sense,
                     'line_origin': 'dl_orig_gentax',
                     # 'code':'VFL21' if self.type == 'out_invoice' else 'VCL21',
-                    'code':doc_type,
+                    'code':tax_datas[mline.tax_line_id]['doc_type'],
                     'due_date': datetime.strptime(mline.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     'doc_tax_turnover':self.amount_untaxed
                 }
