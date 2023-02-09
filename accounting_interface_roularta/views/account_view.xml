@@ -25,6 +25,7 @@
                                 <field name="code"/>
                                 <field name="invoice_name"/>
                                 <field name="reference"/>
+                                <field name="partner_ref"/>
                                 <field name="account_roularta_response_code"/>
                             </group>
                             <group>

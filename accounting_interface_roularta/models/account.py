@@ -155,10 +155,9 @@ class AccountInvoice(models.Model):
                 'company_code':self.operating_unit_id.code,
                 'code':'XXX',
                 'number':invoice_number,
-                'period':datetime.strptime(self.date_invoice, '%Y-%m-%d').strftime('%Y/%m'),
+                'period':datetime.strptime(self.date_due, '%Y-%m-%d').strftime('%Y/%m'),
                 'curcode':self.currency_id.id,
-                'date':datetime.strptime(self.date_invoice, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S.000')
-
+                'date':datetime.strptime(self.date_due, '%Y-%m-%d').strftime('%Y-%m-%d')
             }
 
             summary_seq = 1
@@ -458,6 +457,9 @@ class MovefromOdootoRoularta(models.Model):
 
     status = fields.Selection([('draft', 'Draft'), ('successful', 'Successful'), ('failed', 'Failed')], string='Status',
                               required=True, readonly=True, default='draft', compute=_compute_response)
+
+    partner_ref = fields.Char(related='invoice_id.partner_id.ref', string='Partner Ref#', readonly=True, store=True)
+    
 
     @job
     def roularta_content(self, xml=False):
