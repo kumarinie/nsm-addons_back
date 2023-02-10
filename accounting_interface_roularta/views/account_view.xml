@@ -25,7 +25,6 @@
                                 <field name="code"/>
                                 <field name="invoice_name"/>
                                 <field name="reference"/>
-                                <field name="partner_ref"/>
                                 <field name="account_roularta_response_code"/>
                             </group>
                             <group>
@@ -156,9 +155,23 @@
                     <button name="update_unit4" type="object" string="Update Unit4" states="open" groups="base.group_user"/>
                 </button>
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='product_id']" position="after">
-                    <field name="adv_issue" attrs="{'readonly':[('sale_order_id', '!=', False)]}"/>
+                    <field name="adv_issue" />
+                </xpath>
+                <xpath expr="//field[@name='move_id']" position="after">
+                    <field name="date" domain="[('state', '=', 'draft'), ('company_id', '=', company_id)]" groups="account.group_account_user"/>
                 </xpath>
             </field>
+        </record>
+
+        <record id="invoice_form_roularta_advertising_interface_view" model="ir.ui.view">
+              <field name="name">account.invoice.form.advertising.roularta.view</field>
+              <field name="model">account.invoice</field>
+              <field name="inherit_id" ref="sale_advertising_order.invoice_form"/>
+              <field name="arch" type="xml">
+                  <xpath expr="//field[@name='ad']" position="after">
+                    <field name="partner_ref"/>
+                 </xpath>
+              </field>
         </record>
 
         <record id="invoice_supplier_form_roularta_interface_view" model="ir.ui.view">

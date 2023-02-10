@@ -45,6 +45,8 @@ class AccountInvoice(models.Model):
         copy=False
     )
 
+    partner_ref = fields.Char(related='partner_id.ref', string='Partner Ref#', readonly=True, store=True)
+
     @api.multi
     def action_cancel(self):
         res = super(AccountInvoice, self).action_cancel()
@@ -155,9 +157,9 @@ class AccountInvoice(models.Model):
                 'company_code':self.operating_unit_id.code,
                 'code':'XXX',
                 'number':invoice_number,
-                'period':datetime.strptime(self.date_due, '%Y-%m-%d').strftime('%Y/%m'),
+                'period':datetime.strptime(self.date, '%Y-%m-%d').strftime('%Y/%m'),
                 'curcode':self.currency_id.id,
-                'date':datetime.strptime(self.date_due, '%Y-%m-%d').strftime('%Y-%m-%d')
+                'date':datetime.strptime(self.date, '%Y-%m-%d').strftime('%Y-%m-%d')
             }
 
             summary_seq = 1
@@ -458,9 +460,7 @@ class MovefromOdootoRoularta(models.Model):
     status = fields.Selection([('draft', 'Draft'), ('successful', 'Successful'), ('failed', 'Failed')], string='Status',
                               required=True, readonly=True, default='draft', compute=_compute_response)
 
-    partner_ref = fields.Char(related='invoice_id.partner_id.ref', string='Partner Ref#', readonly=True, store=True)
     
-
     @job
     def roularta_content(self, xml=False):
         self.ensure_one()
@@ -473,14 +473,15 @@ class MovefromOdootoRoularta(models.Model):
                 self.env['account.invoice.line'].search(
                     [('invoice_id', '=', self.invoice_id.id)]).write(
                     {'roularta_sent': True})
-            else:
-                return
+            # else:
+            #     return
         acc = self.env['account.invoice'].search(
             [('id', '=', self.invoice_id.id)])
         accvals = {'date_sent_roularta': datetime.now(),
                   'roularta_log_id': self.id,
                   }
-        acc.write(accvals)
+        if acc:
+            acc.write(accvals)
         return True
 
 class MoveLinefromOdootoRoularta(models.Model):
