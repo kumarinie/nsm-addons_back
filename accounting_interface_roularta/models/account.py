@@ -458,7 +458,7 @@ class MovefromOdootoRoularta(models.Model):
     )
 
     status = fields.Selection([('draft', 'Draft'), ('successful', 'Successful'), ('failed', 'Failed')], string='Status',
-                              required=True, readonly=True, default='draft', compute=_compute_response)
+                              required=True, readonly=True, store=True, compute=_compute_response)
 
     
     @job
@@ -483,6 +483,17 @@ class MovefromOdootoRoularta(models.Model):
         if acc:
             acc.write(accvals)
         return True
+
+    @api.model
+    def update_roularta_status(self):
+        for acc in self.search([]):
+            if acc.account_roularta_response_code > 200:
+                acc.status = 'failed'
+            elif acc.status == 200:
+                acc.status = 'successful'
+            else:
+                acc.status = 'draft'
+
 
 class MoveLinefromOdootoRoularta(models.Model):
     _name = 'move.line.odooto.roularta'
