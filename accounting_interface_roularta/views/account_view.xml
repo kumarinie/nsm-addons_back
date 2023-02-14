@@ -25,7 +25,6 @@
                                 <field name="code"/>
                                 <field name="invoice_name"/>
                                 <field name="reference"/>
-                                <field name="partner_ref"/>
                                 <field name="account_roularta_response_code"/>
                             </group>
                             <group>
@@ -95,7 +94,7 @@
             </field>
         </record>
 
-        <!--<record id="view_move_odooto_roularta_filter" model="ir.ui.view">
+        <record id="view_move_odooto_roularta_filter" model="ir.ui.view">
             <field name="name">view_sofrom_odooto_roularta_filter</field>
             <field name="model">move.odooto.roularta</field>
             <field name="arch" type="xml">
@@ -105,16 +104,16 @@
                     <filter string="Successful" name="success"
                             domain="[('status','=','successful')]"/>
                     <filter name="draft" string="Draft"
-                            domain="[('status','=',draft)]"/>
+                            domain="[('status','=','draft')]"/>
                     <filter name="failed" string="Failed"
-                            domain="[('status','=',Failed)]"/>
+                            domain="[('status','=','failed')]"/>
                     <separator/>
                     <group expand="0" string="Group By">
                         <filter name="status" string="Status" context="{'group_by':'status'}"/>
                     </group>
                </search>
             </field>
-        </record>-->
+        </record>
 
 
         <record id="action_staged_Roularta" model="ir.actions.act_window">
@@ -122,7 +121,7 @@
             <field name="res_model">move.odooto.roularta</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <!--<field name="search_view_id" ref="view_move_odooto_roularta_filter"/>-->
+            <field name="search_view_id" ref="view_move_odooto_roularta_filter"/>
         </record>
 
         <menuitem id="menu_action_staged_roularta" name="Staged Roularta" parent="menu_roularta_interface" action="action_staged_Roularta"
@@ -156,9 +155,23 @@
                     <button name="update_unit4" type="object" string="Update Unit4" states="open" groups="base.group_user"/>
                 </button>
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='product_id']" position="after">
-                    <field name="adv_issue" attrs="{'readonly':[('sale_order_id', '!=', False)]}"/>
+                    <field name="adv_issue" />
+                </xpath>
+                <xpath expr="//field[@name='move_id']" position="after">
+                    <field name="date" domain="[('state', '=', 'draft'), ('company_id', '=', company_id)]" groups="account.group_account_user"/>
                 </xpath>
             </field>
+        </record>
+
+        <record id="invoice_form_roularta_advertising_interface_view" model="ir.ui.view">
+              <field name="name">account.invoice.form.advertising.roularta.view</field>
+              <field name="model">account.invoice</field>
+              <field name="inherit_id" ref="sale_advertising_order.invoice_form"/>
+              <field name="arch" type="xml">
+                  <xpath expr="//field[@name='ad']" position="after">
+                    <field name="partner_ref"/>
+                 </xpath>
+              </field>
         </record>
 
         <record id="invoice_supplier_form_roularta_interface_view" model="ir.ui.view">
@@ -172,5 +185,17 @@
               </field>
         </record>
 
+    </data>
+    <data noupdate="1">
+        <record model="ir.cron" id="update_roularta_status_cron">
+            <field name="name">Update Roularta Status</field>
+            <field name="interval_number">10</field>
+            <field name="interval_type">months</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"></field>
+            <field name="active" eval="False"/>
+            <field eval="'move.odooto.roularta'" name="model"/>
+            <field eval="'update_roularta_status'" name="function"/>
+        </record>
     </data>
 </odoo>
