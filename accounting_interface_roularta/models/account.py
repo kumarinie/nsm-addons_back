@@ -159,7 +159,8 @@ class AccountInvoice(models.Model):
                 'number':invoice_number,
                 'period':datetime.strptime(self.date, '%Y-%m-%d').strftime('%Y/%m'),
                 'curcode':self.currency_id.id,
-                'date':datetime.strptime(self.date, '%Y-%m-%d').strftime('%Y-%m-%d')
+                'date':datetime.strptime(self.date, '%Y-%m-%d').strftime('%Y-%m-%d'),
+                'status': 'draft',
             }
 
             summary_seq = 1
@@ -319,7 +320,7 @@ class AccountInvoice(models.Model):
                     'code': tax_data['doc_type'],
                     'short_name': tax_data['short_name'],
                     'ext_ref4': aa_code,
-                    'description': '<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>',
+                    'description': mline.name,
                     'value': total_tax_amount,
                 }
                 summary_lines.append((0, 0, lvals))
@@ -586,7 +587,7 @@ class MoveLinefromOdootoRoularta(models.Model):
                     OrderedDict([
                         ('trans:TaxInclusive',False),
                         ('trans:ExtRef4',line.ext_ref4),
-                        ('trans:Description','<![CDATA[Geld ? Recht Teaserbox Nieuwsbrief]]>'),
+                        ('trans:Description',line.description),
                         ('trans:Taxes', OrderedDict([
                             ('trans:Tax', OrderedDict([
                                 ('trans:Code', line.code),
