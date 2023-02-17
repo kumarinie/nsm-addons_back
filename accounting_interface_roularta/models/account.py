@@ -287,17 +287,7 @@ class AccountInvoice(models.Model):
                 if inv_line and inv_line[0] and inv_line[0].so_line_id:
                     title_code = inv_line[0].so_line_id and inv_line[0].so_line_id.title and inv_line[0].so_line_id.title.code
                 else:
-                    if self.type in ('in_refund', 'in_invoice'):
-                        aa = inv_line and inv_line[0].account_analytic_id or mline.anaytic_account_id
-                        adv_issue = self.env['sale.advertising.issue'].search([('analytic_account_id', '=', aa.id)], limit=1)
-                        title_code = adv_issue.code
-                    else:
-                        if inv_line:
-                            title_code = inv_line[0].adv_issue.code
-                        else:
-                            adv_issue = self.env['sale.advertising.issue'].search([('analytic_account_id', '=', mline.anaytic_account_id.id)],
-                                                                                  limit=1)
-                            title_code = adv_issue.code
+                    title_code = inv_line[0].adv_issue.code
 
                 if not title_code:
                     msg += 'Product %s title code is missing!' % mline.product_id.name
@@ -491,7 +481,7 @@ class MovefromOdootoRoularta(models.Model):
         for acc in self.search([]):
             if acc.account_roularta_response_code > 200:
                 acc.status = 'failed'
-            elif acc.status == 200:
+            elif acc.account_roularta_response_code == 200:
                 acc.status = 'successful'
             else:
                 acc.status = 'draft'
