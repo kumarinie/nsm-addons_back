@@ -174,9 +174,9 @@ class AccountInvoice(models.Model):
             summary_lines=[]
             operating_code = self.operating_unit_id.code
             invoice_type = self.type
-            sum_line_sense = 'debit'
-            if invoice_type in ('in_invoice', 'out_refund'):
-                sum_line_sense = 'credit'
+            # sum_line_sense = 'debit'
+            # if invoice_type in ('in_invoice', 'out_refund'):
+            #     sum_line_sense = 'credit'
 
             #Determine partner
             partner = self.partner_id
@@ -318,8 +318,8 @@ class AccountInvoice(models.Model):
                 summary_seq += 1
 
             # Tax line
-            for mline in self.move_id.line_ids. \
-                filtered(lambda ml: ml.account_id in invoice_tax_account):
+            tax_mv_lines = self.move_id.line_ids.filtered(lambda ml: ml.account_id in invoice_tax_account)
+            for mline in tax_mv_lines:
 
                 if not mline.account_id.ext_account:
                     raise UserError(_('%s external account is missing!') % mline.account_id.name)
@@ -343,6 +343,31 @@ class AccountInvoice(models.Model):
                 }
                 summary_lines.append((0, 0, lvals))
                 summary_seq += 1
+
+            if not tax_mv_lines:
+                for inv_tax_line in self.tax_line_ids:
+                    if not inv_tax_line.account_id.ext_account:
+                        raise UserError(_('%s external account is missing!') % inv_tax_line.account_id.name)
+
+                    lvals = {
+                        # 'move_line_id': mline.id,
+                        'number': summary_seq,
+                        'dest_code': operating_code,
+                        'account_code': inv_tax_line.account_id.ext_account,
+                        'doc_value': inv_tax_line.amount,
+                        'dual_rate': 40.339900000,
+                        'doc_rate': 1.000000000,
+                        'line_type': 'tax',
+                        # 'line_sense': "credit" if sale_invoice else "debit",
+                        'line_sense': ana_line_sense,
+                        'line_origin': 'dl_orig_gentax',
+                        # 'code':'VFL21' if self.type == 'out_invoice' else 'VCL21',
+                        'code': tax_datas[inv_tax_line.tax_id]['doc_type'],
+                        'due_date': datetime.strptime(self.date_due, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
+                        'doc_tax_turnover': self.amount_untaxed
+                    }
+                    summary_lines.append((0, 0, lvals))
+                    summary_seq += 1
 
             vals['roularta_invoice_line'] = summary_lines
             res = self.env['move.odooto.roularta'].sudo().create(vals)
