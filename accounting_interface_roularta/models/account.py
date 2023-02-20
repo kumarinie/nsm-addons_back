@@ -280,7 +280,7 @@ class AccountInvoice(models.Model):
                 else:
                     ana_line_sense = 'credit'
 
-                taxes = mline.tax_ids.compute_all(mline.credit, mline.currency_id,
+                taxes = mline.tax_ids.compute_all((mline.credit or mline.debit), mline.currency_id,
                                                   mline.quantity, mline.product_id, mline.partner_id)['taxes']
                 total_tax_amount = 0.0
                 for tax in taxes:
@@ -343,7 +343,7 @@ class AccountInvoice(models.Model):
                 account_id = mline.account_id
                 lvals = {}
 
-                if mline._name == 'account.move':
+                if mline._name == 'account.move.line':
                     lvals.update({'move_line_id': mline.id,
                                   'doc_value': mline.credit or mline.debit,
                                   'code': tax_datas[mline.tax_line_id]['doc_type'],
