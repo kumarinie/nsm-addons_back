@@ -87,7 +87,7 @@
                       copy="false"
                       decoration-info="status in ('draft')" decoration-danger="status in ('failed')">
                     <field name="invoice_name"/>
-                    <field name="reference"/>
+                    <field name="number"/>
                     <field name="company_code"/>
                     <field name="status"/>
                 </tree>
