@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record id="sale_advertising_issue_form" model="ir.ui.view">
+				<field name="name">sale.advertising.issue.form.inherit</field>
+				<field name="model">sale.advertising.issue</field>
+				<field name="inherit_id" ref="sale_advertising_order.sale_advertising_issue_form"/>
+				<field name="arch" type="xml">
+					<field name="deadline" position="after">
+						<field name="adv_pro_type_ids" widget="many2many_tags" options='{"no_open": True, "no_create": True}'/>
+					</field>
+				</field>
+		 </record>
+    </data>
+</odoo>
