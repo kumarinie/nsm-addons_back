@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_advertising_product_matrix_advertising_product_matrix,advertising_product_matrix.advertising_product_matrix,model_advertising_product_matrix_advertising_product_matrix,,1,0,0,0

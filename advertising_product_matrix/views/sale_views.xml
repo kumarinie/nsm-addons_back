@@ -1,0 +1,39 @@
+<odoo>
+    <data>
+        <record id="view_order_form_advertising_pro_type_domain" model="ir.ui.view">
+            <field name="name">sale.order.form.advertising.pro.type.domain</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="digital_domain_sale_advertising_order.view_order_form_advertising_digital_domain"/>
+            <field name="priority" eval="22"/>
+            <field name="arch" type="xml">
+                <field name="adv_issue" position="after">
+                    <field name="adv_pro_type_ids" invisible="1"/>
+                </field>
+                <field name="adv_issue" position="attributes">
+                    <attribute name="domain">['&amp;', ('parent_id','!=', False), '&amp;', ('parent_id','=', title), ('digital','=', ad_class_digital), ('adv_pro_type_ids', 'in', [adv_pro_type_ids and adv_pro_type_ids[0][1]]), '|','|',('deadline','&gt;=', deadline_offset), ('deadline','=', False), ('issue_date','&lt;=', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))]</attribute>
+                </field>
+                <field name="adv_issue_ids" position="attributes">
+                    <attribute name="domain">[('parent_id','!=', False),'|',('parent_id','in', title_ids and title_ids[0][2]), ('parent_id','=', title), ('digital','=', ad_class_digital), ('adv_pro_type_ids', 'in', [adv_pro_type_ids and adv_pro_type_ids[0][1]]), '|','|',('deadline','&gt;=', deadline_offset), ('deadline','=', False), ('issue_date','&lt;=', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))]</attribute>
+                </field>
+            </field>
+        </record>
+
+    <!--No Deadline Check User group views-->
+    <record id="view_order_form_advertising_pro_type_domain_no_deadline_check" model="ir.ui.view">
+        <field name="name">sale.order.form.advertising.digital.domain</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id"
+               ref="digital_domain_sale_advertising_order.view_order_form_advertising_digital_domain_no_deadline_check"/>
+        <field name="priority" eval="23"/>
+        <field name="groups_id" eval="[(4, ref('sale_advertising_order.group_no_deadline_check'))]"/>
+        <field name="arch" type="xml">
+            <field name="adv_issue" position="attributes">
+                <attribute name="domain">['&amp;', ('parent_id','!=', False), '&amp;', ('parent_id','=', title),('digital','=', ad_class_digital), ('adv_pro_type_ids', 'in', [adv_pro_type_ids and adv_pro_type_ids[0][1]])]</attribute>
+            </field>
+            <field name="adv_issue_ids" position="attributes">
+                <attribute name="domain">[('parent_id','!=', False),'|',('parent_id','in', title_ids and title_ids[0][2]),('parent_id','=', title), ('digital','=', ad_class_digital), ('adv_pro_type_ids', 'in', [adv_pro_type_ids and adv_pro_type_ids[0][1]])]</attribute>
+            </field>
+        </field>
+    </record>
+    </data>
+</odoo>
