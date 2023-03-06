@@ -7,13 +7,13 @@
             <field name="priority" eval="22"/>
             <field name="arch" type="xml">
                 <field name="adv_issue" position="after">
-                    <field name="adv_pro_type_ids" invisible="1"/>
+                    <field name="adv_pro_type_ids" invisible="1" widget="many2many_tags"/>
                 </field>
                 <field name="adv_issue" position="attributes">
-                    <attribute name="domain">['&amp;', ('parent_id','!=', False), '&amp;', ('parent_id','=', title), ('digital','=', ad_class_digital), ('adv_pro_type_ids', 'in', adv_pro_type_ids and [adv_pro_type_ids[0][1]]), '|','|',('deadline','&gt;=', deadline_offset), ('deadline','=', False), ('issue_date','&lt;=', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))]</attribute>
+                    <attribute name="domain">['&amp;', ('parent_id','!=', False), '&amp;', ('parent_id','=', title), ('digital','=', ad_class_digital), ('adv_pro_type_ids', 'in', adv_pro_type_ids and adv_pro_type_ids[0][2]), '|','|',('deadline','&gt;=', deadline_offset), ('deadline','=', False), ('issue_date','&lt;=', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))]</attribute>
                 </field>
                 <field name="adv_issue_ids" position="attributes">
-                    <attribute name="domain">[('parent_id','!=', False),'|',('parent_id','in', title_ids and title_ids[0][2]), ('parent_id','=', title), ('digital','=', ad_class_digital), ('adv_pro_type_ids', 'in', adv_pro_type_ids and [adv_pro_type_ids[0][1]]), '|','|',('deadline','&gt;=', deadline_offset), ('deadline','=', False), ('issue_date','&lt;=', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))]</attribute>
+                    <attribute name="domain">[('parent_id','!=', False),'|',('parent_id','in', title_ids and title_ids[0][2]), ('parent_id','=', title), ('digital','=', ad_class_digital), ('adv_pro_type_ids', 'in', adv_pro_type_ids and adv_pro_type_ids[0][2]), '|','|',('deadline','&gt;=', deadline_offset), ('deadline','=', False), ('issue_date','&lt;=', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))]</attribute>
                 </field>
             </field>
         </record>
@@ -28,10 +28,10 @@
         <field name="groups_id" eval="[(4, ref('sale_advertising_order.group_no_deadline_check'))]"/>
         <field name="arch" type="xml">
             <field name="adv_issue" position="attributes">
-                <attribute name="domain">['&amp;', ('parent_id','!=', False), '&amp;', ('parent_id','=', title),('digital','=', ad_class_digital), ('adv_pro_type_ids', 'in', adv_pro_type_ids and [adv_pro_type_ids[0][1]])]</attribute>
+                <attribute name="domain">['&amp;', ('parent_id','!=', False), '&amp;', ('parent_id','=', title),('digital','=', ad_class_digital), ('adv_pro_type_ids', 'in', adv_pro_type_ids and adv_pro_type_ids[0][2])]</attribute>
             </field>
             <field name="adv_issue_ids" position="attributes">
-                <attribute name="domain">[('parent_id','!=', False),'|',('parent_id','in', title_ids and title_ids[0][2]),('parent_id','=', title), ('digital','=', ad_class_digital), ('adv_pro_type_ids', 'in', adv_pro_type_ids and [adv_pro_type_ids[0][1]])]</attribute>
+                <attribute name="domain">[('parent_id','!=', False),'|',('parent_id','in', title_ids and title_ids[0][2]),('parent_id','=', title), ('digital','=', ad_class_digital), ('adv_pro_type_ids', 'in', adv_pro_type_ids and adv_pro_type_ids[0][2])]</attribute>
             </field>
         </field>
     </record>
