@@ -420,7 +420,19 @@ class AccountInvoice(models.Model):
     @api.multi
     def invoice_validate(self):
         res = super(AccountInvoice, self).invoice_validate()
-        self.action_roularta_interface()
+        if self.type in ('out_invoice', 'out_refund'):
+            self.action_roularta_interface()
+        return res
+
+    @api.multi
+    def action_invoice_auth(self):
+        invoice_lines = self.invoice_line_ids.filtered(lambda l: not l.adv_issue)
+        if invoice_lines:
+            adv_issue = self.env['sale.advertising.issue'].search([('supplier_default_issue', '=', True)], limit=1)
+            invoice_lines.write({'adv_issue':adv_issue.id})
+        res = super(AccountInvoice, self).action_invoice_auth()
+        if self.type in ('in_invoice', 'in_refund'):
+            self.action_roularta_interface()
         return res
 
     @api.multi
