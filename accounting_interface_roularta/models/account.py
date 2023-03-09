@@ -373,13 +373,13 @@ class AccountInvoice(models.Model):
                     lvals.update({
                         'doc_value': mline.amount,
                         'code': tax_datas[mline.tax_id]['doc_type'],
-                        'due_date': datetime.strptime(self.date_due, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
+                        'due_date': datetime.strptime(self.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     })
                 elif tax_datas:
                     lvals.update({
                         'doc_value': 0,
                         'code': tax_datas.values()[0]['doc_type'],
-                        'due_date': datetime.strptime(self.date_due, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
+                        'due_date': datetime.strptime(self.date, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     })
                     if type in ('out_refund', 'in_refund'):
                         account_id = mline.refund_account_id
