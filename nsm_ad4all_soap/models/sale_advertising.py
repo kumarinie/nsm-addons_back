@@ -504,9 +504,6 @@ class SofromOdootoAd4all(models.Model):
             raise UserError(_(
                 'This Sale Order already has been succesfully sent to Ad4all.'))
         for line in self.ad4all_so_line:
-            #if line is already sent, don't resend
-            if line.ad4all_sent:
-                continue
             response = line.call_wsdl(xml)
             if response['code'] == 200:
                 self.env['sale.order.line'].search(
