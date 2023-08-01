@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<openerp>
+    <data noupdate="1">
+        <record model="ir.cron" id="update_fields_cron">
+            <field name="name">Update Fields For Ad4all</field>
+            <field name="interval_number">10</field>
+            <field name="interval_type">months</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"></field>
+            <field name="active" eval="False"/>
+            <field eval="'sofrom.odooto.ad4all'" name="model"/>
+            <field eval="'update_fields_value'" name="function"/>
+        </record>
+    </data>
+</openerp>

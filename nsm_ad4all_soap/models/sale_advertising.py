@@ -175,6 +175,13 @@ class SaleOrder(models.Model):
                 raise UserError(
                     _('You have to fill in a material contact person.\n'
                       'Be aware, that the contact must have email and phone filled in.'))
+            lang_code = 'NL'
+            if self.published_customer:
+                partner = self.published_customer
+                if partner.lang:
+                    lang_code = partner.lang.split('_')[1]
+                    if lang_code == 'US':
+                        lang_code = 'EN'
             vals = {
                 'sale_order_id': self.id,
                 'order_name': self.name or '',
@@ -204,7 +211,9 @@ class SaleOrder(models.Model):
                     self.material_contact_person.phone or
                     self.material_contact_person.mobile or False,
                 'so_customer_contacts_contact_type': '',
-                'so_customer_contacts_contact_language': 'NL'
+                'so_customer_contacts_contact_language': 'NL',
+                'so_media_agency_contacts_contact2_language': lang_code
+
             }
             for key, value in vals.iteritems():
                 if value == False:
@@ -345,14 +354,20 @@ class SofromOdootoAd4all(models.Model):
     reference = fields.Char(
         'Order Reference'
     )
-    so_customer_id = fields.Integer(
+    # so_customer_id = fields.Integer(
+    #     string='Advertiser Number'
+    # )
+    so_customer_id = fields.Char(
         string='Advertiser Number'
     )
     so_customer_name = fields.Char(
         string='Advertiser Name',
         size=64
     )
-    so_customer_contacts_contact_id = fields.Integer(
+    # so_customer_contacts_contact_id = fields.Integer(
+    #     string='Advertiser Contact ID',
+    # )
+    so_customer_contacts_contact_id = fields.Char(
         string='Advertiser Contact ID',
     )
     so_customer_contacts_contact_name = fields.Char(
@@ -504,7 +519,8 @@ class SofromOdootoAd4all(models.Model):
                     [('id', '=', line.advert_id)]).write(
                     {'ad4all_sent': True})
             else:
-                return
+                #If error/failure, try to send other lines
+                continue
         so = self.env['sale.order'].search(
             [('id', '=', self.sale_order_id.id)])
         sovals = {'date_sent_ad4all': datetime.datetime.now(),
@@ -516,6 +532,21 @@ class SofromOdootoAd4all(models.Model):
         self.so_ad4all_environment = wsdl
         return True
 
+
+    def update_fields_value(self):
+        # for advertsing with title
+        sql = ("UPDATE sofrom_odooto_ad4all "
+               "SET so_customer_id =  so_customer_id_moved0, "
+               "so_customer_contacts_contact_id = so_customer_contacts_contact_id_moved0"
+               )
+        cr = self.env.cr
+        cr.execute(sql)
+
+        sql = ("UPDATE soline_from_odooto_ad4all "
+               "SET paper_id = paper_id_moved0"
+               )
+        cr = self.env.cr
+        cr.execute(sql)
 
 
 
@@ -607,7 +638,10 @@ class SoLinefromOdootoAd4all(models.Model):
     paper_deadline = fields.Date(
         string='Deadline Date'
     )
-    paper_id = fields.Integer(
+    # paper_id = fields.Integer(
+    #     string='Title Id'
+    # )
+    paper_id = fields.Char(
         string='Title Id'
     )
     paper_name = fields.Char(
@@ -643,7 +677,11 @@ class SoLinefromOdootoAd4all(models.Model):
     reminder = fields.Boolean(
         string='Reminder'
     )
-    customer_id = fields.Integer(
+    # customer_id = fields.Integer(
+    #     related='so_id.so_customer_id',
+    #     string='Advertiser Number'
+    # )
+    customer_id = fields.Char(
         related='so_id.so_customer_id',
         string='Advertiser Number'
     )
@@ -652,7 +690,11 @@ class SoLinefromOdootoAd4all(models.Model):
         string='Advertiser Name',
         size=64
     )
-    customer_contacts_contact_id = fields.Integer(
+    # customer_contacts_contact_id = fields.Integer(
+    #     related='so_id.so_customer_contacts_contact_id',
+    #     string='Advertiser Contact ID',
+    # )
+    customer_contacts_contact_id = fields.Char(
         related='so_id.so_customer_contacts_contact_id',
         string='Advertiser Contact ID',
     )
@@ -821,7 +863,7 @@ class SoLinefromOdootoAd4all(models.Model):
         related='so_id.so_media_agency_contacts_contact2_language',
         string='Agency Contact2 Language',
         size=16,
-        default='nl'
+        # default='NL'
     )
     creative_agency_code = fields.Char(
         string='Creative Number',
@@ -935,7 +977,7 @@ class SoLinefromOdootoAd4all(models.Model):
         }]
 
         customer_dict = {'customer': [
-            {'id': int(float(self.customer_id))},
+            {'id': self.customer_id},
             {'name': self.customer_name},
             {'address': [
                 {'street': self.customer_address_street},
