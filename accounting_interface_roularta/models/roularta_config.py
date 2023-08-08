@@ -20,7 +20,7 @@ class RoulartaConfig(models.Model):
     )
     # msg = fields.Char(string="Connection Message", copy=False)
 
-    # @api.multi
+    #
     # def check_connection(self):
     #     self.ensure_one()
     #     msg = ''

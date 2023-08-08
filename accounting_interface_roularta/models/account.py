@@ -2,7 +2,7 @@ from odoo import api, fields, models, _
 from datetime import datetime, date
 from odoo import exceptions
 import base64
-from odoo.addons.queue_job.job import job, related_action
+# from odoo.addons.queue_job.job import job, related_action
 from odoo.addons.queue_job.exception import FailedJobError
 import xmltodict
 import requests
@@ -12,11 +12,11 @@ from collections import OrderedDict
 import re
 
 
-class AccountInvoice(models.Model):
-    _inherit = 'account.invoice'
+class AccountMove(models.Model):
+    _inherit = 'account.move'
 
     @api.depends('invoice_line_ids.roularta_sent')
-    @api.multi
+
     def _roularta_sent(self):
         for inv in self:
             inv.roularta_sent = False
@@ -47,26 +47,26 @@ class AccountInvoice(models.Model):
 
     partner_ref = fields.Char(related='partner_id.ref', string='Partner Ref#', readonly=True, store=True)
 
-    @api.multi
+
     def action_cancel(self):
         res = super(AccountInvoice, self).action_cancel()
         self.invoice_line_ids.write({'roularta_sent': False})
         return res
 
-    @api.multi
+
     def action_roularta_interface(self):
         for inv in self:
             sale_invoice = inv.invoice_line_ids.mapped('sale_order_id')
-            if ((sale_invoice and inv.ad) or (not sale_invoice and inv.type in ('out_invoice', 'out_refund')))\
-                    or inv.type in ('in_invoice', 'in_refund'):
+            if ((sale_invoice and inv.ad) or (not sale_invoice and inv.move_type in ('out_invoice', 'out_refund')))\
+                    or inv.move_type in ('in_invoice', 'in_refund'):
                 inv.with_delay(
-                    description=inv.number
+                    description=inv.name
                 ).transfer_invoice_to_roularta()
 
     def parse_document_type(self):
         doc_type = ''
         short_name = ''
-        type = self.type
+        type = self.move_type
         if type in ('out_invoice', 'out_refund'):
             doc_type += 'V'
             short_name += 'Verkoopfact'
@@ -106,8 +106,9 @@ class AccountInvoice(models.Model):
         # if len(self.tax_line_ids.ids) > 1:
         #     raise UserError(_("Cant't send to roularta! More than one tax line!"))
         tax_dic = {}
-        tax_ids = self.tax_line_ids
-        if not self.tax_line_ids:
+        # tax_ids = self.tax_line_ids
+        tax_ids = self.line_ids.filtered('tax_line_id')
+        if not tax_ids:
             tax_type = 'sale'
             if type in ('in_invoice', 'in_refund'):
                 tax_type = 'purchase'
@@ -118,12 +119,12 @@ class AccountInvoice(models.Model):
         for tax_line in tax_ids:
             d_type = doc_type
             s_name = short_name
-            if tax_line._name == 'account.invoice.tax':
-                tax = tax_line.tax_id
-                tax_amt = '0'+str(int(tax.amount)) if len(str(int(tax.amount))) == 1 else str(int(tax.amount))
-            if tax_line._name == 'account.tax':
+            if not self.line_ids.filtered('tax_line_id'):
                 tax = tax_line
                 tax_amt = '00'
+            else:
+                tax = tax_line.tax_line_id
+                tax_amt = '0'+str(int(tax.amount)) if len(str(int(tax.amount))) == 1 else str(int(tax.amount))
             if tax.name in domestic_tax_name:
                 d_type += 'L'+tax_amt
                 s_name += ' '+'loc'+' '+tax_amt
@@ -147,7 +148,7 @@ class AccountInvoice(models.Model):
             tax_dic[tax] = {'doc_type':d_type, 'short_name':s_name}
         return [True, tax_dic]
 
-    @job
+    # @job
     def transfer_invoice_to_roularta(self):
         self.ensure_one()
 
@@ -169,20 +170,20 @@ class AccountInvoice(models.Model):
             _create_exception_roularta_move(vals)
             return
         else:
-            invoice_number = re.sub("[^A-Z 0-9]", "", self.number,0,re.IGNORECASE)
+            invoice_number = re.sub("[^A-Z 0-9]", "", self.name,0,re.IGNORECASE)
             parsing_status, tax_datas = self.parse_document_type()
 
             vals = {
                 'invoice_id':self.id,
                 'invoice_name': self.name,
                 'reference': invoice_number,
-                'move_id':self.move_id.id,
+                # 'move_id':self.move_id.id,
                 'company_code':self.operating_unit_id.code,
                 'code':'XXX',
                 'number':invoice_number,
-                'period':datetime.strptime(self.date, '%Y-%m-%d').strftime('%Y/%m'),
+                'period':datetime.strptime(str(self.date), '%Y-%m-%d').strftime('%Y/%m'),
                 'curcode':self.currency_id.id,
-                'date':datetime.strptime(self.date, '%Y-%m-%d').strftime('%Y-%m-%d'),
+                'date':datetime.strptime(str(self.date), '%Y-%m-%d').strftime('%Y-%m-%d'),
                 'status': 'draft',
             }
 
@@ -192,16 +193,17 @@ class AccountInvoice(models.Model):
                 return
 
             summary_seq = 1
-            invoice_tax_account = self.tax_line_ids.mapped('account_id')
-            tax_lines = self.move_id.line_ids.filtered(lambda ml: ml.account_id in invoice_tax_account)
+            # invoice_tax_account = self.tax_line_ids.mapped('account_id')
+            invoice_tax_account = self.line_ids.filtered('tax_line_id').mapped('account_id')
+            tax_lines = self.line_ids.filtered(lambda ml: ml.account_id in invoice_tax_account)
             tax_amt = sum(tl.credit for tl in tax_lines)
             sale_invoice = self.invoice_line_ids.mapped('sale_order_id')
-            vendor_invoice = self.invoice_line_ids.mapped('purchase_id')
+            vendor_invoice = self.invoice_line_ids.mapped('purchase_order_id')
 
             # move_line = self.env['move.line.odooto.roularta']
             summary_lines=[]
             operating_code = self.operating_unit_id.code
-            invoice_type = self.type
+            invoice_type = self.move_type
             # sum_line_sense = 'debit'
             # if invoice_type in ('in_invoice', 'out_refund'):
             #     sum_line_sense = 'credit'
@@ -219,7 +221,7 @@ class AccountInvoice(models.Model):
 
 
             #Summary line
-            for mline in self.move_id.line_ids.filtered(lambda ml: ml.account_id == self.account_id):
+            for mline in self.line_ids.filtered(lambda ml: ml.exclude_from_invoice_tab and ml.account_id not in invoice_tax_account):
                 UserRef1 = invoice_number
                 if sale_invoice:
                     UserRef1 = 'V' + UserRef1
@@ -263,7 +265,7 @@ class AccountInvoice(models.Model):
                     # 'line_sense':"debit" if sale_invoice else "credit",
                     'line_sense':sum_line_sense,
                     'line_origin':'dl_orig_additional',
-                    'due_date':datetime.strptime(self.date_due, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
+                    'due_date':datetime.strptime(str(self.invoice_date_due), '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     'media_code':'BI',
                     'user_ref1':UserRef1,
                     'user_ref2':'',
@@ -284,10 +286,11 @@ class AccountInvoice(models.Model):
                 roularta_account_code = 'K01410'
 
 
-            for mline in self.move_id.line_ids. \
-                filtered(lambda ml: ml.account_id not in (invoice_tax_account+self.account_id)):
+            # for mline in self.line_ids.filtered(lambda ml: ml.account_id not in (invoice_tax_account)):
+            for mline in self.line_ids.filtered(
+                        lambda ml: not ml.exclude_from_invoice_tab and ml.account_id not in invoice_tax_account):
 
-                tax_data = tax_datas[mline.tax_ids[0]] if mline.tax_ids else tax_datas.values()[0]
+                tax_data = tax_datas[mline.tax_ids[0]] if mline.tax_ids else list(tax_datas.values())[0]
 
                 aa_code = mline.analytic_account_id and str(mline.analytic_account_id.code)
 
@@ -333,7 +336,7 @@ class AccountInvoice(models.Model):
                     'line_type': 'analysis',
                     'line_sense': ana_line_sense,
                     'line_origin': 'dl_orig_additional',
-                    'due_date': datetime.strptime(self.date_due, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
+                    'due_date': datetime.strptime(str(self.invoice_date_due), '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     # 'code': 'VFL21' if self.type == 'out_invoice' else 'VCL21',
                     'code': tax_data['doc_type'],
                     'short_name': tax_data['short_name'],
@@ -345,40 +348,35 @@ class AccountInvoice(models.Model):
                 summary_seq += 1
 
             # Tax line
-            tax_mv_lines = self.move_id.line_ids.filtered(lambda ml: ml.account_id in invoice_tax_account)
+            tax_mv_lines = self.line_ids.filtered(lambda ml: ml.account_id in invoice_tax_account)
 
-            if not tax_mv_lines:
-                tax_mv_lines = self.tax_line_ids
-
-            if not tax_mv_lines and not self.tax_line_ids:
-                tax_mv_lines = tax_datas.keys()
-
-            for mline in tax_mv_lines:
-                account_id = mline.account_id
+            for mline in (tax_mv_lines or tax_datas.keys()):
                 lvals = {}
 
-                if mline._name == 'account.move.line':
+                if mline._name == 'account.move.line' and not self.line_ids.filtered('tax_line_id'):
                     lvals.update({'move_line_id': mline.id,
                                   'doc_value': mline.credit or mline.debit,
                                   'code': tax_datas[mline.tax_line_id]['doc_type'],
-                                  'due_date': datetime.strptime(self.date_due, '%Y-%m-%d').strftime(
+                                  'due_date': datetime.strptime(str(self.invoice_date_due), '%Y-%m-%d').strftime(
                                       '%Y-%m-%d %H:%M:%S'),
                                   })
+                    account_id = mline.account_id
 
-                elif mline._name == 'account.invoice.tax':
-                    lvals.update({
-                        'doc_value': mline.amount,
-                        'code': tax_datas[mline.tax_id]['doc_type'],
-                        'due_date': datetime.strptime(self.date_due, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
-                    })
                 elif tax_datas:
                     lvals.update({
                         'doc_value': 0,
-                        'code': tax_datas.values()[0]['doc_type'],
-                        'due_date': datetime.strptime(self.date_due, '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
+                        'code': list(tax_datas.values())[0]['doc_type'],
+                        'due_date': datetime.strptime(str(self.invoice_date_due), '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     })
+
+                    taxes = mline
+                    is_refund =  False
                     if type in ('out_refund', 'in_refund'):
-                        account_id = mline.refund_account_id
+                        is_refund =  True
+
+                    for tax_val in taxes.compute_all(0.0, currency=self.currency_id, quantity=1, partner=self.partner_id, is_refund=is_refund)['taxes']:
+                        account_id = self.env['account.account'].browse(tax_val['account_id'])
+                        break
 
                 if not account_id.ext_account:
                     msg = "Tax Error: %s external account is missing!" % account_id.name
@@ -413,74 +411,77 @@ class AccountInvoice(models.Model):
             ).roularta_content()
             return
 
-    @api.multi
-    def invoice_validate(self):
+
+    # def invoice_validate(self):
+    def action_post(self):
         res = super(AccountInvoice, self).invoice_validate()
-        if self.type in ('out_invoice', 'out_refund'):
+        if self.move_type in ('out_invoice', 'out_refund'):
             self.action_roularta_interface()
         return res
 
-    @api.multi
+
+    # 2step validation module method need to check w.r.t v14
     def action_invoice_auth(self):
         invoice_lines = self.invoice_line_ids.filtered(lambda l: not l.adv_issue)
         if invoice_lines:
             adv_issue = self.env['sale.advertising.issue'].search([('supplier_default_issue', '=', True)], limit=1)
             invoice_lines.write({'adv_issue':adv_issue.id})
         res = super(AccountInvoice, self).action_invoice_auth()
-        if self.type in ('in_invoice', 'in_refund'):
+        if self.move_type in ('in_invoice', 'in_refund'):
             self.action_roularta_interface()
         return res
 
-    @api.multi
+
     def update_unit4(self):
         self.ensure_one()
         if not self.roularta_sent:
             self.action_roularta_interface()
         return
-
-    @api.model
-    def _refund_cleanup_lines(self, lines):
-        """ Inherit to avoid line roularta_sent being copied
-        """
-        result = super(AccountInvoice, self)._refund_cleanup_lines(lines)
-        if result and result[0] and result[0][2]:
-            result[0][2].pop('roularta_sent', None)
-        return result
-
-    def inv_line_characteristic_hashcode(self, invoice_line):
-        code = super(AccountInvoice, self).inv_line_characteristic_hashcode(
-            invoice_line)
-        hashcode = '%s-%s' % (
-            code, invoice_line.get('adv_issue', 'False'))
-        return hashcode
-
-
-    @api.model
-    def line_get_convert(self, line, part):
-        """Copy from invoice to move lines"""
-        res = super(AccountInvoice, self).line_get_convert(line, part)
-        res['adv_issue'] = line.get('adv_issue', False)
-        return res
-
-    @api.model
-    def invoice_line_move_line_get(self):
-        res = super(AccountInvoice, self).invoice_line_move_line_get()
-        for data in res:
-            invl_id = data.get('invl_id')
-            line = self.env['account.invoice.line'].browse(invl_id)
-            adv_issue = self.env['sale.advertising.issue']
-            if line.adv_issue:
-                adv_issue = line.adv_issue
-            elif line.so_line_id and line.so_line_id.adv_issue:
-                adv_issue = line.so_line_id.adv_issue
-
-            if adv_issue:
-                data['adv_issue'] = adv_issue.id
-        return res
+    # need to check w.r.t v14
+    # @api.model
+    # def _refund_cleanup_lines(self, lines):
+    #     """ Inherit to avoid line roularta_sent being copied
+    #     """
+    #     result = super(AccountInvoice, self)._refund_cleanup_lines(lines)
+    #     if result and result[0] and result[0][2]:
+    #         result[0][2].pop('roularta_sent', None)
+    #     return result
+    # need to check w.r.t v14
+    # def inv_line_characteristic_hashcode(self, invoice_line):
+    #     code = super(AccountInvoice, self).inv_line_characteristic_hashcode(
+    #         invoice_line)
+    #     hashcode = '%s-%s' % (
+    #         code, invoice_line.get('adv_issue', 'False'))
+    #     return hashcode
 
 
-class AccountInvoiceLine(models.Model):
-    _inherit = 'account.invoice.line'
+    #need to check w.r.t v14
+    # @api.model
+    # def line_get_convert(self, line, part):
+    #     """Copy from invoice to move lines"""
+    #     res = super(AccountInvoice, self).line_get_convert(line, part)
+    #     res['adv_issue'] = line.get('adv_issue', False)
+    #     return res
+    # need to check w.r.t v14
+    # @api.model
+    # def invoice_line_move_line_get(self):
+    #     res = super(AccountInvoice, self).invoice_line_move_line_get()
+    #     for data in res:
+    #         invl_id = data.get('invl_id')
+    #         line = self.env['account.move.line'].browse(invl_id)
+    #         adv_issue = self.env['sale.advertising.issue']
+    #         if line.adv_issue:
+    #             adv_issue = line.adv_issue
+    #         elif line.so_line_id and line.so_line_id.adv_issue:
+    #             adv_issue = line.so_line_id.adv_issue
+    #
+    #         if adv_issue:
+    #             data['adv_issue'] = adv_issue.id
+    #     return res
+
+
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
 
     roularta_sent = fields.Boolean(
         'Invoice Line sent to Roularta',
@@ -489,7 +490,8 @@ class AccountInvoiceLine(models.Model):
 
     adv_issue = fields.Many2one(
         'sale.advertising.issue',
-        'Advertising Issue'
+        'Advertising Issue',
+        index=True
     )
 
 class MovefromOdootoRoularta(models.Model):
@@ -498,14 +500,16 @@ class MovefromOdootoRoularta(models.Model):
     _rec_name = 'number'
 
     @api.depends('roularta_invoice_line.roularta_response')
-    @api.multi
+
     def _compute_response(self):
         for acc in self:
             acc.status = 'draft'
             acc.account_roularta_response = True
+            roularta_response_message = ''
+            roularta_response = ''
             for line in acc.roularta_invoice_line:
-                acc.account_roularta_response_message = line.roularta_response_message
-                acc.account_roularta_response_code = line.roularta_response
+                roularta_response_message = line.roularta_response_message
+                roularta_response = line.roularta_response
                 if line.roularta_response == 500 and 'already exists' in line.roularta_response_message:
                     acc.status = 'successful'
                 elif line.roularta_response != 200:
@@ -514,12 +518,14 @@ class MovefromOdootoRoularta(models.Model):
                 elif line.roularta_response == 200:
                     acc.status = 'successful'
                 break
+            acc.account_roularta_response_message = roularta_response_message
+            acc.account_roularta_response_code = roularta_response
 
     invoice_id = fields.Many2one(
-        'account.invoice',
+        'account.move',
         "Invoice"
     )
-    move_id = fields.Many2one(related='invoice_id.move_id', relation="account.move", string='Move', store=True, readonly=True)
+    # move_id = fields.Many2one(related='invoice_id.move_id', relation="account.move", string='Move', store=True, readonly=True)
     company_code = fields.Char('Company Code', size=16)
     code = fields.Char('Code', size=16)
     number = fields.Char('Invoice Number')
@@ -560,7 +566,7 @@ class MovefromOdootoRoularta(models.Model):
                               required=True, readonly=True, store=True, compute=_compute_response)
 
     
-    @job
+    # @job
     def roularta_content(self, xml=False):
         self.ensure_one()
         if self.account_roularta_response:
@@ -569,16 +575,16 @@ class MovefromOdootoRoularta(models.Model):
         if self.roularta_invoice_line:
             response = self.roularta_invoice_line.call_roularta(self, xml)
             if response.status_code == 200:
-                self.env['account.invoice.line'].search(
+                self.env['account.move.line'].search(
                     [('invoice_id', '=', self.invoice_id.id)]).write(
                     {'roularta_sent': True})
             elif response.status_code == 500 and 'already exists' in response.text:
-                self.env['account.invoice.line'].search(
+                self.env['account.move.line'].search(
                     [('invoice_id', '=', self.invoice_id.id)]).write(
                     {'roularta_sent': True})
             # else:
             #     return
-        acc = self.env['account.invoice'].search(
+        acc = self.env['account.move'].search(
             [('id', '=', self.invoice_id.id)])
         accvals = {'date_sent_roularta': datetime.now(),
                   'roularta_log_id': self.id,
@@ -655,13 +661,13 @@ class MoveLinefromOdootoRoularta(models.Model):
 
         trans_code = ''
         invoice = inv.invoice_id
-        if invoice.type == 'out_invoice':
+        if invoice.move_type == 'out_invoice':
             trans_code = 'VFOO'
-        elif invoice.type == 'out_refund':
+        elif invoice.move_type == 'out_refund':
             trans_code = 'VCOO'
-        elif invoice.type == 'in_invoice':
+        elif invoice.move_type == 'in_invoice':
             trans_code = 'IFOO'
-        elif invoice.type == 'in_refund':
+        elif invoice.move_type == 'in_refund':
             trans_code = 'ICOO'
 
         transaction_lines = []
@@ -676,7 +682,7 @@ class MoveLinefromOdootoRoularta(models.Model):
                 ('trans:LineType', line.line_type),
                 ('trans:LineSense', line.line_sense),
                 ('trans:LineOrigin', line.line_origin),
-                ('trans:DueDate', datetime.strptime(line.due_date, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S')),
+                ('trans:DueDate', datetime.strptime(str(line.due_date), '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S')),
             ])
 
             if line.line_type == 'summary':
@@ -757,7 +763,7 @@ class MoveLinefromOdootoRoularta(models.Model):
                                 ('trans:Period', inv.period),
                                 ('trans:CurCode', inv.curcode.name),
                                 ('trans:Date',
-                                 datetime.strptime(inv.date, '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S')),
+                                 datetime.strptime(str(inv.date), '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%dT%H:%M:%S')),
                             ])),
                             ('trans:Lines', OrderedDict([
                                 ('trans:Line', transaction_lines),
@@ -790,6 +796,7 @@ class MoveLinefromOdootoRoularta(models.Model):
         except Exception as e:
             raise FailedJobError(
                 _('Error Roularta Interface call: %s') % (e))
+
         return response
 
 class AccountTax(models.Model):
@@ -798,7 +805,7 @@ class AccountTax(models.Model):
     roularta_no_tax = fields.Boolean('Roularta No Tax')
 
 
-class AccountMoveLine(models.Model):
-    _inherit = 'account.move.line'
-
-    adv_issue = fields.Many2one('sale.advertising.issue', 'Advertising Issue')
+# class AccountMoveLine(models.Model):
+#     _inherit = 'account.move.line'
+#
+#     adv_issue = fields.Many2one('sale.advertising.issue', 'Advertising Issue')

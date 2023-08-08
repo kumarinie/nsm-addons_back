@@ -15,7 +15,7 @@ class Partner(models.Model):
                 raise UserError(_("You can't modify partner %s"%partner.name))
         return True
 
-    @api.multi
+
     def write(self, vals):
         self.check_edit_attributes(vals)
         return super(Partner, self).write(vals)
@@ -32,7 +32,7 @@ class PartnerBank(models.Model):
                 raise UserError(_("You can't modify bank account with partner %s" % partner.name))
         return super(PartnerBank, self).create(vals)
 
-    @api.multi
+
     def write(self, vals):
         no_partner_edit = self.env.user.has_group('accounting_interface_roularta.group_no_partner_edit_check')
         if no_partner_edit and 'partner_id' in vals:

@@ -19,8 +19,9 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['account', 'sale_advertising_order',
-                'account_invoice_2step_validation'],
+    'depends': [
+        'account', 'sale_advertising_order',
+                'account_invoice_2step_validation', 'queue_job', 'purchase', 'consolidation_external_system'],
 
     # always loaded
     'data': [
