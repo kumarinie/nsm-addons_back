@@ -32,7 +32,7 @@ class GenerateMapping(models.TransientModel):
     total = fields.Integer('Total')
 
 
-    @api.multi
+    
     def generate_mapping(self):
         context = self._context
         user = self.env.user

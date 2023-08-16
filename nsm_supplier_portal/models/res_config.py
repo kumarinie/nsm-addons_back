@@ -27,7 +27,7 @@ class ConfigSettings(models.TransientModel):
     data_fname = fields.Char('File Name')
     supplier_terms = fields.Binary("Upload Supplier Invoice Reuse-authorization File")
 
-    @api.multi
+    
     def execute(self):
         result = super(ConfigSettings, self).execute()
         config = self[0]

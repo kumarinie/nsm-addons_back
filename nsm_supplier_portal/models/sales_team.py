@@ -8,7 +8,7 @@ class SalesTeam(models.Model):
     _description = 'Sales Team Mapping'
     _rec_name = 'name'
 
-    @api.one
+    
     def concate_name(self):
         """concate name of product category and analytic account"""
         self.name = self.analytic_account_id.name.strip() + ' / ' + self.product_cat_id.name.strip()

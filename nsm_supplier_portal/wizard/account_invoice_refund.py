@@ -28,7 +28,7 @@ class AccountInvoiceRefund(models.TransientModel):
 
     _inherit = "account.invoice.refund"
 
-    @api.multi
+    
     def compute_refund(self, mode='refund'):
         res = super(AccountInvoiceRefund, self).compute_refund(mode)
         domain = res.get('domain', False)

@@ -18,11 +18,11 @@
 #
 ##############################################################################
 
-import res_partner
-import res_config
-import account_analytic
-import product
-import account_invoice
-import sales_team
+from . import res_partner
+from . import res_config
+from . import account_analytic
+from . import product
+from . import account_invoice
+from . import sales_team
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

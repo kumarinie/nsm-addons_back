@@ -36,7 +36,7 @@
                 'nsm_account',
                 'account_invoice_supplier_ref_unique',
                 'account_invoice_check_total',
-                'web_readonly_bypass'],
+                ],
     'data': [
         "data/data.xml",
         "data/auth_signup_send_mail_data.xml",

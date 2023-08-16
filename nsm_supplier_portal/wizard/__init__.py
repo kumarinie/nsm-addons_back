@@ -17,7 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-import generate_mapping
-import account_invoice_refund
-import portal_wizard
+from . import generate_mapping
+from . import account_invoice_refund
+from . import portal_wizard
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

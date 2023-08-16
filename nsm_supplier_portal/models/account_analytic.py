@@ -23,7 +23,7 @@ from odoo import api, fields, models, _
 class Analytic(models.Model):
     _inherit = 'account.analytic.account'
 
-    @api.multi
+    
     @api.depends('name')
     def name_get(self):
         result = []
