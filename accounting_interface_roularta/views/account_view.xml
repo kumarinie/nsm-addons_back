@@ -199,6 +199,9 @@
                             domain="[('roularta_sent','=',False)]"/>
                         <filter name="roularta_sent_success" string="Successfully sent to roularta"
                             domain="[('roularta_sent','=',True)]"/>
+                        <separator/>
+                         <filter name="roularta_customer" string="Roularta Customer"
+                                 domain="[('partner_ref','=like','R%')]"/>
                     </xpath>
               </field>
             </record>
