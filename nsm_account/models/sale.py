@@ -5,7 +5,7 @@ from odoo import models, fields, api
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
-    @api.multi
+
     @api.depends('order_id.invoicing_property_id', 'order_id.invoicing_date')
     def _calculate_cutoff_date(self):
         res = super(SaleOrderLine, self)._calculate_cutoff_date()

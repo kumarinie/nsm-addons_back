@@ -27,7 +27,39 @@ class AccountMove(models.Model):
     _name = "account.move"
     _inherit = ['account.move', 'mail.thread']
 
-    @api.multi
+    def invoice_print(self):
+        """ Print the invoice and mark it as sent
+        """
+        self.ensure_one()
+        self.sent = True
+        return self.env['report'].get_action(self, 'nsm_account.report_invoice_nsm_account')
+
+
+    def button_merge_attachments(self):
+        '''
+            Prints the merged Reports
+        '''
+
+        mergePDF = self.env['supplier.invoice.merge.pdf']
+        vals = mergePDF.default_get(['file_name', 'file_data'])
+        res = mergePDF.create(vals)
+        # return self.env['report'].get_action(self, 'account.invoice.customNSM')
+
+        view = self.env.ref('nsm_account.view_suplier_invoice_merge_pdf_form')
+        return {
+            'name': _('Merge PDF'),
+            'context': self._context,
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'supplier.invoice.merge.pdf',
+            'res_id': res.id,
+            'views': [(view.id, 'form')],
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+        }
+
+
+
     def _track_subtype(self, init_values):
         if 'state' in init_values and self.state == 'draft':
             return 'nsm_account.mt_move_unposted'
@@ -37,7 +69,7 @@ class AccountMove(models.Model):
 
         return super(AccountMove, self)._track_subtype(init_values)
 
-    @api.multi
+
     def _get_default_journal1(self):
         return super(AccountMove, self)._get_default_journal()
 
@@ -54,7 +86,15 @@ class AccountMove(models.Model):
                                  required=True, states={'posted': [('readonly', True)]},
                                  default=_get_default_journal1)
 
-    @api.multi
+    name = fields.Char(string='Reference/Description', index=True,
+        readonly=True, states={'draft': [('readonly', False)],'open':[('readonly',False)]},
+        copy=False, help='The name that will be used on account move lines')
+
+    klantnummer = fields.Char(related='partner_id.aprofit_nummer', readonly=True, relation='res.partner',
+                              store=False, string='aProfit Klantnummer')
+    invoice_description = fields.Text('Description')
+
+
     def button_cancel(self):
         for move in self:
             if not move.journal_id.update_posted:

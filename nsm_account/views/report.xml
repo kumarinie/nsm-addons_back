@@ -7,7 +7,7 @@
             <field name="header_spacing">55</field>
         </record>
 
-        <report auto="False"
+        <!--<report auto="False"
             id="account.account_invoices"
             model="account.invoice"
             string="Invoices" report_type="qweb-pdf"
@@ -18,41 +18,32 @@
             attachment_use="True"
             usage="default"
             header="False"/>
+        -->
+        <record id="account.account_invoices" model="ir.actions.report">
+            <field name="name">Invoices</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ansm_account.report_invoice_nsm_account</field>
+            <field name="report_file">nsm_account.report_invoice_nsm_account</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state == 'posted') and ((object.name or 'INV').replace('/','_')+'.pdf')</field>
+            <field name="binding_model_id" ref="model_account_move"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]"/>
+        </record>
 
-        <!--<report auto="False"
-            id="account.account_invoices"
-            model="account.invoice"
-            name="account.invoice.customNSM"
-            rml="nsm_account/report/report_account_invoice_print.rml"
-            report_type="pdf"
-            string="Invoices"
-            attachment="(object.state in ('open','paid')) and ('INV'+(object.number or '').replace('/','')+'.pdf')"
-            attachment_use="True"
-            usage="default"
-            header="False"/>-->
 
-
-        <report
+<!--need to check w.r.t V14-->
+       <!-- <report
             id="blank_invoice_reports"
             model="account.invoice"
             string="Blank Invoices"
             report_type="qweb-pdf"
             name="nsm_account.report_blank_invoice"
             file="nsm_account.report_blank_invoice"
-        />
+        />-->
 
-        <!--<report
-            id="account_invoices123"
-            model="account.invoice"
-            string="Invoice 123"
-            report_type="qweb-pdf"
-            name="nsm_account.report_invoice_nsm_account"
-            file="nsm_account.report_invoice_nsm_account"
-            paperformat="operating_unit_report_layout.paperformat_ou_layout"
-            attachment="(object.state in ('open','paid')) and ('INV'+(object.number or '').replace('/','')+'.pdf')"
-            attachment_use="True"
-            usage="default"
-            header="False" />-->
 
     </data>
 </openerp>

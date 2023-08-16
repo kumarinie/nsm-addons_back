@@ -65,7 +65,7 @@ Enchances the Accounting Module according to NSM Requirements
               "views/res_partner_view.xml",
               "views/res_company_view.xml",
               "views/account_view.xml",
-              "views/account_invoice_view.xml",
+              # "views/account_invoice_view.xml",
               "views/sale_view.xml",
     ],
     'demo' : [],

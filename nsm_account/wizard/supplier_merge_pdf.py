@@ -22,8 +22,8 @@
 from odoo import api, fields, models, _
 
 import base64
-import StringIO
-import pyPdf
+from io import StringIO
+from PyPDF2 import PdfFileReader, PdfFileWriter
 
 class InvoicMergePdf(models.TransientModel):
     _name = 'supplier.invoice.merge.pdf'
@@ -39,7 +39,7 @@ class InvoicMergePdf(models.TransientModel):
 
         final_pdf = []
         att_pool = self.env['ir.attachment']
-        output = pyPdf.PdfFileWriter()
+        output = PdfFileWriter()
 
         for invoice in self.env['account.invoice'].browse(invoice_ids):
             flg = False
@@ -52,7 +52,7 @@ class InvoicMergePdf(models.TransientModel):
                 if att_data.datas_fname and att_data.datas and att_data.datas_fname.split(".")[-1].upper() == "PDF":
                     data = base64.decodestring(att_data.datas)
                     buffer_file = StringIO.StringIO(data)
-                    input_attachment = pyPdf.PdfFileReader(buffer_file)
+                    input_attachment = PdfFileReader(buffer_file)
                     flg = True
                     for page in range(input_attachment.getNumPages()):
                         output.addPage(input_attachment.getPage(page))
@@ -61,7 +61,7 @@ class InvoicMergePdf(models.TransientModel):
                 result = self.env['report'].get_pdf([invoice.id], "nsm_account.report_blank_invoice")
 
                 buffer_file = StringIO.StringIO(result)
-                input_report = pyPdf.PdfFileReader(buffer_file)
+                input_report = PdfFileReader(buffer_file)
                 for page in range(input_report.getNumPages()):
                     output.addPage(input_report.getPage(page))
 

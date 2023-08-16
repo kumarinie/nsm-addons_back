@@ -21,7 +21,7 @@
         <field name="name">Merge PDF</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">supplier.invoice.merge.pdf</field>
-        <field name="view_type">form</field>
+        <!--<field name="view_type">form</field>-->
         <field name="view_mode">form</field>
         <field name="domain">[]</field>
         <field name="context">{}</field>
@@ -51,19 +51,34 @@
     -->
     <record id="invoice_merge_pdf_server_action" model="ir.actions.server">
         <field name="name">Merge Attachments</field>
-        <field name="model_id" ref="model_account_invoice"/>
+        <field name="model_id" ref="model_account_move"/>
         <field name="state">code</field>
         <field name="code">
             action = model.button_merge_attachments()</field>
     </record>
 
-    <record id="run_invoice_merge_pdf_action" model="ir.values">
-        <field name="model_id" ref="account.model_account_invoice" />
+    <!--<record id="run_invoice_merge_pdf_action" model="ir.values">
+        <field name="model_id" ref="account.model_account_move" />
         <field name="name">Merge Attachments</field>
         <field name="key2">client_action_multi</field>
         <field name="key">action</field>
         <field name="model">account.invoice</field>
         <field name="value" eval="'ir.actions.server,' + str(ref('invoice_merge_pdf_server_action'))" />
+    </record>-->
+
+    <record id="run_invoice_merge_pdf_action" model="ir.actions.server">
+        <field name="name">Merge Attachments</field>
+        <field name="type">ir.actions.server</field>
+        <field name="model_id" ref="model_account_move" />
+        <field name="binding_model_id" ref="model_account_move" />
+        <field name="state">code</field>
+        <field name="code">records.button_merge_attachments()</field>
+        <field name="code">
+                if record:
+                    action_values = env.ref('nsm_account.run_invoice_merge_pdf_action').sudo().read()[0]
+                    action_values.update({'context': env.context})
+                    action = action_values
+            </field>
     </record>
 
 

@@ -9,7 +9,7 @@ class nsm_invoicing_property(models.Model):
 
 	selected_invoicing_property_timing = fields.Selection(selection_add=[('inv_whole_order_enddate', 'Invoice print order lines on issue date, invoice online order lines on end date'),])
 
-	@api.multi
+
 	def write(self, vals):
 		""" Convert a radio button value to a list of booleans (zero based) """
 		fields_timing = {

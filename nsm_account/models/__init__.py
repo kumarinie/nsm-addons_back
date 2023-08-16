@@ -19,8 +19,8 @@
 #
 ##############################################################################
 
-import res_partner
-import account
-import account_invoice
-import invoicing_property
-import sale
+from . import res_partner
+from . import account
+# from . import account_invoice
+from . import invoicing_property
+from . import sale
