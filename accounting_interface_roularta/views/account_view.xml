@@ -200,8 +200,10 @@
                         <filter name="roularta_sent_success" string="Successfully sent to roularta"
                             domain="[('roularta_sent','=',True)]"/>
                         <separator/>
-                         <filter name="roularta_customer" string="Roularta Customer"
+                         <filter name="roularta_customer" string="RFF number"
                                  domain="[('partner_ref','=like','R%')]"/>
+                        <filter name="roularta_customer" string="Not RFF number"
+                                 domain="[('partner_ref','not ilike','R%')]"/>
                     </xpath>
               </field>
             </record>
