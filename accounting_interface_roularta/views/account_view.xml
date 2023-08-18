@@ -10,7 +10,7 @@
             <field name="name">view_movefrom_odooto_roularta_form</field>
             <field name="model">move.odooto.roularta</field>
             <field name="arch" type="xml">
-                <form string="Move to Roularta" create="false" edit="false" delete="false" copy="false">
+                <form string="Move to Roularta" create="false" edit="false" delete="false" duplicate="false">
                     <header>
                         <field name="status" widget="statusbar" statusbar_visible="draft,successful,failed" statusbar_colors='{"draft":"blue","successful":"blue", "failed":"red"}'/>
                     </header>
