@@ -2,7 +2,7 @@
 
 from lxml import etree
 from odoo import models, fields, api, _
-from odoo.osv.orm import setup_modifiers
+# from odoo.osv.orm import setup_modifiers
 from odoo import SUPERUSER_ID
 
 class AnalyticLine(models.Model):
@@ -29,26 +29,30 @@ class AnalyticLine(models.Model):
                 doc = etree.XML(result['arch'])
                 acc_nodes = doc.xpath("//field[@name='account_id']")
                 if acc_nodes:
-                    acc_nodes[0].set('options', '{"no_create": True, "no_create_edit": True, "no_open": True}')
-                    setup_modifiers(
-                        acc_nodes[0], result['fields']['account_id'])
+                    # acc_nodes[0].set('options', '{"no_create": True, "no_create_edit": True, "no_open": True}')
+                    # setup_modifiers(
+                    #     acc_nodes[0], result['fields']['account_id'])
+                    acc_nodes[0].attrib["options"] = '{"no_create": True, "no_create_edit": True, "no_open": True}'
                     result['arch'] = etree.tostring(doc)
                 gen_nodes = doc.xpath("//field[@name='general_account_id']")
                 if gen_nodes:
-                    gen_nodes[0].set('options', '{"no_create": True, "no_create_edit": True, "no_open": True}')
-                    setup_modifiers(
-                        gen_nodes[0], result['fields']['general_account_id'])
+                    # gen_nodes[0].set('options', '{"no_create": True, "no_create_edit": True, "no_open": True}')
+                    # setup_modifiers(
+                    #     gen_nodes[0], result['fields']['general_account_id'])
+                    gen_nodes[0].attrib["options"] = '{"no_create": True, "no_create_edit": True, "no_open": True}'
                     result['arch'] = etree.tostring(doc)
                 part_nodes = doc.xpath("//field[@name='partner_id']")
                 if part_nodes:
-                    part_nodes[0].set('options', '{"no_create": True, "no_create_edit": True, "no_open": True}')
-                    setup_modifiers(
-                        part_nodes[0], result['fields']['partner_id'])
+                #     part_nodes[0].set('options', '{"no_create": True, "no_create_edit": True, "no_open": True}')
+                #     setup_modifiers(
+                #         part_nodes[0], result['fields']['partner_id'])
+                    part_nodes[0].attrib["options"] = '{"no_create": True, "no_create_edit": True, "no_open": True}'
                     result['arch'] = etree.tostring(doc)
                 move_nodes = doc.xpath("//field[@name='move_id']")
                 if move_nodes:
-                    move_nodes[0].set('options', '{"no_create": True, "no_create_edit": True, "no_open": True}')
-                    setup_modifiers(
-                        move_nodes[0], result['fields']['move_id'])
+                    # move_nodes[0].set('options', '{"no_create": True, "no_create_edit": True, "no_open": True}')
+                    # setup_modifiers(
+                    #     move_nodes[0], result['fields']['move_id'])
+                    move_nodes[0].attrib["options"] = '{"no_create": True, "no_create_edit": True, "no_open": True}'
                     result['arch'] = etree.tostring(doc)
         return result

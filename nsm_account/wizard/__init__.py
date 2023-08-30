@@ -18,6 +18,6 @@
 #
 ##############################################################################
 
-import supplier_merge_pdf
+from . import supplier_merge_pdf
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

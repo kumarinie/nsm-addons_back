@@ -30,7 +30,7 @@ class WizardUser(models.TransientModel):
 
     operating_unit_ids = fields.Many2many('operating.unit', string='Operating Units')
 
-    @api.multi
+    
     def _send_email(self):
         """ send notification email to a new portal user """
         if not self.env.user.email:
@@ -58,7 +58,7 @@ class WizardUser(models.TransientModel):
 
 
 
-    @api.multi
+    
     def action_apply(self):
 
         for wiz_user in self.sudo(SUPERUSER_ID):
@@ -73,7 +73,7 @@ class WizardUser(models.TransientModel):
 
         return super(WizardUser, self).action_apply()
 
-    @api.multi
+    
     def _create_user(self):
         """ update operating unit for the newly created user for wizard_user.partner_id
             :returns record of res.users

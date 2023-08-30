@@ -24,9 +24,9 @@ from odoo.exceptions import UserError, ValidationError
 import json
 
 class Invoice(models.Model):
-    _inherit = 'account.invoice'
+    _inherit = 'account.move'
 
-    @api.one
+    
     def _get_file(self):
 
         attach = self.env['ir.attachment'].search([('res_id', '=', self.id),
@@ -34,20 +34,20 @@ class Invoice(models.Model):
         self.file = attach.datas or False
         self.data_file = attach.name
 
-    @api.one
+    
     def _set_file(self):
         return True
 
-    @api.one
+    
     def _get_supp_file(self):
         Company = self.env['res.company']._company_default_get('account.invoice')
         self.supplier_terms = Company.supplier_terms
 
-    @api.one
+    
     def _set_supp_file(self):
         return True
 
-    @api.one
+    
     def _get_SupplierReference(self):
         self.supplier_ref_related = self.supplier_invoice_number
 
@@ -266,7 +266,7 @@ class Invoice(models.Model):
         return res
 
 
-    @api.multi
+    
     def action_portal_submit(self):
         salesTeam = self.env['sales.team']
 
@@ -301,7 +301,7 @@ class Invoice(models.Model):
         return True
 
 
-    @api.multi
+    
     def action_portalback(self):
         cr = self._cr
 
@@ -339,7 +339,7 @@ class Invoice(models.Model):
         return res
 
     # --deep
-    @api.multi
+    
     def _add_followers_notify(self):
         """
             Adding followers of Partner to Invoice
@@ -386,7 +386,7 @@ class Invoice(models.Model):
 
         return res
 
-    @api.multi
+    
     def write(self, vals):
         res = super(Invoice, self).write(vals)
 
@@ -399,10 +399,10 @@ class Invoice(models.Model):
 
 
 class InvoiceLine(models.Model):
-    _inherit = 'account.invoice.line'
+    _inherit = 'account.move.line'
 
     @api.depends('product_id')
-    @api.multi
+    
     def _compute_acc_analytic_domain(self):
         """
         Compute the domain for the account_analytic_id domain.

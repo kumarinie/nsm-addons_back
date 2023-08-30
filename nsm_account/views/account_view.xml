@@ -13,6 +13,49 @@
                             <field name="message_ids" widget="mail_thread"/>
                         </div>
                     </xpath>
+                    <xpath expr="//field[@name='partner_id']" position="after">
+                        <field name="klantnummer" string="aProfit-nummer" invisible="1"/>
+                    </xpath>
+					<xpath expr="//field[@name='move_name']" position="replace">
+                        <field name="move_name" invisible="0" groups="account.group_account_user"/>
+                    </xpath>
+                    <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='analytic_account_id']" position="replace">
+                        <field name="analytic_account_id" groups="analytic.group_analytic_accounting"
+                            domain="[('company_id', '=', parent.company_id)]" required="1"/>
+                    </xpath>
+                    <xpath expr="//notebook/page[@name='other_info']" position="before">
+                        <page string="Invoice Description">
+                            <div class="oe_clear">
+                                <label for="invoice_description"/>
+                            </div>
+                            <field name="invoice_description" class="oe_inline" placeholder="Add description" />
+                        </page>
+                    </xpath>
+                    <xpath expr="//field[@name='invoice_origin']" position="replace"/>
+                    <!--<xpath expr="//field[@name='name']" position="replace"/>-->
+                   <!-- <xpath expr="//field[@name='account_id']" position="after">
+                        <field name="invoice_origin" groups="account.group_account_user" string="Our Reference"/>
+                        <field name="name" groups="account.group_account_user" string="Your Reference"/>
+                    </xpath>-->
+                    <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='discount']" position="attributes">
+                        <attribute name="string">Agency Discount (%)</attribute>
+                    </xpath>
+                   <!-- <xpath expr="//page[@name='other_info']/group[1]/group[2]/field[@name='name']" position="replace">
+                        <field name="user_id"/>
+                        <field name="team_id"/>
+                    </xpath>
+                    <xpath expr="//field[@name='user_id']" position="attributes">
+                        <attribute name="invisible">1</attribute>
+                    </xpath>
+                    <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='name']" position="attributes">
+                        <attribute name="required">0</attribute>
+                    </xpath>
+                    <xpath expr="//field[@name='user_id']" position="after">
+                        <field name="name"/>
+                    </xpath>
+                    <xpath expr="//field[@name='team_id']" position="attributes">
+                        <attribute name="invisible">1</attribute>
+                    </xpath>-->
                 </data>
             </field>
         </record>
@@ -34,7 +77,7 @@
             <field name="model">account.analytic.account</field>
             <field name="inherit_id" ref="analytic.view_account_analytic_account_list"/>
             <field name="arch" type="xml">
-                    <field name="display_name" position="after">
+                    <field name="name" position="after">
                         <field name="department_id" string="Department"/>
                     </field>
             </field>
@@ -50,6 +93,49 @@
             </field>
         </record>
 
+        <record id="invoice_supplier_form_inherit2" model="ir.ui.view">
+            <field name="name">account.invoice.supplier.form.inherit2</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account_invoice_supplier_ref_unique.view_move_form"/>
+            <field name="arch" type="xml">
+                <data>
+		            <xpath expr="//field[@name='supplier_invoice_number']" position="attributes">
+                        <!--<field name="supplier_invoice_number" required="1" groups="account.group_account_invoice,account_invoice_2step_validation.vendor_manager"/>-->
+                        <attribute name="required">1</attribute>
+                        <attribute name="groups">account.group_account_invoice,account_invoice_2step_validation.vendor_manager</attribute>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+
+
+        <record id="invoice_supplier_tree_inherit" model="ir.ui.view">
+            <field name="name">invoice_supplier_tree.inherit</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_in_invoice_tree"/>
+            <field name="arch" type="xml">
+                <data>
+					<field name="partner_id" position="after">
+						<field name="klantnummer" string="aProfitnr"/>
+					</field>
+					<!--<field name="origin" position="replace"/>-->
+				</data>
+            </field>
+        </record>
+
+    <record id="invoice_form_nsm_view_ou" model="ir.ui.view">
+            <field name="name">account.invoice.customer.form.ou.nsm</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account_operating_unit.view_move_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='operating_unit_id']" position="replace">
+                </xpath>
+                <xpath expr="//field[@name='invoice_date']" position="after">
+                    <field name="operating_unit_id" options="{'no_create': True}"
+                             widget="selection" groups="operating_unit.group_multi_operating_unit"/>
+                </xpath>
+            </field>
+        </record>
 
 
 

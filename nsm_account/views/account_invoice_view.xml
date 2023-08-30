@@ -9,7 +9,7 @@
             <field name="arch" type="xml">
                 <data>
 					<xpath expr="//field[@name='partner_id']" position="after">
-                        <field name="klantnummer" string="aProfit-nummer" attrs="{'readonly': 'True'}" invisible="1"/>
+                        <field name="klantnummer" string="aProfit-nummer" invisible="1"/>
                     </xpath>
 					<xpath expr="//field[@name='move_name']" position="replace">
                         <field name="move_name" invisible="0" groups="account.group_account_user"/>
@@ -74,7 +74,7 @@
                 <data>
 
 					<xpath expr="//field[@name='partner_id']" position="after">
-                        <field name="klantnummer" string="aProfit-nummer" attrs="{'readonly': 'True'}"/>
+                        <field name="klantnummer" string="aProfit-nummer" />
                     </xpath>
 
 					<xpath expr="//field[@name='move_name']" position="replace">
