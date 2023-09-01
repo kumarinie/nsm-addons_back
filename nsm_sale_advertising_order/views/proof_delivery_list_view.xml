@@ -17,6 +17,7 @@
                         <field name="proof_infix" />
                         <field name="proof_lastname"/>
                         <field name="proof_country_code"/>
+                        <field name="proof_email"/>
                         <field name="proof_zip"/>
                         <field name="proof_street_number"/>
                         <field name="proof_street_name"/>
@@ -49,6 +50,7 @@
                                 <field name="proof_infix" />
                                 <field name="proof_lastname"/>
                                 <field name="proof_country_code"/>
+                                <field name="proof_email"/>
                                 <field name="proof_zip"/>
                                 <field name="proof_street_number"/>
                                 <field name="proof_street_name"/>
