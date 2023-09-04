@@ -143,6 +143,10 @@
                             <field name="date_sent_roularta"/>
                             <field name="roularta_log_id"/>
                         </group>
+                        <group>
+                            <field name="roularta_response_code"/>
+                            <field name="roularta_response_message"/>
+                        </group>
                     </page>
                 </xpath>
             </field>
