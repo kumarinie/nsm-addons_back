@@ -16,7 +16,7 @@
 
 	<record id="group_module_supplier_portal_user" model="res.groups">
             <field name="name">Supplier Portal User</field>
-            <field name="is_portal" eval="True"/>
+            <!--<field name="is_portal" eval="True"/>-->
             <field name="category_id" ref="module_supplier_portal"/>
 
         </record>
@@ -35,7 +35,7 @@
          
         <record model="ir.rule" id="account_user_rule">
             <field name="name">Supplier Invoices</field>
-            <field name="model_id" ref="account.model_account_invoice"/>
+            <field name="model_id" ref="account.model_account_move"/>
             <field name="global" eval="False"/>
             <field name="domain_force">[('partner_id', '=', user.partner_id.id), '|', ('type', '=', 'in_invoice'), ('type', '=', 'in_refund')]</field>
             <field name="groups" eval="[(4, ref('group_module_supplier_portal_user'))]"/>
@@ -52,7 +52,7 @@
 	
 	    <record model="ir.rule" id="account_invoice_2step_validation.domain_open_auth_paid_rule">
             <field name="name">Posted Invoice</field>
-            <field name="model_id" ref="account.model_account_invoice"/>
+            <field name="model_id" ref="account.model_account_move"/>
             <field name="domain_force">['&amp;','|',('team_id.member_ids', '=', user.id),('user_id','=',user.id),'|',('state','in',['open','auth','paid']),('is_submitted','=',True)]</field>
             <field name="global" eval="False"/>
             <field name="perm_read" eval="True"/>
@@ -64,7 +64,7 @@
 
         <record model="ir.rule" id="account_invoice_2step_validation.domain_open_auth_paid_rule">
             <field name="name">Posted Invoice</field>
-            <field name="model_id" ref="account.model_account_invoice"/>
+            <field name="model_id" ref="account.model_account_move"/>
             <field name="domain_force">['&amp;','|',('team_id.member_ids', '=', user.id),('user_id','=',user.id),'|',('state','not in',['draft']),('is_portal','=',True)]</field>
             <field name="global" eval="False"/>
             <field name="perm_read" eval="True"/>

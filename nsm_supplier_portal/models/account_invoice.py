@@ -180,10 +180,10 @@ class Invoice(models.Model):
         required=True, readonly=True, states={'draft':[('readonly',False)],'start_wf':[('readonly',False)],'portalcreate':[('readonly',False)]},
         domain=[('deprecated', '=', False)], help="The partner account used for this invoice.")
 
-    invoice_line_ids = fields.One2many('account.invoice.line', 'invoice_id', string='Invoice Lines', oldname='invoice_line',
+    invoice_line_ids = fields.One2many('account.move.line', 'move_id', string='Invoice Lines', oldname='invoice_line',
         readonly=True, states={'draft':[('readonly',False)],'start_wf':[('readonly',False)],'portalcreate':[('readonly',False)]}, copy=True)
-    tax_line_ids = fields.One2many('account.invoice.tax', 'invoice_id', string='Tax Lines', oldname='tax_line',
-        readonly=True, states={'draft':[('readonly',False)],'start_wf':[('readonly',False)],'portalcreate':[('readonly',False)]}, copy=True)
+    # tax_line_ids = fields.One2many('account.invoice.tax', 'invoice_id', string='Tax Lines', oldname='tax_line',
+    #     readonly=True, states={'draft':[('readonly',False)],'start_wf':[('readonly',False)],'portalcreate':[('readonly',False)]}, copy=True)
 
     currency_id = fields.Many2one('res.currency', string='Currency',
         required=True, readonly=True, states={'draft':[('readonly',False)],'start_wf':[('readonly',False)],'portalcreate':[('readonly',False)]},

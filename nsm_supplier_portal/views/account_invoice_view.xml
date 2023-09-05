@@ -94,7 +94,7 @@
             <field name="type">form</field>
             <field name="priority" eval="2000"/>
             <field name="arch" type="xml">
-            <form string="Enter Your Invoice" version="7.0"  create="false">
+            <form string="Enter Your Invoice" create="false">
                 <header>
                     <button name="action_portal_submit" string="Submit" class="oe_highlight" type="object" attrs="{'invisible': [('state','!=', 'portalcreate')]}"/>
                     <button name="%(account.action_account_invoice_refund)d" type='action' string='Ask Refund'
@@ -243,7 +243,7 @@
             <field name="name">Enter Your Invoice</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.move</field>
-            <field name="view_type">form</field>
+            <!--<field name="view_type">form</field>-->
             <field name="view_mode">tree,form</field>
             <field name="domain">[('type','=','in_invoice'), ('state', '=', 'portalcreate')]</field>
             <field name="context">{'default_type': 'in_invoice', 'type': 'in_invoice', 'journal_type': 'purchase', 'is_portal': True, 'state': 'portalcreate'}</field>
@@ -299,7 +299,7 @@
             <field name="type">form</field>
             <field name="priority" eval="2000"/>
             <field name="arch" type="xml">
-            <form string="Supplier Invoice" version="7.0" edit="false" create="false">
+            <form string="Supplier Invoice"  edit="false" create="false">
                 <header>
                     <!--button name="act_submit" string="Submit"
                     class="oe_highlight" type="object" attrs="{'invisible':
@@ -442,7 +442,7 @@
             <field name="name">Supplier Invoices</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.move</field>
-            <field name="view_type">form</field>
+            <!--<field name="view_type">form</field>-->
             <field name="view_mode">tree,form</field>
             <field name="domain">['&amp;',('type','=','in_invoice'),'|',('state','not in',['cancel','draft','portalcreate']),'&amp;', ('state','=','draft'),('is_portal','=', True)]</field>
             <field name="context">{'default_type': 'in_invoice', 'type': 'in_invoice', 'journal_type': 'purchase', 'is_portal': True}</field>
@@ -470,7 +470,7 @@
             <field name="type">form</field>
             <field name="priority" eval="2000"/>
             <field name="arch" type="xml">
-            <form string="Submitted Invoice" version="7.0"  create="false">
+            <form string="Submitted Invoice"   create="false">
                 <header>
                     <button name="action_invoice_open" type="object" states="draft" string="Validate" class="oe_highlight"/>
                     <button name="action_portalback"  type="object" string="Terug Portal" attrs="{'invisible': ['|',('state','!=','draft'),('topf','=',True)],}"/>
@@ -598,7 +598,7 @@
             <field name="name">Submitted Supplier Invoices</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.move</field>
-            <field name="view_type">form</field>
+            <!--<field name="view_type">form</field>-->
             <field name="view_mode">tree,form</field>
             <field name="domain">[('state','=','draft'),('is_portal','=',True),('type','=','in_invoice')]</field>
             <field name="context">{'default_type': 'in_invoice', 'type': 'in_invoice', 'journal_type': 'purchase', 'is_portal': True}</field>
@@ -623,7 +623,7 @@
        <record id="action_invoice_tree4" model="ir.actions.act_window">
             <field name="name">Supplier Refunds</field>
             <field name="res_model">account.move</field>
-            <field name="view_type">form</field>
+            <!--<field name="view_type">form</field>-->
             <field name="view_mode">tree,form</field>
             <field ref="view_supplier_invoice_tree" name="view_id"/>
             <field name="domain">[('type','=','in_refund')]</field>
@@ -662,7 +662,7 @@
        <record id="account.action_invoice_tree2" model="ir.actions.act_window">
             <field name="name">Vendor Bills</field>
             <field name="res_model">account.move</field>
-            <field name="view_type">form</field>
+            <!--<field name="view_type">form</field>-->
             <field name="view_mode">tree,form,calendar,graph</field>
             <field eval="False" name="view_id"/>
             <field name="domain">[('type','=','in_invoice'), ('state', '!=', 'portalcreate')]</field>
@@ -681,7 +681,7 @@
        <record id="action_invoice_tree_supportal" model="ir.actions.act_window">
             <field name="name">Vendor Bills</field>
             <field name="res_model">account.move</field>
-            <field name="view_type">form</field>
+            <!--<field name="view_type">form</field>-->
             <field name="view_mode">tree,form,calendar,graph</field>
             <field eval="False" name="view_id"/>
             <field name="domain">[('type','in',('in_invoice', 'in_refund')), ('state','not in',['portalcreate','draft'])]</field>
@@ -692,7 +692,7 @@
         <record id="action_invoice_tree2_standard" model="ir.actions.act_window">
             <field name="name">Vendor Bills</field>
             <field name="res_model">account.move</field>
-            <field name="view_type">form</field>
+            <!--<field name="view_type">form</field>-->
             <field name="view_mode">tree,kanban,form,calendar,pivot,graph</field>
             <field eval="False" name="view_id"/>
             <field name="domain">[('type','in',('in_invoice', 'in_refund'))]</field>

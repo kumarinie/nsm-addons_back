@@ -4,7 +4,8 @@
 
         <record model="crm.team" id="section_sales_department1">
             <field name="name">Onbekend</field>
-            <field name="code">Onbekend</field>
+            <!--<field name="code">Onbekend</field>-->
+             <field name="company_id" eval="False"/>
         </record>
 
     
@@ -13,7 +14,7 @@
 
         <record model="product.category" id="supplier_portal_category">
             <field name="name">Supplier Portal Category</field>
-            <field name="type">view</field>
+            <!--<field name="type">view</field>-->
             <field name="supportal">True</field>
         </record>
 

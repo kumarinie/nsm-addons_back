@@ -23,6 +23,8 @@ from openerp.tools.safe_eval import safe_eval as eval
 from openerp.exceptions import UserError
 
 
+# need to check w.r.t v14
+
 class AccountInvoiceRefund(models.TransientModel):
     """Refunds invoice"""
 

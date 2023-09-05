@@ -22,7 +22,7 @@ from odoo import api, fields, models, _
 
 
 class ConfigSettings(models.TransientModel):
-    _inherit = 'base.config.settings'
+    _inherit = 'res.config.settings'
 
     data_fname = fields.Char('File Name')
     supplier_terms = fields.Binary("Upload Supplier Invoice Reuse-authorization File")
