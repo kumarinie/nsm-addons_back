@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="account_invoice_2step_validation.view_partners_form_2_step"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='vendor_owner']" position="replace">
-                <field name="team_id" attrs="{'invisible': [('supplier','!=', True)]}"/>
+                <field name="team_id" attrs="{'invisible': [('customer_rank','>',0)]}"/>
             </xpath>
         </field>
     </record>
