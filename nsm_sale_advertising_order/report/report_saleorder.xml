@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-<template id="report_qweb_operating_unit.external_layout_ou">
-    <!-- Multicompany -->
+    <!--need to check w.r.t v14-->
+<!--<template id="report_qweb_operating_unit.external_layout_ou">
+    &lt;!&ndash; Multicompany &ndash;&gt;
     <t t-if="not o and doc">
         <t t-set="o" t-value="doc"/>
     </t>
@@ -13,12 +14,15 @@
         <t t-set="company" t-value="res_company"></t>
     </t>
 
+
     <t t-call="report_qweb_operating_unit.external_layout_header_ou" />
     <t t-raw="0" />
-    <!--<t t-call="report_qweb_operating_unit.external_layout_footer_ou" />-->
-</template>
+    &lt;!&ndash;<t t-call="report_qweb_operating_unit.external_layout_footer_ou" />&ndash;&gt;
+</template>-->
 
-<template id="report_qweb_operating_unit.external_layout_header_ou">
+<!--need to check w.r.t v14-->
+
+<!--<template id="report_qweb_operating_unit.external_layout_header_ou">
     <div class="header">
         <div class="row">
             <div class="row backgroundimage" style="position:relative;font-size:3em;
@@ -34,9 +38,10 @@
             </div>
         </div>
     </div>
-</template>
+</template>-->
 
-<template id="report.external_layout_header">
+    <!--need to check w.r.t v14-->
+<!--<template id="report.external_layout_header">
     <div class="header">
         <div class="row">
             <div class="row backgroundimage" style="position:relative;font-size:3em;
@@ -46,7 +51,7 @@
             </div>
         </div>
     </div>
-</template>
+</template>-->
 
 <template id="report_saleorderlines_document_nsm">
     <t t-foreach="doc.order_lines_layouted()" t-as="page">

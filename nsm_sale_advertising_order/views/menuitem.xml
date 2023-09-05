@@ -10,7 +10,7 @@
 
         <menuitem id="menu_circulation_type" parent="sales_team.menu_sale_config" action="action_circulation_type" groups="sale_advertising_order.group_advertising_sales_user"/>
 
-        <menuitem id="menu_nsm_advertising_send_along_list" parent="sales_team.menu_sales"
+        <menuitem id="menu_nsm_advertising_send_along_list" parent="sale.sale_menu_root"
                   action="nsm_advertising_send_along_list_action"
                   groups="sales_team.group_sale_salesman,sales_team.group_sale_manager" sequence="12" />
 </odoo>

@@ -31,7 +31,7 @@ class SaleOrder(models.Model):
 
     # updating onchange function on field advertising_agency, customer_contact
 
-    @api.multi
+
     @api.onchange('partner_id', 'advertising_agency')
     def onchange_partner_id(self):
         if self.advertising_agency:
@@ -42,7 +42,7 @@ class SaleOrder(models.Model):
         return super(SaleOrder, self).onchange_partner_id()
 
 
-    @api.multi
+
     def action_submit(self):
         orders = self.filtered(lambda s: s.state in ['draft'])
         for o in orders:
@@ -66,7 +66,7 @@ class SaleOrder(models.Model):
 
         return super(SaleOrder, self).action_submit()
 
-    @api.multi
+
     def action_approve1(self):
         res = super(SaleOrder, self).action_approve1()
         orders = self.filtered(lambda s: s.state in ['approved1'])
@@ -84,7 +84,7 @@ class SaleOrder(models.Model):
         return res
 
     #Overridden not to change the state of the record while printing reports.
-    @api.multi
+
     def print_quotation(self):
         orders = self.filtered(lambda s: s.advertising and s.state in ['draft','approved1', 'submitted', 'approved2'])
         for order in orders:
@@ -100,7 +100,7 @@ class SaleOrder(models.Model):
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
-    @api.multi
+
     @api.depends('adv_issue', 'product_template_id')
     def name_get(self):
         result = []
@@ -197,7 +197,7 @@ class SaleOrderLine(models.Model):
         self.proof_number_amt_payer = 1 if self.proof_number_payer_id else 0
 
     @api.depends('ad_class','title','title_ids')
-    @api.multi
+
     def _compute_product_template_domain(self):
         """
         Compute domain for the field product_template_id.
@@ -243,7 +243,7 @@ class SaleOrderLine(models.Model):
         fields['proof_number_payer']['sortable'] = False
         return fields
 
-    @api.multi
+
     def _prepare_invoice_line(self, qty):
         res = super(SaleOrderLine, self)._prepare_invoice_line(qty)
         res['start_date'] = self.from_date
@@ -255,6 +255,6 @@ class MailComposeMessage(models.TransientModel):
     _inherit = 'mail.compose.message'
 
     #Overridden and calling super with mark_so_as_sent = False.
-    @api.multi
+
     def send_mail(self, auto_commit=False):
         return super(MailComposeMessage, self.with_context(mark_so_as_sent=False)).send_mail(auto_commit=auto_commit)

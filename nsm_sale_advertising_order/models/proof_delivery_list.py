@@ -48,7 +48,6 @@ class ProofNumberDeliveryList(models.Model):
     proof_partner_name = fields.Char(compute='_get_proof_data', readonly=True, store=False, string="Name")
     proof_number_amt = fields.Integer(compute='_get_proof_data', readonly=True, store=False, string="Proof Number Amount")
 
-    @api.model_cr
     def init(self):
         """ """
         tools.drop_view_if_exists(self.env.cr, 'proof_number_delivery_list')
@@ -81,7 +80,7 @@ class ProofNumberDeliveryList(models.Model):
         """)
         
         
-    @api.multi
+    
     def action_view_order_line(self):
         self.ensure_one()
         action = self.env.ref('sale_advertising_order.all_advertising_order_lines_action')
