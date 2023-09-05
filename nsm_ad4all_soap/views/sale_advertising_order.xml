@@ -2,17 +2,17 @@
 <odoo>
     <data>
 
-        <menuitem id="menu_ad4all" parent="sales_team.menu_base_partner" name="Ad4all Interface"
+        <menuitem id="menu_ad4all" parent="sale.sale_menu_root" name="Ad4all Interface"
                   groups="sale_advertising_order.group_advertising_sales_user"/>
 
         <record id="view_sofrom_odooto_ad4all_form" model="ir.ui.view">
             <field name="name">view_sofrom_odooto_ad4all_form</field>
             <field name="model">sofrom.odooto.ad4all</field>
             <field name="arch" type="xml">
-                <form string="SO to Ad4all" create="false" edit="false" delete="false" copy="false">
+                <form string="SO to Ad4all" create="false" edit="false" delete="false" duplicate="false">
                     <sheet string="SO to Ad4all">
                         <h1 class="mt0">
-                            <label string="Sale Order :"/>
+                            <label for="sale_order_id" string="Sale Order :"/>
                             <field name="sale_order_id" context="{'form_view_ref': 'sale_advertising_order.view_order_form_advertising'}"/>
                         </h1>
                         <group>
@@ -83,7 +83,7 @@
                       create="false"
                       edit="false"
                       delete="true"
-                      copy="false"
+                      duplicate="false"
                       decoration-danger="so_ad4all_response"
                       decoration-info="so_ad4all_response">
                     <field name="order_name"/>
@@ -119,7 +119,7 @@
         <record id="action_staged_ad4all" model="ir.actions.act_window">
             <field name="name">Staged Ad4all</field>
             <field name="res_model">sofrom.odooto.ad4all</field>
-            <field name="view_type">form</field>
+            <!--<field name="view_type">form</field>-->
             <field name="view_mode">tree,form</field>
             <field name="search_view_id" ref="view_sofrom_odooto_ad4all_filter"/>
             <field name="context">{'search_default_exceptions':1}</field>

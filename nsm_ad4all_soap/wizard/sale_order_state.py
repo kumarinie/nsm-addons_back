@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, api, _
 from odoo.exceptions import UserError
-from odoo.addons.queue_job.job import job, related_action
+# from odoo.addons.queue_job.job import job, related_action
 from odoo.addons.queue_job.exception import FailedJobError
 
 class SaleOrderAd4all(models.TransientModel):
@@ -12,7 +12,7 @@ class SaleOrderAd4all(models.TransientModel):
     _name = "sale.order.ad4all"
     _description = "Update the selected sale orders in Ad4all"
 
-    @api.multi
+
     def sale_order_update_ad4all(self):
         context = dict(self._context or {})
         active_ids = context.get('active_ids', []) or []

@@ -20,7 +20,7 @@
 #
 ##############################################################################
 
-import sale_order_state
+from . import sale_order_state
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
