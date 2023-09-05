@@ -2,7 +2,7 @@
 <odoo>
 
     <template id="report_saleorder_document_package" inherit_id="sale.report_saleorder_document">
-        <xpath expr="//t[@t-foreach='doc.order_lines_layouted()']" position="replace">
+        <xpath expr="//t[@t-foreach='doc.order_line']" position="replace">
             <t t-if="doc.package">
                 <div style="text-align:justify;padding-left:5px;padding-right:0px;">
                     <span><strong>Package Description</strong></span><br/>
@@ -10,7 +10,7 @@
                 </div>
             </t>
             <t t-if="not doc.package">
-                <t t-foreach="doc.order_lines_layouted()" t-as="page">
+                <t t-foreach="doc.order_line" t-as="page">
                     <table class="table table-condensed">
                         <thead>
                             <tr>
@@ -84,4 +84,19 @@
         </xpath>
     </template>
 
+    <template id="report_saleorder_document_nsm_package" inherit_id="nsm_sale_advertising_order.report_saleorder_document_nsm">
+        <xpath expr="//div[@name='order_lines']" position="replace">
+            <t t-if="doc.package">
+                <div style="text-align:justify;padding-left:70px;padding-right:0px;">
+                    <span><strong>Package Description</strong></span><br/>
+                    <span t-field="doc.package_description"/><br/><br/>
+                </div>
+            </t>
+            <t t-if="not doc.package">
+                <div name="order_lines" class="row" style="padding-left:85px;padding-right:15px;">
+                    <t t-call="nsm_sale_advertising_order.report_saleorderlines_document_nsm"/>
+                </div>
+            </t>
+        </xpath>
+    </template>
 </odoo>
