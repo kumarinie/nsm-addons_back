@@ -934,7 +934,7 @@ class SoLinefromOdootoAd4all(models.Model):
             order_code=int(float(self.adgr_orde_id.id))
         )
         paper_deadline = datetime.datetime.strptime(
-            self.paper_deadline, '%d%m%Y%H%M%S').strftime('%d%m%Y%H%M%S') \
+            self.paper_deadline, '%Y-%m-%d %H:%M:%S').strftime('%Y%m%d%H%M%S') \
             if self.paper_deadline else ''
         paper_pub_date = datetime.datetime.strptime(
             self.paper_pub_date, '%Y-%m-%d').strftime(
