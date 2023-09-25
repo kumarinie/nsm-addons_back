@@ -613,13 +613,11 @@ class MovefromOdootoRoularta(models.Model):
             # else:
             #     acc.status = 'draft'
 
-    @api.multi
     def create_payload(self):
         config = self.env['roularta.config'].search([], limit=1)
         self.roularta_invoice_line.generate_payload(self, config)
         return True
 
-    @api.multi
     def roularta_response(self):
         self.roularta_invoice_line.call_roularta(self)
         return True
