@@ -52,7 +52,7 @@ class AccountMove(models.Model):
 
 
     def action_cancel(self):
-        res = super(AccountInvoice, self).action_cancel()
+        res = super(AccountMove, self).action_cancel()
         self.invoice_line_ids.write({'roularta_sent': False})
         return res
 
@@ -371,12 +371,12 @@ class AccountMove(models.Model):
                         'due_date': datetime.strptime(str(self.invoice_date_due), '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     })
 
-                    taxes = mline
+                    # taxes = mline
                     is_refund =  False
                     if type in ('out_refund', 'in_refund'):
-                        is_refund =  True
+                        is_refund = True
 
-                    for tax_val in taxes.compute_all(0.0, currency=self.currency_id, quantity=1, partner=self.partner_id, is_refund=is_refund)['taxes']:
+                    for tax_val in self.line_ids.mapped('tax_line_id').compute_all(0.0, currency=self.currency_id, quantity=1, partner=self.partner_id, is_refund=is_refund)['taxes']:
                         account_id = self.env['account.account'].browse(tax_val['account_id'])
                         break
 
@@ -416,7 +416,7 @@ class AccountMove(models.Model):
 
     # def invoice_validate(self):
     def action_post(self):
-        res = super(AccountInvoice, self).invoice_validate()
+        res = super(AccountMove, self).action_post()
         if self.move_type in ('out_invoice', 'out_refund'):
             self.action_roularta_interface()
         return res
@@ -428,7 +428,7 @@ class AccountMove(models.Model):
         if invoice_lines:
             adv_issue = self.env['sale.advertising.issue'].search([('supplier_default_issue', '=', True)], limit=1)
             invoice_lines.write({'adv_issue':adv_issue.id})
-        res = super(AccountInvoice, self).action_invoice_auth()
+        res = super(AccountMove, self).action_invoice_auth()
         if self.move_type in ('in_invoice', 'in_refund'):
             self.action_roularta_interface()
         return res
@@ -787,7 +787,7 @@ class MoveLinefromOdootoRoularta(models.Model):
             ])
 
             xmlData = xmltodict.unparse(xmlDt, pretty=True, full_document=False)
-            inv.write({'xml_message': str(xmlData.encode('utf-8'))})
+            inv.write({'xml_message': xmlData})
         except Exception as e:
             raise UserError(_('Error: Cannot create xml data (%s).') % e)
         return xmlData
