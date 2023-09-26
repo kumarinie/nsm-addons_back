@@ -1,10 +1,19 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.report_xlsx.report.report_xlsx import ReportXlsx
+# from odoo.addons.report_xlsx.report.report_xlsx import ReportXlsx
 from odoo import api, fields, models, _
 import datetime
 from odoo.exceptions import UserError
+from odoo.addons.report_xlsx_helper.report.report_xlsx_format import (
+    FORMATS,
+    XLS_HEADERS,
+)
 
-class NSMAdvertisingSendAlongListReport(ReportXlsx):
+
+class NSMAdvertisingSendAlongListReport(models.AbstractModel):
+    _name = "report.nsm.advertising_send_along_list_report_xlsx"
+    _description = "NSMDeliveryListReport XLSL Report"
+    _inherit = "report.report_xlsx.abstract"
+
 
     def generate_xlsx_report(self, workbook, data, orderLines):
 
@@ -44,4 +53,4 @@ class NSMAdvertisingSendAlongListReport(ReportXlsx):
 
 
 
-NSMAdvertisingSendAlongListReport('report.report_advertising_send_along_list.xlsx', 'sale.order.line')
+# NSMAdvertisingSendAlongListReport('report.report_advertising_send_along_list.xlsx', 'sale.order.line')

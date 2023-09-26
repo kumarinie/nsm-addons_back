@@ -11,14 +11,14 @@
                     <attribute name="context">{'customer_contact': customer_contact}</attribute>
                 </xpath>
                 <xpath expr="//field[@name='advertising_agency']" position="after">
-                    <field name="material_contact_person" domain="[('customer', '=', True),('is_company', '!=', True)]"
+                    <field name="material_contact_person" domain="[('customer_rank', '>', 0),('is_company', '!=', True)]"
                            context="{'default_parent_id': partner_id, 'show_email': 1}"/>
                 </xpath>
                 <xpath expr="//field[@name='proof_number_payer']" position="replace">
-                    <field name="proof_number_payer_id" domain="[('customer', '=', True),('id','child_of',parent.partner_id)]" attrs="{'required': [('proof_number_amt_payer', '>', 0)]}" context="{'default_parent_id': 'order_partner_id', 'show_address': 1}" options="{'no_create_edit': True, 'always_reload': True}"/>
+                    <field name="proof_number_payer_id" domain="[('customer_rank', '>', 0),('id','child_of',parent.partner_id)]" attrs="{'required': [('proof_number_amt_payer', '>', 0)]}" context="{'default_parent_id': 'order_partner_id', 'show_address': 1}" options="{'no_create_edit': True, 'always_reload': True}"/>
                 </xpath>
                 <xpath expr="//field[@name='proof_number_adv_customer']" position="replace">
-                    <field name="proof_number_adv_customer" string="Proof Number Advertising Customer" domain="[('customer', '=', True)]" context="{'default_parent_id': 'parent.partner_id', 'show_email': 1}" options="{'no_create_edit': True}" widget="many2many_tags"/>
+                    <field name="proof_number_adv_customer" string="Proof Number Advertising Customer" domain="[('customer_rank', '>', 0)]" context="{'default_parent_id': 'parent.partner_id', 'show_email': 1}" options="{'no_create_edit': True}" widget="many2many_tags"/>
                 </xpath>
                 <xpath expr="//field[@name='proof_number_payer_id']" position="after">
                      <field name="proof_number_amt_payer" attrs="{'invisible':[('proof_number_payer_id','=', False)],'required':[('proof_number_payer_id','!=', False)]}"/>
@@ -86,6 +86,12 @@
                 <xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="context">{'search_default_customer':1, 'show_address': 1, 'update_partner_ref':True}</attribute>
                 </xpath>
+                <xpath expr="//field[@name='issue_date']" position="after">
+                    <field name="deadline"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='issue_date']" position="after">
+                    <field name="deadline"/>
+                </xpath>
             </field>
         </record>
 
@@ -109,10 +115,10 @@
             <field name="inherit_id" ref="sale_advertising_order.view_adv_order_line_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='proof_number_payer']" position="replace">
-                    <field name="proof_number_payer_id" domain="[('customer', '=', True),('id', 'child_of', order_partner_id)]" context="{'default_parent_id': 'order_partner_id', 'show_address': 1}" options="{'no_create_edit': True, 'always_reload': True}"/>
+                    <field name="proof_number_payer_id" domain="[('customer_rank', '>', 0),('id', 'child_of', order_partner_id)]" context="{'default_parent_id': 'order_partner_id', 'show_address': 1}" options="{'no_create_edit': True, 'always_reload': True}"/>
                 </xpath>
                 <xpath expr="//field[@name='proof_number_adv_customer']" position="replace">
-                    <field name="proof_number_adv_customer" string="Proof Number Advertising Customer" domain="[('customer', '=', True)]" context="{'default_parent_id': 'order_partner_id', 'show_email': 1}" options="{'no_create_edit': True}" widget="many2many_tags"/>
+                    <field name="proof_number_adv_customer" string="Proof Number Advertising Customer" domain="[('customer_rank', '>', 0)]" context="{'default_parent_id': 'order_partner_id', 'show_email': 1}" options="{'no_create_edit': True}" widget="many2many_tags"/>
                 </xpath>
                 <xpath expr="//field[@name='proof_number_payer_id']" position="after">
                      <field name="proof_number_amt_payer" attrs="{'invisible':[('proof_number_payer_id','=', False)],'required':[('proof_number_payer_id','!=', False)]}"/>
@@ -161,7 +167,7 @@
             <field name="model">sale.order.line</field>
             <field name="arch" type="xml">
                 <tree string="Indeellijst Lists" create="false" edit="false" delete="false">
-                        <field name="order_id" string="Ordernr."/>
+                        <field name="order_id" string="Ordernr." widget="many2one_clickable"/>
                         <field name="id"/>
                         <field name="material_id" string="Mat. nr."/>
                         <field name="order_advertiser_id" string="Adverteerder"/>
@@ -186,7 +192,7 @@
 			<field name="name">Indeellijst</field>
 			<field name="type">ir.actions.act_window</field>
 			<field name="res_model">sale.order.line</field>
-			<field name="view_type">form</field>
+			<!--<field name="view_type">form</field>-->
 			<field name="view_mode">tree,form,pivot</field>
             <field name="search_view_id" ref="sale_advertising_order.view_advertising_sales_order_line_filter"/>
 			<field name="domain">[('advertising','!=',False),('state','in',('sale','done'))]</field>
@@ -231,7 +237,7 @@
 			<field name="name">Advertising Send Along List</field>
 			<field name="type">ir.actions.act_window</field>
 			<field name="res_model">sale.order.line</field>
-			<field name="view_type">form</field>
+			<!--<field name="view_type">form</field>-->
 			<field name="view_mode">tree,pivot</field>
             <field name="search_view_id" ref="sale.view_sales_order_line_filter"/>
 			<field name="domain">[('advertising','=',False),('state','in',('sale','done')),('send_with_advertising_issue','=',True)]</field>
@@ -260,7 +266,7 @@
             <field name="name">Invoice Order</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">sale.advance.payment.inv</field>
-            <field name="view_type">form</field>
+            <!--<field name="view_type">form</field>-->
             <field name="view_mode">form</field>
             <field name="target">new</field>
             <field name="groups_id" eval="[(4,ref('nsm_sale_advertising_order.nsm_advertising_sale_remove'))]"/>

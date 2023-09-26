@@ -1,7 +1,7 @@
 <openerp>
     <data>
 
-        <record id="account_invoice_author_view" model="ir.ui.view">
+        <!--<record id="account_invoice_author_view" model="ir.ui.view">
             <field name="name">account.invoice.author.form</field>
             <field name="model">account.invoice.author</field>
             <field name="arch" type="xml">
@@ -26,7 +26,7 @@
             view_id="account_invoice_author_view"
             groups="megis_auth.authorize"/>
 
-        
+        -->
 
     </data>
 </openerp>

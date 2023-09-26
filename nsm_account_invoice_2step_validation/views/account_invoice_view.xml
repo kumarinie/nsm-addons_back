@@ -1,78 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_invoice_supplier_form_nsm" model="ir.ui.view">
-        <field name="name">account.invoice</field>
-        <field name="model">account.invoice</field>
-        <field name="inherit_id" ref="account.invoice_supplier_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='user_id']" position="after">
-                <field name="team_id" />
-            </xpath>
-            <xpath expr="//field[@name='product_id']" position="attributes">
-                <attribute name="domain">[('purchase_ok','=',True)]</attribute>
-            </xpath>
-            <xpath expr="//group/field[@name='account_id']" position="attributes">
-                <attribute name="groups">account.group_account_manager,account_invoice_2step_validation.vendor_manager</attribute>
-            </xpath>
+        <!--<record id="view_invoice_supplier_form_nsm" model="ir.ui.view">
+            <field name="name">account.invoice</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="team_id" />
+                </xpath>
+                <xpath expr="//field[@name='product_id']" position="attributes">
+                    <attribute name="domain">[('purchase_ok','=',True)]</attribute>
+                </xpath>
+                <xpath expr="//group/field[@name='account_id']" position="attributes">
+                    <attribute name="groups">account.group_account_manager,account_invoice_2step_validation.vendor_manager</attribute>
+                </xpath>
 
-        </field>
-    </record>
-
-
-   <record id="invoice_supplier_form_NSM_ext_state_update" model="ir.ui.view">
-        <field name="name">account.invoice.supplier.form.NSM_ext</field>
-        <field name="model">account.invoice</field>
-        <!--<field name="inherit_id" ref="account_invoice_2step_validation.invoice_supplier_form_auth"/>-->
-       <field name="inherit_id" ref="nsm_supplier_portal.invoice_supplier_form_NSM_ext"/>
-        <field name="arch" type="xml">
-            <data>
-                <field name="state" position="replace">
-                   <field name="state" widget="statusbar" statusbar_visible="portalcreate,draft,start_wf,open,auth,verified_by_publisher,verified,paid" statusbar_colors='{"proforma":"blue","proforma2":"blue"}'/>
-                </field>
-            </data>
-        </field>
-    </record>
-
-    <record id="invoice_supplier_form_auth_nsm" model="ir.ui.view">
-        <field name="name">account.invoice</field>
-        <field name="model">account.invoice</field>
-        <field name="inherit_id" ref="account_invoice_2step_validation.invoice_supplier_form_auth"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='account_id']" position="attributes">
-                <attribute name="groups">account.group_account_user,account_invoice_2step_validation.vendor_manager,account.group_account_invoice,account_invoice_2step_validation.goedk_facturen</attribute>
-            </xpath>
-            <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="attributes">
-                <attribute name="groups">account.group_account_user,account_invoice_2step_validation.authorize,account_invoice_2step_validation.verification,account_invoice_2step_validation.vendor_manager</attribute>
-            </xpath>
-            <xpath expr="//field[@name='verif_tresh_exceeded']" position="after">
-                <field name="verif_tresh_exceeded_2" invisible="1"/>
-                <button name="action_invoice_verify_2" string="Verify" type="object" attrs="{'invisible':['|' ,('verif_tresh_exceeded_2','!=', True),('state','not in',['open','auth'])]}" class="oe_highlight" groups="nsm_account_invoice_2step_validation.verification_publisher"/>
-
-            </xpath>
-            
-            <xpath expr="//header/button[@name='action_unverify']" position="replace">
-                <button name="action_unverify" states="verified,verified_by_publisher" string="Un-verify" type="object" groups="account_invoice_2step_validation.verification,nsm_account_invoice_2step_validation.verification_publisher"/>
-            </xpath>
-
-        </field>
-    </record>
-    <record id="invoice_form_magnus" model="ir.ui.view">
-        <field name="name">account.invoice</field>
-        <field name="model">account.invoice</field>
-        <field name="inherit_id" ref="account.invoice_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="attributes">
-                <attribute name="groups">account.group_account_user,account_invoice_2step_validation.authorize,account_invoice_2step_validation.verification</attribute>
-            </xpath>
-
-        </field>
-    </record>
+            </field>
+        </record>-->
 
 
+       <!--<record id="invoice_supplier_form_NSM_ext_state_update" model="ir.ui.view">
+            <field name="name">account.invoice.supplier.form.NSM_ext</field>
+            <field name="model">account.move</field>
+            &lt;!&ndash;<field name="inherit_id" ref="account_invoice_2step_validation.invoice_supplier_form_auth"/>&ndash;&gt;
+           <field name="inherit_id" ref="nsm_supplier_portal.invoice_supplier_form_NSM_ext"/>
+            <field name="arch" type="xml">
+                <data>
+                    <field name="state" position="replace">
+                       <field name="state" widget="statusbar" statusbar_visible="portalcreate,draft,start_wf,open,auth,verified_by_publisher,verified,paid" statusbar_colors='{"proforma":"blue","proforma2":"blue"}'/>
+                    </field>
+                </data>
+            </field>
+        </record>-->
 
-    <record id="account_invoice_2step_validation.invoice_supplier_cancel_auth" model="ir.ui.view">
-            <field name="name">megis_auth.invoice_supplier_cancel_form_inherit</field>
+        <!--<record id="invoice_supplier_form_auth_nsm" model="ir.ui.view">
+            <field name="name">account.invoice</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account_invoice_2step_validation.invoice_supplier_form_auth"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='account_id']" position="attributes">
+                    <attribute name="groups">account.group_account_user,account_invoice_2step_validation.vendor_manager,account.group_account_invoice,account_invoice_2step_validation.goedk_facturen</attribute>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="attributes">
+                    <attribute name="groups">account.group_account_user,account_invoice_2step_validation.authorize,account_invoice_2step_validation.verification,account_invoice_2step_validation.vendor_manager</attribute>
+                </xpath>
+                <xpath expr="//field[@name='verif_tresh_exceeded']" position="after">
+                    <field name="verif_tresh_exceeded_2" invisible="1"/>
+                    <button name="action_invoice_verify_2" string="Verify" type="object" attrs="{'invisible':['|' ,('verif_tresh_exceeded_2','!=', True),('state','not in',['open','auth'])]}" class="oe_highlight" groups="nsm_account_invoice_2step_validation.verification_publisher"/>
+
+                </xpath>
+
+                <xpath expr="//header/button[@name='action_unverify']" position="replace">
+                    <button name="action_unverify" states="verified,verified_by_publisher" string="Un-verify" type="object" groups="account_invoice_2step_validation.verification,nsm_account_invoice_2step_validation.verification_publisher"/>
+                </xpath>
+            </field>
+        </record>-->
+
+        <!--already added in above view-->
+        <!--<record id="invoice_form_magnus" model="ir.ui.view">
+            <field name="name">account.invoice</field>
             <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='account_id']" position="attributes">
+                    <attribute name="groups">account.group_account_user,account_invoice_2step_validation.authorize,account_invoice_2step_validation.verification</attribute>
+                </xpath>
+
+            </field>
+        </record>-->
+
+
+        <record id="account_invoice_2step_validation.invoice_supplier_cancel_auth" model="ir.ui.view">
+            <field name="name">megis_auth.invoice_supplier_cancel_form_inherit</field>
+            <field name="model">account.move</field>
             <field name="inherit_id" ref="account_cancel.invoice_supplier_cancel_form_inherit"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_invoice_cancel']" position="replace">
@@ -82,28 +82,27 @@
         </record>
 
 
-    <record id="view_account_invoice_filter_auth" model="ir.ui.view">
-            <field name="name">account.invoice.select.verif</field>
-            <field name="model">account.invoice</field>
-	        <field name="inherit_id" ref="account_invoice_2step_validation.view_account_invoice_filter_auth"/>
-            <field name="arch" type="xml">
-                <data>
-                    <filter name="verif" position="replace">
-                        <filter name="verif" string="Verified By Board" domain="[('state','=','verified')]" help="Verified Invoices"/>
-                    </filter>
-                    <filter name="verif" position="after">
-                        <filter name="verif_pub" string="Verified By Publisher" domain="[('state','=','verified_by_publisher')]" help="Verified Publisher Invoices"/>
-                    </filter>
-                </data>
-            </field>
-    </record>
+        <record id="view_account_invoice_filter_auth" model="ir.ui.view">
+                <field name="name">account.invoice.select.verif</field>
+                <field name="model">account.move</field>
+                <field name="inherit_id" ref="account_invoice_2step_validation.view_account_invoice_filter_auth"/>
+                <field name="arch" type="xml">
+                    <!--<data>-->
+                        <filter name="verif" position="replace">
+                            <filter name="verif" string="Verified By Board" domain="[('state','=','verified')]" help="Verified Invoices"/>
+                        </filter>
+                        <filter name="verif" position="after">
+                            <filter name="verif_pub" string="Verified By Publisher" domain="[('state','=','verified_by_publisher')]" help="Verified Publisher Invoices"/>
+                        </filter>
+                    <!--</data>-->
+                </field>
+        </record>
 
-    <act_window id="account_invoice_2step_validation.action_account_invoice_verifier"
-            multi="True"
-            key2="client_action_multi" name="Verify Authorized Invoices(Board)"
-            res_model="account.invoice.verifier" src_model="account.invoice"
-            view_mode="form" target="new" view_type="form"
-            view_id="account_invoice_2step_validation.account_invoice_verifier_view"
-            groups="account_invoice_2step_validation.verification"/>
-
+        <!--<act_window id="account_invoice_2step_validation.action_account_invoice_verifier"-->
+                <!--multi="True"-->
+                <!--key2="client_action_multi" name="Verify Authorized Invoices(Board)"-->
+                <!--res_model="account.invoice.verifier" src_model="account.invoice"-->
+                <!--view_mode="form" target="new" view_type="form"-->
+                <!--view_id="account_invoice_2step_validation.account_invoice_verifier_view"-->
+                <!--groups="account_invoice_2step_validation.verification"/>-->
 </odoo>

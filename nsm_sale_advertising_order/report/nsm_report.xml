@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <report
+
+
+        <!--need to check w.r.t V14-->
+
+        <!--<report
             id="sale.report_sale_order"
             string="Quotation / Order / Advertising"
             model="sale.order"
@@ -10,8 +14,10 @@
             name="sale.report_saleorder"
             paperformat="operating_unit_report_layout.paperformat_ou_layout"
         />
+-->
 
-        <report
+
+        <!--<report
             id="report_nsm_proof_delivery_list_report_xlsx"
             model="proof.number.delivery.list"
             string="P.N.D.L List XLSX"
@@ -19,9 +25,9 @@
             name="report_pndl_delivery_list.xlsx"
             file="report_pndl_delivery_list.xlsx"
             attachment_use="False"
-        />
+        />-->
 
-        <report
+        <!--<report
             id="report_nsm_indeellijst_report_xlsx"
             model="sale.order.line"
             string="Indeellijst XLSX"
@@ -29,9 +35,9 @@
             name="report_indeellijst_list.xlsx"
             file="report_indeellijst_list.xlsx"
             attachment_use="False"
-        />
+        />-->
 
-        <report
+        <!--<report
             id="report_nsm_advertising_send_along_list_report_xlsx"
             model="sale.order.line"
             string="Advertising Send Along List XLSX"
@@ -39,6 +45,33 @@
             name="report_advertising_send_along_list.xlsx"
             file="report_advertising_send_along_list.xlsx"
             attachment_use="False"
-        />
+        />-->
+
+        <record id="report_nsm_proof_delivery_list_report_xlsx" model="ir.actions.report">
+            <field name="name">P.N.D.L List XLSX"</field>
+            <field name="model">proof.number.delivery.list</field>
+            <field name="type">ir.actions.report</field>
+            <field name="report_name">nsm.delivery_list_report_xlsx</field>
+            <field name="report_type">xlsx</field>
+            <field name="report_file">report_pndl_delivery_list</field>
+        </record>
+
+        <record id="report_nsm_indeellijst_report_xlsx" model="ir.actions.report">
+            <field name="name">Indeellijst XLSX"</field>
+            <field name="model">sale.order.line</field>
+            <field name="type">ir.actions.report</field>
+            <field name="report_name">nsm.indeellijst_lis_report_xlsx</field>
+            <field name="report_type">xlsx</field>
+            <field name="report_file">report_indeellijst_list</field>
+        </record>
+
+        <record id="report_nsm_advertising_send_along_list_report_xlsx" model="ir.actions.report">
+            <field name="name">Advertising Send Along List XLSX"</field>
+            <field name="model">sale.order.line</field>
+            <field name="type">ir.actions.report</field>
+            <field name="report_name">nsm.advertising_send_along_list_report_xlsx</field>
+            <field name="report_type">xlsx</field>
+            <field name="report_file">report_advertising_send_along_list</field>
+        </record>
     </data>
 </odoo>

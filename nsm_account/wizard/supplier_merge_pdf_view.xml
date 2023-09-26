@@ -7,7 +7,7 @@
         <field name="model">supplier.invoice.merge.pdf</field>
         <field name="priority" eval="8"/>
         <field name="arch" type="xml">
-        <form string="Merge PDF" version="7.0">
+        <form string="Merge PDF" >
             <field name="file_name" select="1" invisible="1" readonly="1"/>
             <field name="file_data"  filename="file_name" readonly="1" />
             <footer>

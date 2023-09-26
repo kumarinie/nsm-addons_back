@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-<template id="report_qweb_operating_unit.external_layout_ou">
-    <!-- Multicompany -->
+    <!--need to check w.r.t v14-->
+<!--<template id="report_qweb_operating_unit.external_layout_ou">
+    &lt;!&ndash; Multicompany &ndash;&gt;
     <t t-if="not o and doc">
         <t t-set="o" t-value="doc"/>
     </t>
@@ -13,12 +14,15 @@
         <t t-set="company" t-value="res_company"></t>
     </t>
 
+
     <t t-call="report_qweb_operating_unit.external_layout_header_ou" />
     <t t-raw="0" />
-    <!--<t t-call="report_qweb_operating_unit.external_layout_footer_ou" />-->
-</template>
+    &lt;!&ndash;<t t-call="report_qweb_operating_unit.external_layout_footer_ou" />&ndash;&gt;
+</template>-->
 
-<template id="report_qweb_operating_unit.external_layout_header_ou">
+<!--need to check w.r.t v14-->
+
+<!--<template id="report_qweb_operating_unit.external_layout_header_ou">
     <div class="header">
         <div class="row">
             <div class="row backgroundimage" style="position:relative;font-size:3em;
@@ -34,9 +38,10 @@
             </div>
         </div>
     </div>
-</template>
+</template>-->
 
-<template id="report.external_layout_header">
+    <!--need to check w.r.t v14-->
+<!--<template id="report.external_layout_header">
     <div class="header">
         <div class="row">
             <div class="row backgroundimage" style="position:relative;font-size:3em;
@@ -46,7 +51,7 @@
             </div>
         </div>
     </div>
-</template>
+</template>-->
 
 <template id="report_saleorderlines_document_nsm">
     <t t-foreach="doc.order_lines_layouted()" t-as="page">
@@ -56,6 +61,7 @@
                     <th width="10%">Date</th>
                     <!--<t><th width="10%">Edition</th></t>-->
                     <t><th width="15%">Advertising issue</th></t>
+                    <t><th width="10%">Deadline</th></t>
                     <th width="10%">Product</th>
                     <th width="10%" class="text-right">Volume</th>
                     <th width="10%" t-if="doc.display_discount_to_customer" class="text-right">Unit price</th>
@@ -87,6 +93,7 @@
                             <td t-if="l.ad_class.date_type != 'validity'">
                                 <span t-field="l.issue_date"/></td>
                             <t><td><span t-if="l.adv_issue and l.adv_issue.default_note" t-field="l.adv_issue.default_note"/><span t-if="l.adv_issue and not l.adv_issue.default_note" t-field="l.adv_issue.name"/></td></t>
+                            <td><span t-field="l.deadline"/></td>
                             <td t-if="l.product_id" ><span t-field="l.product_id.name"/></td>
                             <td class="text-right">
                                 <span t-esc="'%.2f'% l.product_uom_qty"/>

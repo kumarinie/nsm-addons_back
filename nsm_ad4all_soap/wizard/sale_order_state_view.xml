@@ -18,12 +18,15 @@
             </field>
         </record>
 
-        <act_window id="action_sale_order_ad4all"
-            multi="True"
-            key2="client_action_multi" name="Sale Orders to Ad4all"
-            res_model="sale.order.ad4all" src_model="sale.order"
-            view_mode="form" target="new" view_type="form"
-            groups="sale_advertising_order.group_traffic_user"/>
+        <record id="action_sale_order_ad4all" model="ir.actions.act_window">
+            <field name="name">Sale Orders to Ad4all</field>
+            <field name="res_model">sale.order.ad4all</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="sale_order_to_ad4all_view"/>
+            <field name="target">new</field>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="groups_id" eval="[(4, ref('sale_advertising_order.group_traffic_user'))]" />
+        </record>
 
 
     </data>

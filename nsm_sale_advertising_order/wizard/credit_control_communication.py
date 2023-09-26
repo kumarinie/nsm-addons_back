@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models
 
-class CreditCommunication(models.TransientModel):
+class CreditCommunication(models.Model):
     """Shell class used to provide a base model to email template and reporting
     Il use this approche in version 7 a browse record
     will exist even if not saved
@@ -61,7 +61,7 @@ class CreditCommunication(models.TransientModel):
             comms += comm
         return comms
 
-    @api.multi
+    
     def post_email_message(self, email, comm):
         """
             Create thread for each partner's mail
@@ -85,7 +85,7 @@ class CreditCommunication(models.TransientModel):
         subtype_id = self.sudo().env.ref('mail.mt_comment', raise_if_not_found=False).id
         return partners.message_post(message_type='comment',subtype_id=subtype_id, **mail_values)
 
-    @api.multi
+    
     @api.returns('mail.mail')
     def _generate_emails(self):
         """

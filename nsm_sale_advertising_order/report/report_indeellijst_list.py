@@ -1,9 +1,19 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.report_xlsx.report.report_xlsx import ReportXlsx
+# from odoo.addons.report_xlsx.report.report_xlsx import ReportXlsx
+
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
-class IndeellijstListReport(ReportXlsx):
+from odoo.addons.report_xlsx_helper.report.report_xlsx_format import (
+    FORMATS,
+    XLS_HEADERS,
+)
+
+class IndeellijstListReport(models.AbstractModel):
+    name = "report.nsm.indeellijst_lis_report_xlsx"
+    _description = "IndeellijstListReport XLSL Report"
+    _inherit = "report.report_xlsx.abstract"
 
     def generate_xlsx_report(self, workbook, data, orderLines):
 
@@ -91,4 +101,4 @@ class IndeellijstListReport(ReportXlsx):
 
 
 
-IndeellijstListReport('report.report_indeellijst_list.xlsx', 'sale.order.line')
+# IndeellijstListReport('report.report_indeellijst_list.xlsx', 'sale.order.line')

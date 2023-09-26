@@ -29,7 +29,7 @@ class AccountPaymentLineCreate(models.TransientModel):
     _inherit = 'account.payment.line.create'
 
     # Overridden:
-    @api.multi
+    
     def _prepare_move_line_domain(self):
         domain = super(AccountPaymentLineCreate, self)._prepare_move_line_domain()
         index = domain.index(('invoice_id.state', '=', 'verified'))

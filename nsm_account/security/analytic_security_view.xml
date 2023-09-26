@@ -13,7 +13,7 @@
 					    '|',
 						('account_id.section_ids.member_ids','=',user.id),
 						('account_id.section_ids.user_id','=',user.id)]</field>
-            <field name="groups" eval="[(4, ref('account_invoice_2step_validation.goedk_facturen'))]"/>
+            <!--<field name="groups" eval="[(4, ref('account_invoice_2step_validation.goedk_facturen'))]"/>-->
         </record>
 
 		<record model="ir.rule" id="analytic_manager_rule">
@@ -28,7 +28,7 @@
 						('account_id.section_ids.member_ids','=',user.id),
 						('account_id.section_ids.user_id','=',user.id)
 						]</field>
-            <field name="groups" eval="[(4, ref('account_invoice_2step_validation.authorize'))]"/>
+            <!--<field name="groups" eval="[(4, ref('account_invoice_2step_validation.authorize'))]"/>-->
         </record>
 
 		<record model="ir.rule" id="analytic_account_user_rule">
@@ -38,13 +38,13 @@
             <field name="domain_force">['|','|',('department_id.member_ids.user_id','=',user.id),('department_id.manager_id','=',user.id),
 					    '|',('section_ids.member_ids','=',user.id),('section_ids.user_id','=',user.id)]</field>
             <field name="perm_read" eval="False"/>
-	    <field name="groups" eval="[(4, ref('account_invoice_2step_validation.goedk_facturen'))]"/>
+	    <!--<field name="groups" eval="[(4, ref('account_invoice_2step_validation.goedk_facturen'))]"/>-->
         </record>
 	
-	<menuitem name="Journal Entries"
+	<!--<menuitem name="Journal Entries"
                 id="account.menu_finance_entries" parent="account.menu_finance"
                 groups="account.group_account_user,account.group_account_manager,account_invoice_2step_validation.goedk_facturen"
-                sequence="5"/>
+                sequence="5"/>-->
     
 	<menuitem id="account.account_analytic_journal_entries"
 		name="Analytic Journal Items" parent="account.menu_finance_entries"

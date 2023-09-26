@@ -8,7 +8,7 @@
             <field name="model">res.partner</field>
             <field name="priority" eval="200"/>
             <field name="arch" type="xml">
-                <tree string="Contacts" version="7.0" create="false" copy="false" delete="false">
+                <tree string="Contacts"  create="false" duplicate="false" delete="false">
                     <field name="name"/>
                     <field name="phone"/>
                     <field name="email"/>
@@ -35,9 +35,9 @@
             <field name="model">res.partner</field>
             <field name="priority" eval="200"/>
             <field name="arch" type="xml">
-                <form string="Partners" version="7.0" create="false" copy="false" delete="false">
+                <form string="Partners"  create="false" duplicate="false" delete="false">
                 <sheet>
-                    <field name="image" widget='image' class="oe_left oe_avatar" options='{"preview_image": "image_medium", "size": [90, 90]}'/>
+                    <field name="image_1920" widget='image' class="oe_left oe_avatar" options='{"preview_image": "image_medium", "size": [90, 90]}'/>
                     <div class="oe_title">
                         <div class="oe_edit_only">
                             <label for="name"/> 
@@ -66,7 +66,7 @@
                         <group>
                             <field name="phone" placeholder="e.g. +32.81.81.37.00"/>
                             <field name="mobile"/>
-                            <field name="fax"/>
+                            <!--<field name="fax"/>-->
                             <field name="email" widget="email"/>
                             <field name="is_company" invisible="1"/>
                             
@@ -98,7 +98,7 @@
             <field name="model">res.partner</field>
             <field name="priority" eval="200"/>
             <field name="arch" type="xml">
-                <kanban version="7.0" create="false" copy="false" delete="false">
+                <kanban  create="false" duplicate="false" delete="false">
                     <field name="color"/>
                     <field name="name"/>
                     <field name="title"/>
@@ -159,7 +159,7 @@
             <field name="name">Suppliers</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">res.partner</field>
-            <field name="view_type">form</field>
+            <!--<field name="view_type">form</field>-->
             <field name="domain">[]</field>
             <field name="view_mode">tree,kanban,form</field>
             <field name="context">{'search_default_supplier': 1,'default_customer': 0,'default_supplier': 1, 'is_portal': True}</field>

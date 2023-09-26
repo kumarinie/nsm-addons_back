@@ -29,7 +29,7 @@
     <record id="invoice_supplier_form_inherit_nsm_custom_view5" model="ir.ui.view">
       <field name="name">account.invoice.supplier.form.nsm_custom_view5</field>
       <field name="model">account.invoice</field>
-      <field name="inherit_id" ref="nsm_account_invoice_2step_validation.view_invoice_supplier_form_nsm"/>
+      <!--<field name="inherit_id" ref="nsm_account_invoice_2step_validation.view_invoice_supplier_form_nsm"/>-->
       <field name="arch" type="xml">
         <xpath expr="//field[@name='team_id']" position="replace">
         </xpath>
@@ -60,7 +60,7 @@
     <record id="invoice_supplier_form_account_nsm_custom_view3" model="ir.ui.view">
       <field name="name">account.invoice.supplier.form.nsm_custom_view3</field>
       <field name="model">account.invoice</field>
-      <field name="inherit_id" ref="account.invoice_supplier_form"/>
+      <field name="inherit_id" ref="account.view_move_form"/>
       <field name="arch" type="xml">
         <xpath expr="//group/field[@name='account_id']" position="replace">
         </xpath>

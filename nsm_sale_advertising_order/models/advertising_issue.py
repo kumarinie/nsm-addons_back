@@ -10,7 +10,7 @@ class AdvertisingIssue(models.Model):
     _inherit = "sale.advertising.issue"
     
     @api.depends('parent_id')
-    @api.multi
+
     def _compute_medium_domain(self):
         """
         Compute the domain for the Medium domain.
@@ -64,7 +64,7 @@ class AdvertisingIssue(models.Model):
     def _onchange_medium(self):
         self.validate_medium()
 
-    @api.one
+
     @api.constrains('medium')
     def _check_medium(self):
         self.validate_medium()

@@ -23,6 +23,7 @@
                         <field name="proof_city" />
                         <field name="proof_number_amt"/>
                         <field name="proof_partner_name"/>
+                        <field name="proof_email"/>
                 </tree>
             </field>
         </record>
@@ -54,6 +55,7 @@
                                 <field name="proof_street_name"/>
                                 <field name="proof_city" />
                                 <field name="proof_number_amt"/>
+                                <field name="proof_email"/>
                         </group>
                     </sheet>
                 </form>
@@ -70,10 +72,10 @@
                     <field name="issue_date"/>
                     <field name="proof_parent_name"/>
                     <group expand="0" string="Group By">
-                        <filter string="Title" domain="[]" context="{'group_by':'title'}"/>
-                        <filter string="Issue Date" icon="terp-personal" domain="[]" context="{'group_by':'issue_date'}"/>
-                        <filter string="Order Line" domain="[]" context="{'group_by':'line_id'}"/>
-                        <filter string="Partner" domain="[]" context="{'group_by':'proof_number_payer'}"/>
+                        <filter name="title" string="Title" domain="[]" context="{'group_by':'title'}"/>
+                        <filter name="issue_date" string="Issue Date" icon="terp-personal" domain="[]" context="{'group_by':'issue_date'}"/>
+                        <filter name="order_line" string="Order Line" domain="[]" context="{'group_by':'line_id'}"/>
+                        <filter name="partner" string="Partner" domain="[]" context="{'group_by':'proof_number_payer'}"/>
                     </group>
                 </search>
             </field>
@@ -83,7 +85,7 @@
 			<field name="name">Proof Number Delivery List</field>
 			<field name="type">ir.actions.act_window</field>
 			<field name="res_model">proof.number.delivery.list</field>
-			<field name="view_type">form</field>
+			<!--<field name="view_type">form</field>-->
 			<field name="view_mode">tree,form</field>
             <field name="search_view_id" ref="view_proof_number_delivery_list_filter"/>
 		</record>

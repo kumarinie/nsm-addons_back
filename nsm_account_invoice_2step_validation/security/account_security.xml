@@ -10,7 +10,7 @@
 
     <record model="ir.rule" id="nsm_account_invoice_2step_validation.budget_holder_rule">
         <field name="name">Budget Holder</field>
-        <field name="model_id" ref="model_account_invoice"/>
+        <field name="model_id" ref="model_account_move"/>
         <field name="domain_force">[('team_id.member_ids.id','=', user.id),('type','in',('in_invoice','in_refund')),('state','=','open')]</field>
         <field name="global" eval="False"/>
         <field name="perm_read" eval="True"/>
@@ -22,7 +22,7 @@
 
     <record model="ir.rule" id="account_invoice_2step_validation.vendor_manager_rule">
         <field name="name">Vendor Manager</field>
-        <field name="model_id" ref="model_account_invoice"/>
+        <field name="model_id" ref="model_account_move"/>
         <field name="domain_force">[('team_id.member_ids.id','=', user.id),('type','in',('in_invoice','in_refund')),('state','in',('start_wf','open'))]</field>
         <field name="global" eval="False"/>
         <field name="perm_read" eval="True"/>

@@ -28,7 +28,7 @@ from requests.auth import HTTPBasicAuth
 from zeep import Client, Settings
 from zeep.transports import Transport
 from zeep.plugins import HistoryPlugin
-from odoo.addons.queue_job.job import job, related_action
+# from odoo.addons.queue_job.job import job, related_action
 from odoo.addons.queue_job.exception import FailedJobError
 from unidecode import unidecode
 import datetime
@@ -47,7 +47,7 @@ class SaleOrder(models.Model):
     _inherit = ["sale.order"]
 
     @api.depends('order_line.line_ad4all_allow','order_line.no_copy_chase' )
-    @api.multi
+
     def _ad4all_allow(self):
         for order in self:
             order.order_ad4all_allow = False
@@ -57,14 +57,14 @@ class SaleOrder(models.Model):
                     break
 
     @api.depends('date_sent_ad4all', 'write_date')
-    @api.multi
+
     def _ad4all_write_after_sent(self):
         for order in self:
             if order.date_sent_ad4all:
                 order.ad4all_write_after_sent = order.date_sent_ad4all < order.write_date
 
     @api.depends('order_line.ad4all_sent')
-    @api.multi
+
     def _ad4all_sent(self):
         for order in self:
             order.ad4all_sent = False
@@ -119,8 +119,6 @@ class SaleOrder(models.Model):
         copy=False
     )
 
-    @job
-    @api.multi
     def action_ad4all(self, arg, xml=False):
         for order in self.filtered(
                 lambda s: s.state == 'sale' and s.advertising):
@@ -132,21 +130,21 @@ class SaleOrder(models.Model):
                 ).wsdl_content(xml=xml)
         return True
 
-    @api.multi
+
     def action_ad4all_xml(self):
         self.action_ad4all('update', True)
 
-    @api.multi
+
     def action_ad4all_no_xml(self):
         self.action_ad4all('update', False)
 
-    @api.multi
+
     def action_confirm(self):
         res = super(SaleOrder, self).action_confirm()
         self.action_ad4all('update', False)
         return res
 
-    @api.multi
+
     def write(self, vals):
         res = super(SaleOrder, self).write(vals)
         for order in self.filtered(lambda s: s.advertising and s.state == 'sale'):
@@ -155,12 +153,12 @@ class SaleOrder(models.Model):
                 order.action_ad4all('update', False)
         return res
 
-    @api.multi
+
     def action_cancel(self):
         self.action_ad4all('delete', False)
         return super(SaleOrder, self).action_cancel()
 
-    @api.multi
+
     def transfer_order_to_ad4all(self, arg):
         self.ensure_one()
         if not self.order_ad4all_allow and not self.ad4all_sent:
@@ -299,7 +297,7 @@ class SaleOrderLine(models.Model):
         string='Recurring Order Line',
     )
 
-    @api.multi
+
     def unlink(self):
         if self.filtered('ad4all_sent'):
             raise UserError(
@@ -314,7 +312,7 @@ class SofromOdootoAd4all(models.Model):
     _order = 'create_date desc'
 
     @api.depends('ad4all_so_line.ad4all_response')
-    @api.multi
+
     def _compute_response(self):
         for so in self:
             so.so_ad4all_response = True
@@ -506,7 +504,7 @@ class SofromOdootoAd4all(models.Model):
         default='NL'
     )
 
-    @job
+
     def wsdl_content(self, xml=False):
         self.ensure_one()
         if self.so_ad4all_response:

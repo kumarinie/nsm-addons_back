@@ -12,6 +12,8 @@
             <field name="arch" type="xml">
                 <form string="Move to Roularta" create="false" edit="false" delete="false" duplicate="false">
                     <header>
+                         <button name="create_payload" type="object" string="Generate Payload" attrs="{'invisible':[('status', '=', 'successful')]}"/>
+                         <button name="roularta_response" type="object" string="Call Roularta Interface" attrs="{'invisible':[('status', '=', 'successful')]}"/>
                         <field name="status" widget="statusbar" statusbar_visible="draft,successful,failed" statusbar_colors='{"draft":"blue","successful":"blue", "failed":"red"}'/>
                     </header>
                     <sheet string="Move to Roularta">
@@ -138,6 +140,10 @@
                             <field name="date_sent_roularta"/>
                             <field name="roularta_log_id"/>
                         </group>
+                        <group>
+                            <field name="roularta_response_code"/>
+                            <field name="roularta_response_text"/>
+                        </group>
                     </page>
                 </xpath>
             </field>
@@ -149,7 +155,7 @@
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
                 <button name="button_draft" position="before">
-                    <button name="update_unit4" type="object" string="Update Unit4" states="draft" groups="base.group_user"/>
+                    <button name="update_unit4" type="object" string="Update Unit4" states="posted" groups="base.group_user"/>
                 </button>
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='product_id']" position="after">
                     <field name="adv_issue" />

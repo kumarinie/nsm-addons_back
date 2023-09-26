@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.report_xlsx.report.report_xlsx import ReportXlsx
+# from odoo.addons.report_xlsx.report.report_xlsx import ReportXlsx
 from odoo import api, fields, models, _
 import datetime
 from odoo.exceptions import UserError
 
-class NSMDeliveryListReport(ReportXlsx):
+from odoo.addons.report_xlsx_helper.report.report_xlsx_format import (
+    FORMATS,
+    XLS_HEADERS,
+)
+class NSMDeliveryListReport(models.AbstractModel):
+    _name = "report.nsm.delivery_list_report_xlsx"
+    _description = "NSMDeliveryListReport XLSL Report"
+    _inherit = "report.report_xlsx.abstract"
 
     def generate_xlsx_report(self, workbook, data, proofLines):
 
@@ -53,6 +60,7 @@ class NSMDeliveryListReport(ReportXlsx):
                 amount += orderLine.proof_number_amt_payer
             records.append(amount)
             records.append(customer.name if parent else '')
+            records.append(customer.email or parent.email or '')
             return records
 
         def _form_data(proofLines):
@@ -67,7 +75,7 @@ class NSMDeliveryListReport(ReportXlsx):
             return row_datas
 
         header = ['PAPERCODE', 'CUSTOMER NAME', 'VOORLETTERS', 'TUSSENVOEGSEL', 'ACHTERNAAM', 'COUNTRY CODE', 'ADDRESS ZIP',
-                  'HUISNUMMER', 'AANVULLING', 'ADDRESS STREET', 'ADDRESS CITY', 'AANTAL', 'CONTACT PERSOON']
+                  'HUISNUMMER', 'AANVULLING', 'ADDRESS STREET', 'ADDRESS CITY', 'AANTAL', 'CONTACT PERSOON', 'EMAIL']
 
         row_datas = _form_data(proofLines)
 
@@ -86,4 +94,4 @@ class NSMDeliveryListReport(ReportXlsx):
 
 
 
-NSMDeliveryListReport('report.report_pndl_delivery_list.xlsx', 'proof.number.delivery.list')
+# NSMDeliveryListReport('report.report_pndl_delivery_list.xlsx', 'proof.number.delivery.list')

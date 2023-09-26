@@ -40,16 +40,17 @@ This module allows you to use both CRM and Sales Management to run your advertis
                 'operating_unit_report_layout',
                 'report_qweb_operating_unit',
                 'account_credit_control',
-                'account_invoice_start_end_dates'
+                'account_invoice_start_end_dates',
+                'web_tree_many2one_clickable'
                 ],
     'data': [
              "security/ir.model.access.csv",
              "security/groups.xml",
              "data/circulation_type.xml",
-             "data/data.xml",
+             # "data/data.xml",
              "report/nsm_report.xml",
              "report/report_saleorder.xml",
-             "report/report_credit_control_summary.xml",
+             # "report/report_credit_control_summary.xml",
              "views/sale_advertising_view.xml",
              "views/advertising_issue_view.xml",
              "views/product_view.xml",
