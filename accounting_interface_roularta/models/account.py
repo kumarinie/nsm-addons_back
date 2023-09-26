@@ -355,7 +355,7 @@ class AccountMove(models.Model):
             for mline in (tax_mv_lines or tax_datas.keys()):
                 lvals = {}
 
-                if mline._name == 'account.move.line' and not self.line_ids.filtered('tax_line_id'):
+                if mline._name == 'account.move.line' and self.line_ids.filtered('tax_line_id'):
                     lvals.update({'move_line_id': mline.id,
                                   'doc_value': mline.credit or mline.debit,
                                   'code': tax_datas[mline.tax_line_id]['doc_type'],
@@ -371,12 +371,12 @@ class AccountMove(models.Model):
                         'due_date': datetime.strptime(str(self.invoice_date_due), '%Y-%m-%d').strftime('%Y-%m-%d %H:%M:%S'),
                     })
 
-                    # taxes = mline
+                    taxes = self.line_ids.mapped('tax_line_id') or mline
                     is_refund =  False
                     if type in ('out_refund', 'in_refund'):
                         is_refund = True
 
-                    for tax_val in self.line_ids.mapped('tax_line_id').compute_all(0.0, currency=self.currency_id, quantity=1, partner=self.partner_id, is_refund=is_refund)['taxes']:
+                    for tax_val in taxes.compute_all(0.0, currency=self.currency_id, quantity=1, partner=self.partner_id, is_refund=is_refund)['taxes']:
                         account_id = self.env['account.account'].browse(tax_val['account_id'])
                         break
 
