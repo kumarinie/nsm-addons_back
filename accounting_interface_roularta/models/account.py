@@ -62,9 +62,10 @@ class AccountMove(models.Model):
             sale_invoice = inv.invoice_line_ids.mapped('sale_order_id')
             if ((sale_invoice and inv.ad) or (not sale_invoice and inv.move_type in ('out_invoice', 'out_refund')))\
                     or inv.move_type in ('in_invoice', 'in_refund'):
-                inv.with_delay(
-                    description=inv.name
-                ).transfer_invoice_to_roularta()
+                # inv.with_delay(
+                #     description=inv.name
+                # ).transfer_invoice_to_roularta()
+                inv.transfer_invoice_to_roularta()
 
     def parse_document_type(self):
         doc_type = ''
@@ -408,9 +409,10 @@ class AccountMove(models.Model):
                 res = self.roularta_log_id
             else:
                 res = self.env['move.odooto.roularta'].sudo().create(vals)
-            res.with_delay(
-                description=res.invoice_name
-            ).roularta_content()
+            # res.with_delay(
+            #     description=res.invoice_name
+            # ).roularta_content()
+            res.roularta_content()
             return
 
 
