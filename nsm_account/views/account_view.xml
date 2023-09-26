@@ -102,7 +102,7 @@
 		            <xpath expr="//field[@name='supplier_invoice_number']" position="attributes">
                         <!--<field name="supplier_invoice_number" required="1" groups="account.group_account_invoice,account_invoice_2step_validation.vendor_manager"/>-->
                         <attribute name="required">1</attribute>
-                        <attribute name="groups">account.group_account_invoice,account_invoice_2step_validation.vendor_manager</attribute>
+                        <attribute name="groups">account.group_account_invoice</attribute>
                     </xpath>
                 </data>
             </field>

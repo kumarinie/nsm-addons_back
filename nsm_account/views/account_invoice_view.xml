@@ -105,7 +105,7 @@
             <field name="arch" type="xml">
                 <data>
 		            <xpath expr="//field[@name='supplier_invoice_number']" position="replace">
-                        <field name="supplier_invoice_number" required="1" groups="account.group_account_invoice,account_invoice_2step_validation.vendor_manager"/>
+                        <field name="supplier_invoice_number" required="1" groups="account.group_account_invoice"/>
                     </xpath>
                 </data>
             </field>

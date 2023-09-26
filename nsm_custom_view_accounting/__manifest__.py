@@ -22,7 +22,6 @@
 
     # any module necessary for this one to work correctly
     'depends': ['nsm_account',
-                'nsm_account_invoice_2step_validation',
                 'account_operating_unit',
                 'account_invoice_transmit_method'],
 

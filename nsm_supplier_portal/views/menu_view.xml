@@ -55,12 +55,12 @@
 
         
         <menuitem name="Finance" id="account.menu_finance"
-            groups="account.group_account_user,account.group_account_manager,account.group_account_invoice,account_invoice_2step_validation.goedk_facturen,account_invoice_2step_validation.vendor_manager"
+            groups="account.group_account_user,account.group_account_manager"
             sequence="50"/>
 
 	<menuitem id="account.menu_finance_payables"
 	    name="Suppliers" parent="account.menu_finance"
-	    groups="account.group_account_invoice,account_invoice_2step_validation.goedk_facturen,account_invoice_2step_validation.vendor_manager"
+	    groups="account.group_account_invoice"
             sequence="3"/>
             
         <menuitem id="menu_action_invoice_tree_supportal"
