@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_sofrom_odooto_ad4all,sofrom.odooto.ad4all,model_sofrom_odooto_ad4all,sales_team.group_sale_salesman,1,1,1,1
 access_soline_from_odooto_ad4all,soline.from.odooto.ad4all,model_soline_from_odooto_ad4all,sales_team.group_sale_salesman,1,1,1,1
+access_ad4all_config,ad4all_config,model_ad4all_config,,1,1,1,1
+

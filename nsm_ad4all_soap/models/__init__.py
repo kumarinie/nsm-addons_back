@@ -3,3 +3,4 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from . import sale_advertising
 from . import product
+from . import ad4all_config
