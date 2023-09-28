@@ -129,6 +129,7 @@ To contribute to this module, please visit https://odoo-community.org.
              'security/ir.model.access.csv',
              'data/cron_data.xml',
              'views/sale_advertising_order.xml',
+             'views/ad4all_config_view.xml',
              'views/product_view.xml',
              'wizard/sale_order_state_view.xml'
     ],

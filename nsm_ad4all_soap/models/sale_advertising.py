@@ -913,11 +913,12 @@ class SoLinefromOdootoAd4all(models.Model):
     def call_wsdl(self, xml=False):
         self.ensure_one()
         session = Session()
-        user = 'nsm'
-        password = 'd9yqFUDp44wzCTnt'
+        config = self.env['ad4all.config'].search([], limit=1)
+        wsdl = str(config.host)
+        user = str(config.username)
+        password = str(config.password)
         session.auth = HTTPBasicAuth(user, password)
         settings = Settings(strict=False, xml_huge_tree=True)
-        wsdl = "http://trial.ad4all.nl/data/wsdl"
         history = HistoryPlugin()
         client = Client(
             wsdl,
