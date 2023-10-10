@@ -724,7 +724,7 @@ class MoveLinefromOdootoRoularta(models.Model):
                                     ('trans:Tax', OrderedDict([
                                         ('trans:Code', line.code),
                                         ('trans:ShortName', line.short_name),
-                                        ('trans:Value', line.value)
+                                        ('trans:Value', "{:.2f}".format(line.value))
                                     ])
                                      )])
                                  ),
