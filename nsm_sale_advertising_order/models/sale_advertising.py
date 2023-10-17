@@ -23,6 +23,7 @@
 from odoo import api, fields, models, _
 import json
 from odoo.exceptions import UserError
+from datetime import datetime, timedelta
 
 class SaleOrder(models.Model):
     _inherit = ["sale.order"]
@@ -217,6 +218,21 @@ class SaleOrderLine(models.Model):
                 domain += [('categ_id', '=', rec.ad_class.id)]
             rec.product_template_domain = json.dumps(domain)
 
+    @api.depends('adv_issue', 'ad_class', 'from_date')
+    @api.multi
+    def _compute_deadline(self):
+        """
+        Compute the deadline for this placement.
+        """
+        super(SaleOrderLine, self)._compute_deadline()
+        for line in self.filtered('advertising'):
+            if line.date_type == 'issue_date':
+                line.deadline = line.adv_issue.deadline
+            elif line.date_type == 'validity':
+                deadline_dt = (datetime.strptime(line.from_date, "%Y-%m-%d") + timedelta(hours=3, minutes=30)) - timedelta(days=14)
+                line.deadline = deadline_dt
+
+
     proof_number_payer_id = fields.Many2one('res.partner', 'Proof Number Payer ID')
     proof_number_adv_customer = fields.Many2many('res.partner', 'partner_line_proof_rel', 'line_id', 'partner_id', string='Proof Number Advertising Customer')
     proof_number_amt_payer = fields.Integer('Proof Number Amount Payer', default=1)
@@ -235,7 +251,7 @@ class SaleOrderLine(models.Model):
     adv_issue_parent = fields.Many2one(related='adv_issue.parent_id', string='Advertising Issue Parent', readonly=True, store=True)
     product_template_domain = fields.Char(compute="_compute_product_template_domain", string="Product Template Domain")
     ad_number = fields.Char('External Reference', size=50)
-    deadline = fields.Datetime(related='adv_issue.deadline', string='Deadline')
+    # deadline = fields.Datetime(related='adv_issue.deadline', string='Deadline')
 
     @api.model
     def fields_get(self, fields=None, attributes=None):
