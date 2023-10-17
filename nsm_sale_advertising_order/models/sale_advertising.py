@@ -228,7 +228,7 @@ class SaleOrderLine(models.Model):
         for line in self.filtered('advertising'):
             if line.date_type == 'issue_date':
                 line.deadline = line.adv_issue.deadline
-            elif line.date_type == 'validity':
+            elif line.date_type == 'validity' and line.from_date:
                 deadline_dt = (datetime.strptime(line.from_date, "%Y-%m-%d") + timedelta(hours=3, minutes=30)) - timedelta(days=14)
                 line.deadline = deadline_dt
 
