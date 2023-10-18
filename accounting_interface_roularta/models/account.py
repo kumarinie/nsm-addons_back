@@ -801,8 +801,7 @@ class MoveLinefromOdootoRoularta(models.Model):
         pwd = str(config.password)
 
         headers = {
-            # 'SOAPAction': 'uri-coda-webservice/14.000.0030/finance/Input/Post',
-            'SOAPAction': 'uri-coda-webservice/231.0.0.03072/finance/Input/Post',
+            'SOAPAction': 'uri-coda-webservice/14.000.0030/finance/Input/Post',
             'Content-Type': 'application/xml',
         }
 
