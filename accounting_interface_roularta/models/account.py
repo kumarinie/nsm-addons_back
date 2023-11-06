@@ -121,7 +121,7 @@ class AccountMove(models.Model):
                 tax_type = 'purchase'
             tax_ids = self.env['account.tax'].search([('type_tax_use', '=', tax_type), ('roularta_no_tax', '=', True)], limit=1)
             if not tax_ids:
-                return [False, "Error: Roularta NO Tax not found for %s!"%tax_type]
+                return [False, "Error: 'Roularta NO Tax' not found for type %s!"%tax_type]
 
         for tax_line in tax_ids:
             d_type = doc_type
