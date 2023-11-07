@@ -10,6 +10,8 @@ from requests.auth import HTTPBasicAuth
 from odoo.exceptions import UserError
 from collections import OrderedDict
 import re
+import time
+
 
 
 class AccountMove(models.Model):
@@ -461,6 +463,13 @@ class AccountMove(models.Model):
         if not self.roularta_sent:
             self.action_roularta_interface()
         return
+
+    @api.model
+    def posted_entry_call_interface(self):
+        for entry in self.search([('roularta_sent', '=', False), ('state', '=', 'posted')]):
+            entry.update_unit4()
+            time.sleep(1)
+
     # need to check w.r.t v14
     # @api.model
     # def _refund_cleanup_lines(self, lines):

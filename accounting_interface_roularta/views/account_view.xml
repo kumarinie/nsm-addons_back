@@ -265,4 +265,17 @@
             <field eval="False" name="active"/>
         </record>-->
     </data>
+    <data noupdate="1">
+        <record id="update_posted_entry_to_roularta_cron" model="ir.cron">
+            <field name="name">Update Posted Entry To Roularta</field>
+            <field name="interval_number">10</field>
+            <field name="interval_type">months</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"></field>
+            <field name="active" eval="False"/>
+            <field name="model_id" ref="model_account_move"/>
+            <field name="state">code</field>
+            <field name="code">model.posted_entry_call_interface()</field>
+        </record>
+    </data>
 </odoo>
