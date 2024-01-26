@@ -319,7 +319,7 @@ class SofromOdootoAd4all(models.Model):
         for so in self:
             so.so_ad4all_response = True
             for line in so.ad4all_so_line:
-                if line.ad4all_response != 200:
+                if line.ad4all_response and int(line.ad4all_response) != 200:
                     so.so_ad4all_response = False
                     break
 
@@ -1056,6 +1056,7 @@ class SoLinefromOdootoAd4all(models.Model):
             self.write({
                 'ad4all_response': response['code'],
                 'json_message': order_obj.xml_data,
+                'reply_message':response['message'],
         })
         except Exception as e:
             raise FailedJobError(
